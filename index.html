@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hifz Tracker — Quran Memorization</title>
+<meta name="description" content="Islamic University of Maldives - Quran Hifz Memorization Tracker for students."/>
+<link rel="icon" href="Logo/logo.png" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  @font-face {
+    font-family: 'KFGQPCUthmanicScriptHAFS';
+    src: url('https://cdn.jsdelivr.net/gh/nicoth-in/Islamic-Fonts@main/KFGQPCUthmanicScriptHAFS/KFGQPCUthmanicScriptHAFS.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/gh/nicoth-in/Islamic-Fonts@main/KFGQPCUthmanicScriptHAFS/KFGQPCUthmanicScriptHAFS.woff') format('woff');
+    font-display: swap;
+  }
+</style>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- Ambient Background -->
+<div class="ambient-bg">
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+</div>
+
+<!-- App Shell -->
+<div class="app-shell">
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <button id="backBtn" class="icon-btn back-btn" style="visibility:hidden;">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h1 class="app-title" id="appTitle">
+      <span class="title-text">Hifz Tracker</span>
+    </h1>
+    <div class="top-actions">
+      <button id="scoreBtn" class="icon-btn" title="Global Scoreboard" onclick="openScoreboard()" style="display:none;"><i class="fa-solid fa-ranking-star"></i></button>
+      <button id="profileBtn" class="icon-btn" title="Student Profile" onclick="openProfile()" style="display:none;"><i class="fa-solid fa-user"></i></button>
+      <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none;"><i class="fa-solid fa-gear"></i></button>
+      <button id="themeToggle" class="icon-btn" title="Theme"><i class="fa-solid fa-moon"></i></button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- NAME VIEW -->
+    <section class="view view-active" id="nameView">
+      <div class="onboarding-card">
+        <div class="onboarding-icon" style="margin-bottom: 12px; cursor: pointer;" onclick="adminLoginPrompt()">
+          <img src="Logo/logo.png" style="width: 120px; height: 120px; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 24px var(--primary-glow);" alt="Hifz Tracker Logo">
+        </div>
+        <h1 class="onboarding-title">Hifz Tracker</h1>
+
+        <div class="institute-selector">
+          <button type="button" class="inst-trigger" id="instTrigger" onclick="toggleInstituteSelector()">
+            <span class="inst-trigger-value" id="instTriggerValue">Select your Institute</span>
+            <i class="fa-solid fa-chevron-down inst-trigger-arrow" id="instTriggerArrow"></i>
+          </button>
+          <div class="institute-grid-wrap collapsed" id="instituteGridWrap">
+            <div class="institute-grid">
+              <div class="institute-card" id="inst-ium" onclick="selectInstitute('ium')">
+                <div class="inst-logo"><img src="https://ium-media.s3.ap-southeast-1.amazonaws.com/logo-icon-75x75-1633813827fxUJ5.png" alt="IUM" class="inst-logo-img"/></div>
+                <div class="inst-info">
+                  <span class="inst-name">Islamic University of Maldives</span>
+                  <span class="inst-url">ium.edu.mv</span>
+                </div>
+                <div class="inst-check"><i class="fa-solid fa-circle-check"></i></div>
+              </div>
+              <div class="institute-card" id="inst-zikura" onclick="selectInstitute('zikura')">
+                <div class="inst-logo"><img src="https://hr.zikura.edu.mv/assets/img/ZI-COLLEGE-LOGO-REMAKE-x-72px.png" alt="Zikura" class="inst-logo-img"/></div>
+                <div class="inst-info">
+                  <span class="inst-name">Zikura International College</span>
+                  <span class="inst-url">zikura.edu.mv</span>
+                </div>
+                <div class="inst-check"><i class="fa-solid fa-circle-check"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-top: 32px;">
+          <input type="text" id="userName" placeholder="Enter your full name..." autocomplete="name" style="margin-bottom: 12px;"/>
+          <input type="password" id="userPass" placeholder="Password..." style="margin-bottom: 4px;"/>
+          <p id="passHint" style="font-size: 10px; color: var(--text-3); margin-bottom: 12px; font-weight: 600;">This password will be saved to your device.</p>
+          <div id="forgotPassMsg" style="display:none; font-size: 11px; color: var(--text-secondary); margin-bottom: 16px; background: var(--primary-light); padding: 10px; border-radius: 8px; border: 1px solid var(--primary-glow);">
+            Forgot your password? Please contact <a href="mailto:Ahmed.ahsan@gmail.com" style="color:var(--primary); font-weight:700;">Ahmed.ahsan@gmail.com</a> or send a Viber message to <span style="color:var(--primary); font-weight:700;">+9609145695</span>
+          </div>
+          <button id="saveNameBtn" class="btn-primary" style="width: 100%;" disabled>
+            <span>Start</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME VIEW -->
+    <section class="view" id="homeView">
+      <div class="welcome-header" id="welcomeHeader">
+        <h2 id="welcomeUser">Assalamu Alaikum</h2>
+        <p>May Allah bless your Hifz journey today.</p>
+      </div>
+
+      <div class="daily-ayah-card" id="dailyAyahCard" onclick="this.classList.add('hidden-daily-ayah')" title="Click to hide">
+        <div class="daily-ayah-header">
+          <span><i class="fa-solid fa-star"></i> Ayah of the Day</span>
+          <span id="dailyAyahRef">---</span>
+        </div>
+        <div class="daily-ayah-content">
+          <p id="dailyAyahArabic" class="quran-text" dir="rtl" lang="ar"></p>
+          <p id="dailyAyahEnglish"></p>
+        </div>
+      </div>
+
+      <h3 class="section-heading"><i class="fa-solid fa-book-quran"></i> Choose Your Module</h3>
+      <div class="module-grid" id="moduleGrid"></div>
+    </section>
+
+    <!-- PROFILE VIEW -->
+    <section class="view" id="profileView">
+      <div class="profile-header-card">
+        <div class="profile-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+        <h2 id="profileName">Student Name</h2>
+        <p id="profileInstitute" style="font-size:14px; color:var(--text-2); font-weight:700; margin-top:-4px; margin-bottom:16px;"></p>
+        <div class="profile-stats">
+          <div class="stat-box">
+            <span class="stat-num" id="statMemorized">0</span>
+            <span class="stat-label">Pages Memorized</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="statQuizzes">0</span>
+            <span class="stat-label">Quizzes Taken</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="statChallenges">0</span>
+            <span class="stat-label">Challenges Won</span>
+          </div>
+        </div>
+        <button class="btn-outline btn-sm" onclick="logout()" style="margin-top:16px; width:100%; border-color:#ef4444; color:#ef4444;">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+
+      <h3 class="section-heading"><i class="fa-solid fa-chart-line"></i> Memorization Progress</h3>
+      <div class="profile-section">
+        <label class="profile-label">Select Module to Track:</label>
+        <select id="profileModuleSelect" class="profile-select" onchange="renderProgressGrid()"></select>
+        
+        <div class="progress-legend">
+          <span class="legend-item"><span class="legend-dot status-none"></span> Not Started</span>
+          <span class="legend-item"><span class="legend-dot status-ongoing"></span> Ongoing</span>
+          <span class="legend-item"><span class="legend-dot status-memorized"></span> Memorized</span>
+        </div>
+        
+        <div id="progressGrid" class="progress-grid"></div>
+      </div>
+
+      <h3 class="section-heading"><i class="fa-solid fa-fire" style="color:#ef4444;"></i> Hifz Challenges</h3>
+      <div class="challenges-grid">
+        <!-- Walking Challenge -->
+        <div class="challenge-card walking-card">
+          <div class="challenge-icon"><i class="fa-solid fa-person-walking"></i></div>
+          <h4 class="challenge-title">Walking Challenge</h4>
+          <p class="challenge-desc">Recite while walking!</p>
+          <div class="challenge-actions">
+            <button class="btn-outline btn-easy" onclick="startChallenge('walking', 'easy')">Easy (5m)</button>
+            <button class="btn-primary btn-smart" onclick="startChallenge('walking', 'smart')">Smart (10m)</button>
+          </div>
+        </div>
+
+        <!-- Busy Day Challenge -->
+        <div class="challenge-card busy-card">
+          <div class="challenge-icon"><i class="fa-solid fa-bolt"></i></div>
+          <h4 class="challenge-title">Busy Day Challenge</h4>
+          <p class="challenge-desc">Recite fast & flawlessly.</p>
+          <div class="challenge-actions">
+            <button class="btn-outline btn-easy" onclick="startChallenge('busy', 'easy')">Easy (2m)</button>
+            <button class="btn-primary btn-smart" onclick="startChallenge('busy', 'smart')">Smart (6m)</button>
+          </div>
+        </div>
+        
+        <!-- Companion's Test Challenge -->
+        <div class="challenge-card companion-card">
+          <div class="challenge-icon"><i class="fa-solid fa-user-group"></i></div>
+          <h4 class="challenge-title">The Companion's Test (Gauntlet)</h4>
+          <p class="challenge-desc">Have a friend test your Hifz under pressure!</p>
+          <div class="challenge-actions" style="flex-direction:row; gap:12px;">
+            <button class="btn-outline btn-easy" onclick="startChallenge('companion', 'easy')">Easy (3Qs, 1.5m)</button>
+            <button class="btn-primary btn-smart" onclick="startChallenge('companion', 'smart')">Gauntlet (5 Tasks)</button>
+          </div>
+        </div>
+
+        <!-- Win a Prize Challenge -->
+        <div class="challenge-card prize-card" id="prizeChallengeCard">
+          <div class="challenge-icon"><i class="fa-solid fa-gift"></i></div>
+          <h4 class="challenge-title">Win a Prize Challenge!</h4>
+          <p class="challenge-desc">Recite the FULL module perfectly without a single mistake within 18 minutes without break. Win an exclusive prize!</p>
+          <div class="challenge-actions">
+            <button class="btn-primary" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; width: 100%;" onclick="startChallenge('prize', 'hard')">Start Challenge (18m)</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-heading"><i class="fa-solid fa-trophy"></i> Recent Quiz Scores</h3>
+      <div class="profile-section" id="quizHistoryList">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- SCOREBOARD VIEW -->
+    <section class="view" id="scoreboardView">
+      <div class="scoreboard-header-card">
+        <div class="welcome-deco" style="font-size:48px; margin-bottom:12px;"><i class="fa-solid fa-trophy" style="color:#fbbf24;"></i></div>
+        <h2>Global Scoreboard</h2>
+        <p>The Gauntlet Champions</p>
+      </div>
+
+      <div class="profile-section" style="margin-bottom: 32px;">
+        <label class="profile-label">Select Module to View Rankings:</label>
+        <select id="scoreboardModuleSelect" class="profile-select" onchange="renderScoreboard()" style="margin-bottom:0;"></select>
+      </div>
+      
+      <div id="podiumContainer" class="podium-container">
+        <!-- populated by JS -->
+      </div>
+      
+      <div id="leaderboardList" class="leaderboard-list">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- Challenge Modal -->
+    <div id="challengeOverlay" class="challenge-overlay">
+      <div id="challengeModal" class="challenge-modal">
+        <h3 id="challengeName">Walking Challenge</h3>
+        <p id="challengeModeText" class="challenge-mode-text">Recite 1 page while walking without mistakes.</p>
+        
+        <!-- Confirm Start Phase -->
+        <div id="challengeConfirmPhase" class="challenge-phase">
+          <div style="font-size: 48px; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-stopwatch"></i></div>
+          <h4 style="font-size: 20px; font-weight:800; margin-bottom:8px;">Ready to start?</h4>
+          <p id="confirmChallengeTitle" style="font-size: 15px; font-weight:700; color:var(--text); margin-bottom:4px;"></p>
+          <p style="font-size: 13px; color:var(--text-2); margin-bottom: 24px;">The timer will begin immediately.</p>
+          <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+            <button class="btn-primary" onclick="executeChallengeStart()" style="width:100%;">Yes, Start Timer</button>
+            <button class="btn-outline" onclick="cancelChallengeStart()" style="width:100%;">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Timer Phase -->
+        <div id="challengeTimerPhase" class="challenge-phase">
+          <div class="timer-display" id="challengeTimer">10:00</div>
+          <button class="btn-primary timer-btn" onclick="finishChallengeRecitation()"><i class="fa-solid fa-flag-checkered"></i> Finished Reciting</button>
+        </div>
+
+        <div id="challengeReportPhase" class="challenge-phase">
+          <h4>Honesty Check</h4>
+          <p style="color:var(--text-2); font-size:13px; margin-top:8px;">Time's up! How many mistakes did you make?</p>
+          <input type="number" id="challengeMistakes" class="mistakes-input" min="0" value="0" />
+          <button class="btn-primary" onclick="submitChallengeResult()" style="width:100%;">Submit Result</button>
+        </div>
+
+        <div id="challengeResultPhase" class="challenge-phase">
+          <div id="challengeResultIcon" class="result-icon"></div>
+          <h4 id="challengeResultTitle">Challenge Passed!</h4>
+          
+          <div id="prizeContactInfo" style="display:none; margin-top: 16px; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; padding: 16px; border-radius: 12px;">
+            <p style="font-size:14px; font-weight:800; color:#ca8a04; margin-bottom:12px;">Claim your prize!</p>
+            <p style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px;"><i class="fa-solid fa-envelope" style="color:#ca8a04; width:20px;"></i> ahmed.ahsan@ium.edu.mv</p>
+            <p style="font-size:13px; font-weight:600; color:var(--text);"><i class="fa-brands fa-viber" style="color:#ca8a04; width:20px;"></i> +9609145695</p>
+          </div>
+
+          <div id="gauntletActionBtns" style="display:none; margin-top:20px; gap:12px; flex-direction:column;">
+            <button id="gauntletNextBtn" class="btn-primary" onclick="startGauntletTaskFromWin()">Yes, start next task</button>
+            <button id="gauntletCloseBtn" class="btn-outline" onclick="closeChallengeModal()">I will try later</button>
+          </div>
+          <button id="normalCloseBtn" class="btn-outline" onclick="closeChallengeModal()" style="margin-top:20px; width:100%;">Close</button>
+        </div>
+
+        <!-- Gauntlet Menu Phase -->
+        <div id="challengeGauntletMenuPhase" class="challenge-phase">
+          <p style="font-size:13px; color:var(--text-2); margin-bottom: 20px; font-weight:600;">Complete all 5 tasks sequentially to become the Gauntlet Champion.</p>
+          <div id="gauntletTaskList" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 24px; text-align:left;">
+            <!-- populated by js -->
+          </div>
+          <button class="btn-outline" onclick="closeChallengeModal()" style="width:100%;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Detail Modal -->
+    <div id="studentDetailOverlay" class="challenge-overlay">
+      <div class="challenge-modal" style="text-align: left; max-width: 450px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+          <div>
+            <h3 id="detailName" style="font-size: 24px; font-weight:800; line-height:1.2;">Student Name</h3>
+            <p id="detailInstitute" style="font-size:13px; font-weight:700; color:var(--text-3);"></p>
+          </div>
+          <div class="podium-avatar" style="width: 48px; height: 48px; margin: 0; background: var(--primary);"><i class="fa-solid fa-user"></i></div>
+        </div>
+        <p id="detailStatus" style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 20px; background: var(--primary-light); padding: 8px 12px; border-radius: 8px;">Finished 6 tasks with 0 mistakes in 5m 30s</p>
+        
+        <h4 style="font-size: 13px; color: var(--text-2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight:800;">Task Breakdown</h4>
+        <div id="detailTaskList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; max-height: 200px; overflow-y: auto;">
+          <!-- populated by JS -->
+        </div>
+
+        <button class="btn-outline" onclick="document.getElementById('studentDetailOverlay').classList.remove('active')" style="width: 100%;">Close</button>
+      </div>
+    </div>
+
+    <!-- MODULE VIEW -->
+    <section class="view" id="moduleView">
+      <div class="tab-bar">
+        <button class="tab active" data-tab="memorizeTab"><i class="fa-solid fa-headphones"></i> Memorize</button>
+        <button class="tab" data-tab="quizTab"><i class="fa-solid fa-gamepad"></i> Quiz</button>
+        <button class="tab" data-tab="motivateTab"><i class="fa-solid fa-heart"></i> Motivation</button>
+      </div>
+
+      <!-- Memorize Tab -->
+      <div class="tab-panel active" id="memorizeTab">
+        <div class="audio-bar" id="audioBar" style="display:none;">
+          <div class="audio-bar-info">
+            <span class="now-playing-label">Now Playing</span>
+            <span class="now-playing-page" id="nowPlayingPage">Page ---</span>
+          </div>
+          <div class="audio-bar-controls">
+            <button id="playPauseBtn" class="audio-btn"><i class="fa-solid fa-play"></i></button>
+            <button id="speedBtn" class="audio-btn speed">1.0x</button>
+            <button id="loopBtn" class="audio-btn"><i class="fa-solid fa-repeat"></i></button>
+          </div>
+          <audio id="audioPlayer" style="display:none;"></audio>
+        </div>
+        <div class="motivation-toast" id="motivationMessage"></div>
+        <div class="page-grid" id="pageGrid"></div>
+        <p class="hint-text"><i class="fa-solid fa-headphones"></i> Listen · <i class="fa-solid fa-book-open"></i> Read Quran Page</p>
+      </div>
+
+      <!-- Quiz Tab -->
+      <div class="tab-panel" id="quizTab">
+        <div class="quiz-container">
+          <!-- Start Screen -->
+          <div id="quizStartScreen" class="quiz-screen active">
+            <div class="quiz-icon"><i class="fa-solid fa-brain"></i></div>
+            <h2>Test Your Hifz</h2>
+            <p>Read the Ayah and choose the correct <strong>next</strong> Ayah. You will get 10 questions from this module.</p>
+            <button class="btn-primary" onclick="startQuiz()" style="margin-top:24px;">Start Quiz <i class="fa-solid fa-play"></i></button>
+          </div>
+
+          <!-- Loading Screen -->
+          <div id="quizLoadingScreen" class="quiz-screen">
+            <div class="spinner"></div>
+            <p>Preparing questions...</p>
+          </div>
+
+          <!-- Game Screen -->
+          <div id="quizGameScreen" class="quiz-screen">
+            <div class="quiz-header">
+              <span id="quizProgress" class="quiz-badge">Question 1/10</span>
+              <span id="quizScoreDisplay" class="quiz-badge correct-badge">Score: 0</span>
+            </div>
+            <div class="quiz-card">
+              <p class="quiz-instruction">What is the next Ayah?</p>
+              <p id="quizQuestionText" class="quran-text quiz-question-text" dir="rtl" lang="ar"></p>
+            </div>
+            <div id="quizOptions" class="quiz-options">
+              <!-- Options rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Result Screen -->
+          <div id="quizResultScreen" class="quiz-screen">
+            <div class="quiz-icon"><i class="fa-solid fa-trophy" style="color:var(--accent);"></i></div>
+            <h2>Quiz Complete!</h2>
+            <p id="quizFinalScore" class="quiz-final-score">You scored 8/10</p>
+            <button class="btn-primary" onclick="startQuiz()" style="margin-top:24px;"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Motivate Tab -->
+      <div class="tab-panel" id="motivateTab">
+        <div class="motivate-header">
+          <div class="motivate-header-icon"><i class="fa-solid fa-star"></i></div>
+          <h2>Stay Motivated</h2>
+          <p>Virtues of memorizing the Quran from authentic sources</p>
+        </div>
+
+        <div id="quoteOfTheDay" class="quote-card-dynamic" style="margin-bottom: 32px;">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="hadith-card gradient-emerald">
+          <div class="hadith-badge">Hadith 1</div>
+          <div class="hadith-icon-wrap"><i class="fa-solid fa-hands-praying"></i></div>
+          <p class="hadith-arabic" lang="ar" dir="rtl">مَنْ قَرَأَ حَرْفًا مِنْ كِتَابِ اللهِ فَلَهُ بِهِ حَسَنَةٌ وَالحَسَنَةُ بِعَشْرِ أَمْثَالِهَا</p>
+          <p class="hadith-dv" lang="dv" dir="rtl">ﷲ ގެ ފޮތުން އަކުރެއް ކިޔަވައިފި މީހަކަށް އެކަމުގެ ސަވާބު ހުއްޓެވެ. އަދި އެ ސަވާބު ދިހަ ގުނައަށް އިތުރުކުރެވޭނެއެވެ.</p>
+          <div class="hadith-divider"></div>
+          <p class="hadith-en">"Whoever recites a letter from the Book of Allah, he will receive one good deed — and one good deed is multiplied tenfold."</p>
+          <p class="hadith-source">— Sunan al-Tirmidhī 2910</p>
+        </div>
+
+        <div class="hadith-card gradient-ocean">
+          <div class="hadith-badge">Hadith 2</div>
+          <div class="hadith-icon-wrap"><i class="fa-solid fa-star"></i></div>
+          <p class="hadith-arabic" lang="ar" dir="rtl">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</p>
+          <p class="hadith-dv" lang="dv" dir="rtl">ތިޔަބައިމީހުންގެ ތެރެއިން އެންމެ ހެޔޮކަންބޮޑުވެގެންވާ މީހަކީ، ޤުރުއާން އުނގެނި އަދި އެހެންމީހުންނަށް އެ އުނގަންނައިދޭ މީހާއެވެ.</p>
+          <div class="hadith-divider"></div>
+          <p class="hadith-en">"The best of you are those who learn the Quran and teach it to others."</p>
+          <p class="hadith-source">— Sahih al-Bukhari 5027</p>
+        </div>
+
+        <div class="hadith-card gradient-sunset">
+          <div class="hadith-badge">Hadith 3</div>
+          <div class="hadith-icon-wrap"><i class="fa-solid fa-crown"></i></div>
+          <p class="hadith-arabic" lang="ar" dir="rtl">يُقَالُ لِصَاحِبِ الْقُرْآنِ اقْرَأْ وَارْتَقِ وَرَتِّلْ كَمَا كُنْتَ تُرَتِّلُ فِي الدُّنْيَا</p>
+          <p class="hadith-dv" lang="dv" dir="rtl">ޤުރުއާނުގެ އަހުލުވެރިޔާއަށް (ޤިޔާމަތްދުވަހުން) ބުނެވޭނެއެވެ: ކިޔަވާށެވެ! އަދި މައްޗަށް އަރަމުންދާށެވެ! އަދި ދުނިޔެމަތީގައި ތިބާ ކިޔަވައިއުޅުނު ފަދައިން ރީތިކޮށް ކިޔަވާށެވެ!</p>
+          <div class="hadith-divider"></div>
+          <p class="hadith-en">"It will be said to the companion of the Quran: 'Read and ascend, and recite as you used to recite in the world.'"</p>
+          <p class="hadith-source">— Sunan Abu Dawud 1464</p>
+        </div>
+
+        <div class="hadith-card gradient-royal">
+          <div class="hadith-badge">Quran</div>
+          <div class="hadith-icon-wrap"><i class="fa-solid fa-book-quran"></i></div>
+          <p class="hadith-arabic" lang="ar" dir="rtl">إِنَّ الَّذِينَ يَتْلُونَ كِتَابَ اللَّهِ وَأَقَامُوا الصَّلَاةَ وَأَنفَقُوا مِمَّا رَزَقْنَاهُمْ سِرًّا وَعَلَانِيَةً يَرْجُونَ تِجَارَةً لَّن تَبُورَ</p>
+          <p class="hadith-dv" lang="dv" dir="rtl">ހަމަކަށަވަރުން، ﷲ ގެ ފޮތް ކިޔަވައި، އަދި ނަމާދު ޤާއިމުކޮށް، އަދި ތިމަންރަސްކަލާނގެ އެއުރެންނަށް ދެއްވި ތަކެތިން ސިއްރާއި ފާޅުގައި ހޭދަކޮށްއުޅޭ މީހުން، (އެއުރެން) އެދެނީ، ދުވަހަކުވެސް ގެއްލެނިވެ ނުދާނޭ ވިޔަފާރިއަކަށެވެ.</p>
+          <div class="hadith-divider"></div>
+          <p class="hadith-en">"Indeed, those who recite the Book of Allah and establish prayer and spend out of what We have provided them, secretly and publicly — they hope for a transaction that will never fail."</p>
+          <p class="hadith-source">— Surah Fatir 35:29</p>
+        </div>
+
+        <div class="tips-section">
+          <div class="tips-header">
+            <h3><i class="fa-solid fa-lightbulb"></i> Effective Hifz Tips</h3>
+          </div>
+          <ul class="tips-list">
+            <li><i class="fa-solid fa-circle-check"></i> <strong>Consistency:</strong> Review your past memorization (Muraja'ah) every single day.</li>
+            <li><i class="fa-solid fa-circle-check"></i> <strong>Best Time:</strong> Memorize after Fajr prayer when your mind is fresh.</li>
+            <li><i class="fa-solid fa-circle-check"></i> <strong>Listen Often:</strong> Use the audio feature repeatedly before trying to memorize a page.</li>
+            <li><i class="fa-solid fa-circle-check"></i> <strong>Same Mushaf:</strong> Always memorize from the same format (Uthmani) to build visual memory.</li>
+          </ul>
+        </div>
+
+        <div class="keep-going-card">
+          <div class="keep-going-icon"><i class="fa-solid fa-hands-praying"></i></div>
+          <h3>Keep Going!</h3>
+          <p>Every page you memorize is a shield for you on the Day of Judgment. May Allah accept your efforts and crown you with the crown of honor.</p>
+          <div class="keep-going-dua" dir="rtl" lang="ar">اللهم اجعل القرآن ربيع قلوبنا</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QURAN READER VIEW -->
+    <section class="view" id="readerView">
+      <div class="reader-header">
+        <h2 id="readerTitle">Page 000</h2>
+        <p id="readerSurah"></p>
+      </div>
+      <div class="reader-body" id="readerBody">
+        <div class="reader-loading" id="readerLoading">
+          <div class="spinner"></div>
+          <p>Loading Quran text...</p>
+        </div>
+        <div class="quran-text" id="quranText" dir="rtl" lang="ar"></div>
+        
+        <div class="reader-nav" id="readerNav" style="display:none;">
+          <button class="nav-btn prev" onclick="navigateReader(-1)" title="Previous Page">
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Prev</span>
+          </button>
+          <button class="nav-btn next" onclick="navigateReader(1)" title="Next Page">
+            <span>Next</span>
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN VIEW -->
+    <section class="view" id="adminView">
+      <div class="admin-header">
+        <h2><i class="fa-solid fa-shield-halved"></i> Admin Dashboard</h2>
+        <p>Manage modules, pages, and audio links</p>
+      </div>
+
+      <!-- Admin Login -->
+      <div id="adminLogin" class="admin-login-card">
+        <h3>Enter Admin Password</h3>
+        <div class="input-group">
+          <input type="password" id="adminPassword" placeholder="Password..."/>
+          <button class="btn-primary" id="adminLoginBtn">
+            <span>Login</span>
+            <i class="fa-solid fa-lock-open"></i>
+          </button>
+        </div>
+        <p class="admin-error" id="adminError" style="display:none;">Incorrect password</p>
+      </div>
+
+      <!-- Admin Panel (hidden until authenticated) -->
+      <div id="adminPanel" style="display:none;">
+        <!-- Module Selector -->
+        <div class="admin-section">
+          <label class="admin-label">Select Module to Edit</label>
+          <select id="adminModuleSelect" class="admin-select">
+            <option value="">-- Choose Module --</option>
+          </select>
+        </div>
+
+        <!-- Student Analytics -->
+        <div class="admin-section">
+        <h3 class="admin-label">General Analytics</h3>
+        <div id="adminSummaryCards" class="admin-summary-cards"></div>
+        <div id="adminAnalyticsContainer" class="analytics-container" style="margin-bottom: 32px;"></div>
+        
+        <h3 class="admin-label">Prize Challenge Verification</h3>
+        <div id="adminPrizeAnalyticsContainer" class="analytics-container" style="margin-bottom: 32px; overflow-x: auto;"></div>
+
+        <div style="display:flex; gap:12px; margin-top:16px;">
+          <button class="btn-outline" onclick="exportAllData()" style="flex:1;"><i class="fa-solid fa-file-export"></i> Export Data</button>
+          <button class="btn-outline" onclick="clearStudentAnalytics()" style="flex:1; border-color:#ef4444; color:#ef4444;"><i class="fa-solid fa-user-slash"></i> Clear Analytics</button>
+          <button class="btn-outline" onclick="handleResetAllData()" style="flex:1; border-color:#780000; color:#780000;"><i class="fa-solid fa-trash-can"></i> Hard Reset</button>
+        </div>
+        </div>
+
+        <!-- Edit Module Info -->
+        <div id="adminModuleEdit" style="display:none;" class="admin-section">
+          <h3 class="admin-section-title">Module Info</h3>
+          <label class="admin-label">Module Number</label>
+          <input type="number" id="adminModNum" class="admin-input"/>
+          <label class="admin-label">Module Code</label>
+          <input type="text" id="adminModCode" class="admin-input"/>
+          <label class="admin-label">Module Title</label>
+          <input type="text" id="adminModTitle" class="admin-input"/>
+          <button class="btn-primary btn-sm" onclick="saveModuleInfo()">Save Module Info</button>
+        </div>
+
+        <!-- Edit Pages / Audio Links -->
+        <div id="adminPagesEdit" style="display:none;" class="admin-section">
+          <h3 class="admin-section-title">Pages & Audio Links</h3>
+          <div id="adminPagesList"></div>
+          <div class="admin-add-page">
+            <h4>Add New Page</h4>
+            <label class="admin-label">Page Number</label>
+            <input type="number" id="adminNewPageNum" class="admin-input"/>
+            <label class="admin-label">Audio URL</label>
+            <input type="text" id="adminNewPageUrl" class="admin-input" placeholder="https://..."/>
+            <button class="btn-primary btn-sm" onclick="addNewPage()">Add Page</button>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="admin-section">
+          <h3 class="admin-section-title">Change Admin Password</h3>
+          <label class="admin-label">Current Password</label>
+          <input type="password" id="adminDashOldPass" class="admin-input"/>
+          <label class="admin-label">New Password</label>
+          <input type="password" id="adminDashNewPass" class="admin-input"/>
+          <button class="btn-danger btn-sm" onclick="changeAdminPassword('dash')">Update Password</button>
+        </div>
+
+        <!-- Add New Module -->
+        <div class="admin-section">
+          <h3 class="admin-section-title">Add New Module</h3>
+          <label class="admin-label">Module Key (e.g. hifz12)</label>
+          <input type="text" id="adminNewModKey" class="admin-input"/>
+          <label class="admin-label">Module Number</label>
+          <input type="number" id="adminNewModNum" class="admin-input"/>
+          <label class="admin-label">Module Code</label>
+          <input type="text" id="adminNewModCode" class="admin-input" placeholder="QUR0000"/>
+          <label class="admin-label">Module Title</label>
+          <input type="text" id="adminNewModTitle" class="admin-input" placeholder="Holy Quran Memorization 12"/>
+          <button class="btn-primary btn-sm" onclick="addNewModule()">Add Module</button>
+        </div>
+
+        <!-- Manage Student Passwords -->
+        <div class="admin-section">
+          <h3 class="admin-section-title">Reset Student Password</h3>
+          <select id="adminStudentPassSelect" class="admin-select">
+            <option value="">-- Select Student --</option>
+          </select>
+          <input type="password" id="adminNewStudentPass" class="admin-input" placeholder="New student password..." style="margin-top:8px;"/>
+          <button class="btn-primary btn-sm" onclick="resetStudentPassword()" style="margin-top:8px;">Reset Student Password</button>
+        </div>
+
+        <!-- Delete Module -->
+        <div class="admin-section">
+          <h3 class="admin-section-title">Delete Module</h3>
+          <select id="adminDeleteModuleSelect" class="admin-select"></select>
+          <button class="btn-danger btn-sm" onclick="deleteModule()" style="margin-top:8px;">Delete Selected Module</button>
+        </div>
+
+        <button class="btn-secondary btn-sm" onclick="adminLogout()" style="margin-top:20px;">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    May Allah bless you. Please remember me in your duas.<br/>
+    © 2025 <a href="https://www.instagram.com/ahsan.alkisai/" target="_blank" rel="noopener noreferrer">Ahmed Ahsan</a>
+  </footer>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsOverlay"></div>
+<div class="modal-panel" id="settingsPanel" style="max-height:85vh; overflow-y:auto;">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-gear"></i> Settings</h3>
+    <button class="icon-btn" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="modal-body">
+    <!-- Change Name -->
+    <div class="setting-block">
+      <label><i class="fa-solid fa-user-pen" style="margin-right:6px;"></i> Change Name</label>
+      <input type="text" id="changeNameInput" placeholder="Enter new name"/>
+      <button class="btn-primary btn-sm" onclick="changeName()">Update</button>
+    </div>
+
+    <!-- Ayah of the Day Settings -->
+    <div class="setting-block">
+      <label><i class="fa-solid fa-star" style="margin-right:6px;"></i> Ayah of the Day</label>
+      <p style="font-size:12px; color:var(--text-3); margin-bottom:12px;">Display a random blessed Ayah on your home screen.</p>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <span style="font-size:14px; font-weight:700;">Show on Home Page</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingsToggleDailyAyah" onchange="updateDailyAyahSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div id="ayahSourceContainer" style="display:none;">
+        <label style="font-size:13px; color:var(--text-2); font-weight:700; display:block; margin-bottom:8px;">Ayah Source</label>
+        <select id="ayahModuleSelect" class="profile-select" style="margin-bottom:0;" onchange="updateDailyAyahSettings()">
+          <option value="random">Random from Quran</option>
+        </select>
+        <p style="font-size:11px; color:var(--text-3); margin-top:8px;">Choose 'Random' or a specific module to pull verses from.</p>
+      </div>
+    </div>
+
+    <!-- Color Theme -->
+    <div class="setting-block">
+      <label><i class="fa-solid fa-palette" style="margin-right:6px;"></i> Color Theme</label>
+      <p style="font-size:12px; color:var(--text-3); margin-bottom:12px;">Choose an accent color for the app.</p>
+      <div class="theme-swatches" id="themeSwatches">
+        <button class="theme-swatch swatch-green" onclick="applyColorTheme('green')" title="Emerald Green">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="theme-swatch swatch-purple" onclick="applyColorTheme('purple')" title="Royal Purple">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="theme-swatch swatch-pink" onclick="applyColorTheme('pink')" title="Rose Pink">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="theme-swatch swatch-gold" onclick="applyColorTheme('gold')" title="Royal Gold">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="theme-swatch swatch-blue" onclick="applyColorTheme('blue')" title="Zakat Blue">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button class="theme-swatch swatch-default" onclick="applyColorTheme('default')" title="Institute Default">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout Style -->
+    <div class="setting-block">
+      <label><i class="fa-solid fa-table-cells-large" style="margin-right:6px;"></i> Module Layout</label>
+      <p style="font-size:12px; color:var(--text-3); margin-bottom:12px;">Choose how modules are displayed on the home page.</p>
+      <div style="display:flex; gap:12px;">
+        <button class="btn-outline layout-btn" id="btnLayoutList" onclick="setLayout('list')" style="flex:1;"><i class="fa-solid fa-list"></i> List</button>
+        <button class="btn-outline layout-btn" id="btnLayoutGrid" onclick="setLayout('grid')" style="flex:1;"><i class="fa-solid fa-border-all"></i> Grid</button>
+      </div>
+    </div>
+
+    <!-- Reciter Selection -->
+    <div class="setting-block">
+      <label><i class="fa-solid fa-headphones" style="margin-right:6px;"></i> Default Reciter</label>
+      <p style="font-size:12px; color:var(--text-3); margin-bottom:12px;">Choose which reciter plays when you press Listen on a page.</p>
+      <select id="reciterSelect" class="profile-select" style="margin-bottom:8px;" onchange="saveReciterSetting()">
+        <option value="default">🎙️ Current (Admin configured)</option>
+        <option value="Alafasy_128kbps">Mishary Rashid Alafasy</option>
+        <option value="MaherAlMuaiqly128kbps">Maher Al-Muaiqly</option>
+        <option value="Muhammad_Ayyoob_64kbps">Muhammad Ayyoob</option>
+        <option value="Saud_Al-Shuraim_128kbps">Saud Al-Shuraim</option>
+        <option value="Khalid_al-Jaleel_64kbps">Khalid Al-Jaleel</option>
+      </select>
+      <p style="font-size:11px; color:var(--text-3);">Audio streamed from EveryAyah.com — internet required.</p>
+    </div>
+
+    <!-- Reset Data -->
+    <div class="setting-block">
+      <label><i class="fa-solid fa-rotate-left" style="margin-right:6px;"></i> Reset All Data</label>
+      <p style="font-size:12px; color:var(--text-3); margin-bottom:8px;">This will erase all student progress, quiz history, and challenge data.</p>
+      <button class="btn-outline btn-sm" style="color:#ef4444; border-color:#ef4444;" onclick="handleResetAllData()"><i class="fa-solid fa-trash"></i> Reset Everything</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
