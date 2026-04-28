@@ -29,7 +29,7 @@
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.1);
   --shadow-glow: 0 12px 32px var(--primary-glow);
   --transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  --font: 'Inter', 'Faruma', system-ui, -apple-system, sans-serif;
+  --font: 'Nunito', 'Faruma', system-ui, -apple-system, sans-serif;
   --font-ar: 'KFGQPCUthmanicScriptHAFS', 'Scheherazade New', 'Amiri', serif;
 }
 

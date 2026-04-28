@@ -1,23 +1,23 @@
 /* ===== IUM Hifz Tracker ===== */
 
-const surahNamesAr = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+const surahNamesAr = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
 
 // Default data (can be overridden by admin via localStorage)
 const defaultPageLinks = {
-  hifz6: {522:"https://ia801706.us.archive.org/9/items/page-526_202502/Page522.mp3",523:"https://ia801706.us.archive.org/9/items/page-526_202502/Page523.mp3",524:"https://ia801706.us.archive.org/9/items/page-526_202502/Page524.mp3",525:"https://ia801706.us.archive.org/9/items/page-526_202502/Page525.mp3",526:"https://ia801706.us.archive.org/9/items/page-526_202502/Page526.mp3",527:"https://ia801706.us.archive.org/9/items/page-526_202502/Page527.mp3",528:"https://ia801706.us.archive.org/9/items/page-526_202502/Page528.mp3",529:"https://ia801706.us.archive.org/9/items/page-526_202502/Page529.mp3",530:"https://ia601706.us.archive.org/9/items/page-526_202502/Page530.mp3",531:"https://ia601706.us.archive.org/9/items/page-526_202502/Page531.mp3"},
-  hifz7: {531:"https://ia800609.us.archive.org/30/items/page-533/Page531_Part_B.mp3",532:"https://ia800609.us.archive.org/30/items/page-533/Page532.mp3",533:"https://ia800609.us.archive.org/30/items/page-533/Page533.mp3",534:"https://ia800609.us.archive.org/30/items/page-533/Page534.mp3",535:"https://ia800609.us.archive.org/30/items/page-533/Page535.mp3",536:"https://ia800609.us.archive.org/30/items/page-533/Page536.mp3",537:"https://ia800609.us.archive.org/30/items/page-533/Page537.mp3",538:"https://ia800609.us.archive.org/30/items/page-533/Page538.mp3",539:"https://ia800609.us.archive.org/30/items/page-533/Page539.mp3",540:"https://ia800609.us.archive.org/30/items/page-533/Page540.mp3",541:"https://example.com/page541.mp3"},
-  hifz8: {502:"https://ia601704.us.archive.org/10/items/8_20250217/Page502.mp3",503:"https://ia601704.us.archive.org/10/items/8_20250217/Page503.mp3",504:"https://ia601704.us.archive.org/10/items/8_20250217/Page504.mp3",505:"https://ia601704.us.archive.org/10/items/8_20250217/Page505.mp3",506:"https://ia601704.us.archive.org/10/items/8_20250217/Page506.mp3",507:"https://ia601704.us.archive.org/10/items/8_20250217/Page507.mp3",508:"https://ia601704.us.archive.org/10/items/8_20250217/Page508.mp3",509:"https://ia601704.us.archive.org/10/items/8_20250217/Page509.mp3",510:"https://ia601704.us.archive.org/10/items/8_20250217/Page510.mp3",511:"https://ia601704.us.archive.org/10/items/8_20250217/Page511.mp3"},
-  hifz9: {512:"https://ia601403.us.archive.org/8/items/page-519/Page512.mp3",513:"https://ia801403.us.archive.org/8/items/page-519/Page513.mp3",514:"https://ia801403.us.archive.org/8/items/page-519/Page514.mp3",515:"https://ia801403.us.archive.org/8/items/page-519/Page515.mp3",516:"https://ia801403.us.archive.org/8/items/page-519/Page516.mp3",517:"https://ia801403.us.archive.org/8/items/page-519/Page517.mp3",518:"https://ia801403.us.archive.org/8/items/page-519/Page518.mp3",519:"https://ia801403.us.archive.org/8/items/page-519/Page519.mp3",520:"https://ia801403.us.archive.org/8/items/page-519/Page520.mp3",521:"https://ia801403.us.archive.org/8/items/page-519/Page521.mp3"},
-  hifz10:{482:"https://ia800702.us.archive.org/25/items/hifz-10/Page482.mp3",483:"https://ia600702.us.archive.org/25/items/hifz-10/Page483.mp3",484:"https://ia600702.us.archive.org/25/items/hifz-10/Page484.mp3",485:"https://ia600702.us.archive.org/25/items/hifz-10/Page485.mp3",486:"https://ia600702.us.archive.org/25/items/hifz-10/Page486.mp3",487:"https://ia600702.us.archive.org/25/items/hifz-10/Page487.mp3",488:"https://ia600702.us.archive.org/25/items/hifz-10/Page488.mp3",489:"https://ia600702.us.archive.org/25/items/hifz-10/Page489.mp3",490:"https://ia600702.us.archive.org/25/items/hifz-10/Page490.mp3",491:"https://ia600702.us.archive.org/25/items/hifz-10/Page491.mp3"},
-  hifz11:{492:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20492.mp3",493:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20493.mp3",494:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20494.mp3",495:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20495.mp3",496:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20496.mp3",497:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20497.mp3",498:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20498.mp3",499:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20499.mp3",500:"https://ia600809.us.archive.org/5/items/hifz-11/Page%20500.mp3",501:"https://ia800809.us.archive.org/5/items/hifz-11/Page%20501.mp3",502:"https://ia800809.us.archive.org/5/items/hifz-11/Page502.mp3"}
+  hifz6: { 522: "https://ia801706.us.archive.org/9/items/page-526_202502/Page522.mp3", 523: "https://ia801706.us.archive.org/9/items/page-526_202502/Page523.mp3", 524: "https://ia801706.us.archive.org/9/items/page-526_202502/Page524.mp3", 525: "https://ia801706.us.archive.org/9/items/page-526_202502/Page525.mp3", 526: "https://ia801706.us.archive.org/9/items/page-526_202502/Page526.mp3", 527: "https://ia801706.us.archive.org/9/items/page-526_202502/Page527.mp3", 528: "https://ia801706.us.archive.org/9/items/page-526_202502/Page528.mp3", 529: "https://ia801706.us.archive.org/9/items/page-526_202502/Page529.mp3", 530: "https://ia601706.us.archive.org/9/items/page-526_202502/Page530.mp3", 531: "https://ia601706.us.archive.org/9/items/page-526_202502/Page531.mp3" },
+  hifz7: { 531: "https://ia800609.us.archive.org/30/items/page-533/Page531_Part_B.mp3", 532: "https://ia800609.us.archive.org/30/items/page-533/Page532.mp3", 533: "https://ia800609.us.archive.org/30/items/page-533/Page533.mp3", 534: "https://ia800609.us.archive.org/30/items/page-533/Page534.mp3", 535: "https://ia800609.us.archive.org/30/items/page-533/Page535.mp3", 536: "https://ia800609.us.archive.org/30/items/page-533/Page536.mp3", 537: "https://ia800609.us.archive.org/30/items/page-533/Page537.mp3", 538: "https://ia800609.us.archive.org/30/items/page-533/Page538.mp3", 539: "https://ia800609.us.archive.org/30/items/page-533/Page539.mp3", 540: "https://ia800609.us.archive.org/30/items/page-533/Page540.mp3", 541: "https://example.com/page541.mp3" },
+  hifz8: { 502: "https://ia601704.us.archive.org/10/items/8_20250217/Page502.mp3", 503: "https://ia601704.us.archive.org/10/items/8_20250217/Page503.mp3", 504: "https://ia601704.us.archive.org/10/items/8_20250217/Page504.mp3", 505: "https://ia601704.us.archive.org/10/items/8_20250217/Page505.mp3", 506: "https://ia601704.us.archive.org/10/items/8_20250217/Page506.mp3", 507: "https://ia601704.us.archive.org/10/items/8_20250217/Page507.mp3", 508: "https://ia601704.us.archive.org/10/items/8_20250217/Page508.mp3", 509: "https://ia601704.us.archive.org/10/items/8_20250217/Page509.mp3", 510: "https://ia601704.us.archive.org/10/items/8_20250217/Page510.mp3", 511: "https://ia601704.us.archive.org/10/items/8_20250217/Page511.mp3" },
+  hifz9: { 512: "https://ia601403.us.archive.org/8/items/page-519/Page512.mp3", 513: "https://ia801403.us.archive.org/8/items/page-519/Page513.mp3", 514: "https://ia801403.us.archive.org/8/items/page-519/Page514.mp3", 515: "https://ia801403.us.archive.org/8/items/page-519/Page515.mp3", 516: "https://ia801403.us.archive.org/8/items/page-519/Page516.mp3", 517: "https://ia801403.us.archive.org/8/items/page-519/Page517.mp3", 518: "https://ia801403.us.archive.org/8/items/page-519/Page518.mp3", 519: "https://ia801403.us.archive.org/8/items/page-519/Page519.mp3", 520: "https://ia801403.us.archive.org/8/items/page-519/Page520.mp3", 521: "https://ia801403.us.archive.org/8/items/page-519/Page521.mp3" },
+  hifz10: { 482: "https://ia800702.us.archive.org/25/items/hifz-10/Page482.mp3", 483: "https://ia600702.us.archive.org/25/items/hifz-10/Page483.mp3", 484: "https://ia600702.us.archive.org/25/items/hifz-10/Page484.mp3", 485: "https://ia600702.us.archive.org/25/items/hifz-10/Page485.mp3", 486: "https://ia600702.us.archive.org/25/items/hifz-10/Page486.mp3", 487: "https://ia600702.us.archive.org/25/items/hifz-10/Page487.mp3", 488: "https://ia600702.us.archive.org/25/items/hifz-10/Page488.mp3", 489: "https://ia600702.us.archive.org/25/items/hifz-10/Page489.mp3", 490: "https://ia600702.us.archive.org/25/items/hifz-10/Page490.mp3", 491: "https://ia600702.us.archive.org/25/items/hifz-10/Page491.mp3" },
+  hifz11: { 492: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20492.mp3", 493: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20493.mp3", 494: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20494.mp3", 495: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20495.mp3", 496: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20496.mp3", 497: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20497.mp3", 498: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20498.mp3", 499: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20499.mp3", 500: "https://ia600809.us.archive.org/5/items/hifz-11/Page%20500.mp3", 501: "https://ia800809.us.archive.org/5/items/hifz-11/Page%20501.mp3", 502: "https://ia800809.us.archive.org/5/items/hifz-11/Page502.mp3" }
 };
 const defaultModuleInfo = {
-  hifz6:{num:6,code:"QUR0514",title:"Holy Quran Memorization 6"},
-  hifz7:{num:7,code:"QUR0516",title:"Holy Quran Memorization 7"},
-  hifz8:{num:8,code:"QUR0609",title:"Holy Quran Memorization 8"},
-  hifz9:{num:9,code:"QUR0612",title:"Holy Quran Memorization 9"},
-  hifz10:{num:10,code:"QUR0747",title:"Holy Quran Memorization 10"},
-  hifz11:{num:11,code:"QUR0750",title:"Holy Quran Memorization 11"}
+  hifz6: { num: 6, code: "QUR0514", title: "Holy Quran Memorization 6" },
+  hifz7: { num: 7, code: "QUR0516", title: "Holy Quran Memorization 7" },
+  hifz8: { num: 8, code: "QUR0609", title: "Holy Quran Memorization 8" },
+  hifz9: { num: 9, code: "QUR0612", title: "Holy Quran Memorization 9" },
+  hifz10: { num: 10, code: "QUR0747", title: "Holy Quran Memorization 10" },
+  hifz11: { num: 11, code: "QUR0750", title: "Holy Quran Memorization 11" }
 };
 
 // Load from localStorage or use defaults
@@ -31,9 +31,9 @@ function saveData() {
 
 // DOM
 const $ = id => document.getElementById(id);
-const nameView=$('nameView'), homeView=$('homeView'), moduleView=$('moduleView'), readerView=$('readerView'), adminView=$('adminView');
+const nameView = $('nameView'), homeView = $('homeView'), moduleView = $('moduleView'), readerView = $('readerView'), adminView = $('adminView');
 const allViews = [nameView, homeView, moduleView, readerView, adminView];
-const audioPlayer=$('audioPlayer'), audioBar=$('audioBar');
+const audioPlayer = $('audioPlayer'), audioBar = $('audioBar');
 
 // Global state
 let currentUser = localStorage.getItem('hifzCurrentUser') || '';
@@ -49,7 +49,7 @@ function handleResetAllData() {
 window.handleResetAllData = handleResetAllData;
 window.resetAllData = handleResetAllData;
 
-window.onerror = function(msg, url, line, col, error) {
+window.onerror = function (msg, url, line, col, error) {
   console.error("Global Error:", msg, error);
   return false;
 };
@@ -57,7 +57,7 @@ window.onerror = function(msg, url, line, col, error) {
 let userNames = JSON.parse(localStorage.getItem('hifzUserNames') || '[]');
 let userStats = JSON.parse(localStorage.getItem('hifzUserStats') || '{}');
 let studentData = JSON.parse(localStorage.getItem('hifzStudentData') || '{}');
-let currentModule='', pagesList=[], currentPageIndex=-1, playbackSpeed=1.0, isLooping=false;
+let currentModule = '', pagesList = [], currentPageIndex = -1, playbackSpeed = 1.0, isLooping = false;
 // Default admin password
 if (!localStorage.getItem('hifzAdminPass') || localStorage.getItem('hifzAdminPass') === 'admin123' || localStorage.getItem('hifzAdminPass') === 'Ahsanalkisai@2026') {
   localStorage.setItem('hifzAdminPass', 'Ahsan@2026');
@@ -90,9 +90,9 @@ function initStudentData(n) {
 // ===== Navigation =====
 function showView(v) {
   currentView = v;
-  allViews.forEach(x => { x.classList.remove('view-active'); x.style.display='none'; });
-  v.style.display='block'; void v.offsetWidth; v.classList.add('view-active');
-  
+  allViews.forEach(x => { x.classList.remove('view-active'); x.style.display = 'none'; });
+  v.style.display = 'block'; void v.offsetWidth; v.classList.add('view-active');
+
   if (v === homeView) {
     updateWelcomeHeader();
     const sd = studentData[currentUser];
@@ -104,10 +104,10 @@ function showView(v) {
       $('dailyAyahCard').style.display = 'none';
     }
   }
-  
+
   const isWelcome = (v === nameView);
   $('backBtn').style.visibility = (isWelcome || v === homeView) ? 'hidden' : 'visible';
-  
+
   // Hide top bar actions on onboarding screen
   if (isWelcome) {
     document.body.classList.add('onboarding-active');
@@ -120,7 +120,7 @@ function showView(v) {
     $('profileBtn').style.display = '';
     $('settingsBtn').style.display = '';
   }
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
 // ===== Display Number (Zikura maps Hifz 6-11 → 1-6) =====
@@ -132,24 +132,24 @@ function getDisplayNum(num) {
 
 // ===== Render Modules =====
 function renderModuleGrid() {
-  const g = $('moduleGrid'); g.innerHTML='';
+  const g = $('moduleGrid'); g.innerHTML = '';
   const inst = getInstitute();
   const layout = localStorage.getItem('hifzLayout') || 'list';
   g.className = layout === 'grid' ? 'module-grid-view' : 'module-list-view';
 
-  for (const [key,info] of Object.entries(moduleInfo)) {
+  for (const [key, info] of Object.entries(moduleInfo)) {
     const dn = getDisplayNum(info.num);
     const codeHtml = inst === 'zikura' ? '' : `<div class="module-card-code">${info.code}</div>`;
-    const c = document.createElement('div'); 
-    c.className = layout === 'grid' ? 'module-card-grid' : 'module-card-list'; 
-    c.dataset.module=key;
-    
+    const c = document.createElement('div');
+    c.className = layout === 'grid' ? 'module-card-grid' : 'module-card-list';
+    c.dataset.module = key;
+
     const titleStr = inst === 'zikura' ? `Hifz ${dn}` : info.title;
-    
+
     if (layout === 'grid') {
-      c.innerHTML=`<div class="module-card-number">${dn}</div><div class="module-card-title">${titleStr}</div>${codeHtml}`;
+      c.innerHTML = `<div class="module-card-number">${dn}</div><div class="module-card-title">${titleStr}</div>${codeHtml}`;
     } else {
-      c.innerHTML=`
+      c.innerHTML = `
         <div class="module-card-number">${dn}</div>
         <div class="module-card-info">
           <div class="module-card-title">${titleStr}</div>
@@ -158,25 +158,25 @@ function renderModuleGrid() {
         <div class="module-card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
       `;
     }
-    c.addEventListener('click', ()=>openModule(key));
+    c.addEventListener('click', () => openModule(key));
     g.appendChild(c);
   }
 }
 
 // ===== Open Module =====
 function openModule(key) {
-  currentModule=key; const info=moduleInfo[key];
+  currentModule = key; const info = moduleInfo[key];
   const dn = getDisplayNum(info.num);
   const inst = getInstitute();
-  pagesList=Object.keys(pageLinks[key]||{}).map(Number);
+  pagesList = Object.keys(pageLinks[key] || {}).map(Number);
   renderPageGrid();
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelector('.tab[data-tab="memorizeTab"]').classList.add('active');
   $('memorizeTab').classList.add('active');
-  audioBar.style.display='none';
+  audioBar.style.display = 'none';
   $('motivationMessage').classList.remove('show');
-  
+
   const titleStr = inst === 'zikura' ? `Hifz ${dn}` : info.title;
   const titleEl = $('appTitle').querySelector('.title-text');
   titleEl.style.opacity = '0';
@@ -189,10 +189,10 @@ function openModule(key) {
 
 // ===== Render Pages =====
 function renderPageGrid() {
-  const g=$('pageGrid'); g.innerHTML='';
-  pagesList.forEach((pn,i)=>{
-    const c=document.createElement('div'); c.className='page-card'; c.id=`page-${pn}`;
-    c.innerHTML=`
+  const g = $('pageGrid'); g.innerHTML = '';
+  pagesList.forEach((pn, i) => {
+    const c = document.createElement('div'); c.className = 'page-card'; c.id = `page-${pn}`;
+    c.innerHTML = `
       <div class="page-card-icon"><i class="fa-solid fa-file-lines"></i></div>
       <div class="page-card-num">Page ${pn}</div>
       <div class="page-card-actions">
@@ -204,71 +204,71 @@ function renderPageGrid() {
 }
 
 // ===== Play Audio =====
-function startPlay(idx,pn) {
-  currentPageIndex=idx;
-  const url=(pageLinks[currentModule]||{})[pn]; if(!url) return;
-  audioPlayer.src=url; audioPlayer.playbackRate=playbackSpeed;
-  audioPlayer.play().catch(()=>{});
-  $('nowPlayingPage').textContent=`Page ${pn}`;
-  audioBar.style.display='flex';
-  $('playPauseBtn').innerHTML='<i class="fa-solid fa-pause"></i>';
-  document.querySelectorAll('.page-card').forEach(c=>c.classList.remove('playing'));
-  const el=document.getElementById(`page-${pn}`); if(el) el.classList.add('playing');
-  const msgs=["May Allah accept your efforts! 🤲","Keep going! 💚","Every letter brings reward! ⭐","Your dedication is inspiring! 🌟","May Allah make it easy! 💫"];
-  const m=$('motivationMessage'); m.textContent=msgs[Math.floor(Math.random()*msgs.length)]; m.classList.add('show');
+function startPlay(idx, pn) {
+  currentPageIndex = idx;
+  const url = (pageLinks[currentModule] || {})[pn]; if (!url) return;
+  audioPlayer.src = url; audioPlayer.playbackRate = playbackSpeed;
+  audioPlayer.play().catch(() => { });
+  $('nowPlayingPage').textContent = `Page ${pn}`;
+  audioBar.style.display = 'flex';
+  $('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+  document.querySelectorAll('.page-card').forEach(c => c.classList.remove('playing'));
+  const el = document.getElementById(`page-${pn}`); if (el) el.classList.add('playing');
+  const msgs = ["May Allah accept your efforts! 🤲", "Keep going! 💚", "Every letter brings reward! ⭐", "Your dedication is inspiring! 🌟", "May Allah make it easy! 💫"];
+  const m = $('motivationMessage'); m.textContent = msgs[Math.floor(Math.random() * msgs.length)]; m.classList.add('show');
 }
 
 // ===== Quran Reader =====
 let currentPageNum = 0;
 async function openReader(pageNum) {
   currentPageNum = pageNum;
-  $('readerTitle').textContent=`Page ${pageNum}`;
-  $('readerSurah').textContent='';
-  $('quranText').innerHTML='';
-  $('readerLoading').style.display='block';
-  $('readerNav').style.display='none';
+  $('readerTitle').textContent = `Page ${pageNum}`;
+  $('readerSurah').textContent = '';
+  $('quranText').innerHTML = '';
+  $('readerLoading').style.display = 'block';
+  $('readerNav').style.display = 'none';
   showView(readerView);
   try {
     const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=false&per_page=50&fields=text_uthmani,verse_key`);
     const data = await res.json();
-    $('readerLoading').style.display='none';
-    if (!data.verses||!data.verses.length) { $('quranText').innerHTML='<p style="text-align:center;color:var(--text-3)">No verses found for this page.</p>'; return; }
+    $('readerLoading').style.display = 'none';
+    if (!data.verses || !data.verses.length) { $('quranText').innerHTML = '<p style="text-align:center;color:var(--text-3)">No verses found for this page.</p>'; return; }
     // Group by surah
-    let html='', lastSurah='';
-    data.verses.forEach(v=>{
-      const parts=v.verse_key.split(':');
-      const surahNum=parts[0], ayahNum=parts[1];
-      if (surahNum!==lastSurah) {
-        if (lastSurah) html+='</div>';
-        html+=`<div class="surah-separator">Surah ${surahNum}</div><div class="surah-block">`;
-        lastSurah=surahNum;
+    let html = '', lastSurah = '';
+    data.verses.forEach(v => {
+      const parts = v.verse_key.split(':');
+      const surahNum = parts[0], ayahNum = parts[1];
+      if (surahNum !== lastSurah) {
+        if (lastSurah) html += '</div>';
+        html += `<div class="surah-separator">Surah ${surahNum}</div><div class="surah-block">`;
+        lastSurah = surahNum;
       }
-      html+=`<span class="quran-verse">${v.text_uthmani}</span><span class="verse-number">${ayahNum}</span> `;
+      html += `<span class="quran-verse">${v.text_uthmani}</span><span class="verse-number">${ayahNum}</span> `;
     });
-    if (lastSurah) html+='</div>';
-    $('quranText').innerHTML=html;
+    if (lastSurah) html += '</div>';
+    $('quranText').innerHTML = html;
     // Update surah info
-    const surahs=[...new Set(data.verses.map(v=>v.verse_key.split(':')[0]))];
-    const arNames=surahs.map(n=>surahNamesAr[parseInt(n)-1]);
-    $('readerSurah').textContent=`Surah ${surahs.join(', ')} • ${arNames.map(n=>'سورة '+n).join(' / ')}`;
-    
+    const surahs = [...new Set(data.verses.map(v => v.verse_key.split(':')[0]))];
+    const arNames = surahs.map(n => surahNamesAr[parseInt(n) - 1]);
+    $('readerSurah').textContent = `Surah ${surahs.join(', ')} • ${arNames.map(n => 'سورة ' + n).join(' / ')}`;
+
     // Show Nav
-    $('readerNav').style.display='flex';
+    $('readerNav').style.display = 'flex';
     updateReaderNavButtons();
-  } catch(e) {
-    $('readerLoading').style.display='none';
-    $('quranText').innerHTML='<p style="text-align:center;color:var(--danger)">Failed to load. Check your internet connection.</p>';
+  } catch (e) {
+    $('readerLoading').style.display = 'none';
+    $('quranText').innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load. Check your internet connection.</p>';
   }
 }
 
 function updateReaderNavButtons() {
   const nextBtn = document.querySelector('.nav-btn.next');
   const prevBtn = document.querySelector('.nav-btn.prev');
-  
+
   // In a real Mushaf, pages go up to 604
   if (currentPageNum >= 604) nextBtn.style.visibility = 'hidden';
   else nextBtn.style.visibility = 'visible';
-  
+
   if (currentPageNum <= 1) prevBtn.style.visibility = 'hidden';
   else prevBtn.style.visibility = 'visible';
 }
@@ -281,30 +281,30 @@ function navigateReader(direction) {
 }
 
 // ===== Audio Controls =====
-$('playPauseBtn').addEventListener('click',()=>{
-  if(audioPlayer.paused){audioPlayer.play();$('playPauseBtn').innerHTML='<i class="fa-solid fa-pause"></i>';}
-  else{audioPlayer.pause();$('playPauseBtn').innerHTML='<i class="fa-solid fa-play"></i>';}
+$('playPauseBtn').addEventListener('click', () => {
+  if (audioPlayer.paused) { audioPlayer.play(); $('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>'; }
+  else { audioPlayer.pause(); $('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>'; }
 });
-$('speedBtn').addEventListener('click',()=>{
-  const s=[0.75,1.0,1.25,1.5],i=s.indexOf(playbackSpeed);
-  playbackSpeed=s[(i+1)%s.length]; audioPlayer.playbackRate=playbackSpeed;
-  $('speedBtn').textContent=playbackSpeed+'x';
+$('speedBtn').addEventListener('click', () => {
+  const s = [0.75, 1.0, 1.25, 1.5], i = s.indexOf(playbackSpeed);
+  playbackSpeed = s[(i + 1) % s.length]; audioPlayer.playbackRate = playbackSpeed;
+  $('speedBtn').textContent = playbackSpeed + 'x';
 });
-$('loopBtn').addEventListener('click',()=>{
-  isLooping=!isLooping; audioPlayer.loop=isLooping;
-  $('loopBtn').classList.toggle('looping',isLooping);
+$('loopBtn').addEventListener('click', () => {
+  isLooping = !isLooping; audioPlayer.loop = isLooping;
+  $('loopBtn').classList.toggle('looping', isLooping);
 });
-audioPlayer.addEventListener('ended',()=>{
-  if(!isLooping&&currentPageIndex<pagesList.length-1){
-    setTimeout(()=>{currentPageIndex++;startPlay(currentPageIndex,pagesList[currentPageIndex]);},1000);
+audioPlayer.addEventListener('ended', () => {
+  if (!isLooping && currentPageIndex < pagesList.length - 1) {
+    setTimeout(() => { currentPageIndex++; startPlay(currentPageIndex, pagesList[currentPageIndex]); }, 1000);
   }
 });
 
 // ===== Tabs =====
-document.querySelectorAll('.tab').forEach(t=>{
-  t.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
     t.classList.add('active'); $(t.dataset.tab).classList.add('active');
     if (t.dataset.tab === 'motivateTab') renderRandomQuote();
   });
@@ -331,30 +331,30 @@ function renderRandomQuote() {
 }
 
 // ===== Back =====
-$('backBtn').addEventListener('click',()=>{
-  if(readerView.classList.contains('view-active')){
+$('backBtn').addEventListener('click', () => {
+  if (readerView.classList.contains('view-active')) {
     showView(moduleView); return;
   }
-  if(adminView.classList.contains('view-active')){
-    adminAuthed=false; $('adminPanel').style.display='none'; $('adminLogin').style.display='block';
-    $('appTitle').querySelector('.title-text').textContent='Hifz Tracker';
+  if (adminView.classList.contains('view-active')) {
+    adminAuthed = false; $('adminPanel').style.display = 'none'; $('adminLogin').style.display = 'block';
+    $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
     renderModuleGrid(); showView(homeView); return;
   }
-  if(profileView.classList.contains('view-active')){
-    $('appTitle').querySelector('.title-text').textContent='Hifz Tracker';
+  if (profileView.classList.contains('view-active')) {
+    $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
     renderModuleGrid(); showView(homeView); return;
   }
-  if(scoreboardView.classList.contains('view-active')){
-    $('appTitle').querySelector('.title-text').textContent='Hifz Tracker';
+  if (scoreboardView.classList.contains('view-active')) {
+    $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
     renderModuleGrid(); showView(homeView); return;
   }
-  if(moduleView.classList.contains('view-active')){
-    try{audioPlayer.pause();audioPlayer.currentTime=0;}catch(e){}
-    audioPlayer.src='';
-    $('appTitle').querySelector('.title-text').textContent='Hifz Tracker';
+  if (moduleView.classList.contains('view-active')) {
+    try { audioPlayer.pause(); audioPlayer.currentTime = 0; } catch (e) { }
+    audioPlayer.src = '';
+    $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
     showView(homeView); return;
   }
-  if(homeView.classList.contains('view-active')) showView(nameView);
+  if (homeView.classList.contains('view-active')) showView(nameView);
 });
 
 // ===== Name & Institute =====
@@ -370,18 +370,18 @@ function selectInstitute(id) {
   localStorage.setItem('hifzSelectedInst', id);
   document.querySelectorAll('.institute-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('inst-' + id).classList.add('selected');
-  
+
   // Update trigger button
   const trigger = $('instTrigger');
   const triggerValue = $('instTriggerValue');
   trigger.classList.add('selected');
   if (id === 'ium') triggerValue.textContent = 'Islamic University of Maldives';
   else if (id === 'zikura') triggerValue.textContent = 'Zikura International College';
-  
+
   // Collapse the grid
   $('instituteGridWrap').classList.add('collapsed');
   $('instTriggerArrow').classList.remove('rotated');
-  
+
   validateOnboarding();
   applyInstituteBranding();
 }
@@ -389,7 +389,7 @@ function selectInstitute(id) {
 function validateOnboarding() {
   const name = $('userName').value.trim();
   const pass = $('userPass').value.trim();
-  
+
   if (name && userStats[name]) {
     $('passHint').textContent = "Student exists. Enter your password to continue.";
     $('forgotPassMsg').style.display = 'block';
@@ -399,7 +399,7 @@ function validateOnboarding() {
     $('forgotPassMsg').style.display = 'none';
     $('userPass').placeholder = "Create a password...";
   }
-  
+
   $('saveNameBtn').disabled = !(name && pass && selectedInst);
 }
 
@@ -420,28 +420,28 @@ function adminLoginPrompt() {
   }
 }
 
-$('saveNameBtn').addEventListener('click',()=>{
-  const n=$('userName').value.trim();
-  if(!n || !selectedInst) return;
-  
-  if(!userNames.includes(n)){userNames.push(n);localStorage.setItem('hifzUserNames',JSON.stringify(userNames));}
-  
+$('saveNameBtn').addEventListener('click', () => {
+  const n = $('userName').value.trim();
+  if (!n || !selectedInst) return;
+
+  if (!userNames.includes(n)) { userNames.push(n); localStorage.setItem('hifzUserNames', JSON.stringify(userNames)); }
+
   const p = $('userPass').value.trim();
   if (userStats[n] && userStats[n].password && userStats[n].password !== p) {
     alert("Incorrect password for this student name.");
     return;
   }
-  
-  if(!userStats[n]) userStats[n] = { joined: new Date().toISOString(), logins: 0 };
+
+  if (!userStats[n]) userStats[n] = { joined: new Date().toISOString(), logins: 0 };
   userStats[n].logins = (userStats[n].logins || 0) + 1;
   userStats[n].institute = selectedInst;
   userStats[n].password = p; // Store/Update password
   localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
   localStorage.setItem('hifzSelectedInst', selectedInst);
-  
+
   initStudentData(n);
 
-  currentUser=n; localStorage.setItem('hifzCurrentUser',n);
+  currentUser = n; localStorage.setItem('hifzCurrentUser', n);
   applyInstituteBranding();
   updateWelcomeHeader();
   fetchDailyAyah();
@@ -457,8 +457,8 @@ function logout() {
 
 function applyInstituteBranding() {
   const inst = getInstitute();
-  if(!inst) return;
-  
+  if (!inst) return;
+
   // Update UI cards if on onboarding
   const instCard = document.getElementById('inst-' + inst);
   if (instCard) {
@@ -482,7 +482,7 @@ function applyInstituteBranding() {
     applyColorTheme(savedTheme, true);
   } else {
     const root = document.documentElement;
-    if(inst === 'zikura') {
+    if (inst === 'zikura') {
       root.style.setProperty('--primary', '#780000');
       root.style.setProperty('--primary-light', 'rgba(120, 0, 0, 0.08)');
       root.style.setProperty('--primary-glow', 'rgba(120, 0, 0, 0.15)');
@@ -495,7 +495,7 @@ function applyInstituteBranding() {
     }
     updateThemeSwatches('default');
   }
-  
+
   // Ensure title is consistent when branding applied
   const titleEl = $('appTitle');
   if (titleEl) {
@@ -533,7 +533,7 @@ async function fetchDailyAyah() {
 
   try {
     let url = 'https://api.quran.com/api/v4/verses/random?language=en&words=false&translations=131&fields=text_uthmani';
-    
+
     if (pList.length > 0) {
       const randomPage = pList[Math.floor(Math.random() * pList.length)];
       url = `https://api.quran.com/api/v4/verses/by_page/${randomPage}?language=en&words=false&translations=131&fields=text_uthmani&per_page=50`;
@@ -541,7 +541,7 @@ async function fetchDailyAyah() {
 
     const res = await fetch(url);
     const data = await res.json();
-    
+
     let v;
     if (pList.length > 0) {
       const verses = data.verses;
@@ -549,7 +549,7 @@ async function fetchDailyAyah() {
     } else {
       v = data.verse;
     }
-    
+
     if (!v) throw new Error("No verse found");
 
     arabicEl.textContent = v.text_uthmani;
@@ -577,7 +577,7 @@ function updateWelcomeHeader() {
 }
 
 
-function applyColorTheme(color, skipSave=false) {
+function applyColorTheme(color, skipSave = false) {
   if (!skipSave) localStorage.setItem('hifzColorTheme', color);
   if (color === 'default') {
     applyInstituteBranding();
@@ -585,30 +585,30 @@ function applyColorTheme(color, skipSave=false) {
   }
 
   const root = document.documentElement;
-  let hex = ''; let r=0, g=0, b=0; let grad = '';
-  
+  let hex = ''; let r = 0, g = 0, b = 0; let grad = '';
+
   if (color === 'green') {
-    hex = '#047857'; r=4; g=120; b=87;
+    hex = '#047857'; r = 4; g = 120; b = 87;
     grad = 'linear-gradient(135deg, #064e3b, #059669)'; // Dark Emerald
   } else if (color === 'purple') {
-    hex = '#7e22ce'; r=126; g=34; b=206;
+    hex = '#7e22ce'; r = 126; g = 34; b = 206;
     grad = 'linear-gradient(135deg, #581c87, #9333ea)'; // Dark Royal Purple
   } else if (color === 'pink') {
-    hex = '#be185d'; r=190; g=24; b=93;
+    hex = '#be185d'; r = 190; g = 24; b = 93;
     grad = 'linear-gradient(135deg, #831843, #db2777)'; // Dark Rose Pink
   } else if (color === 'gold') {
-    hex = '#b68a52'; r=182; g=138; b=82;
+    hex = '#b68a52'; r = 182; g = 138; b = 82;
     grad = '#b68a52'; // Solid gold, no gradient
   } else if (color === 'blue') {
-    hex = '#0c3e4f'; r=12; g=62; b=79;
+    hex = '#0c3e4f'; r = 12; g = 62; b = 79;
     grad = '#0c3e4f'; // Solid dark blue
   }
-  
+
   root.style.setProperty('--primary', hex);
   root.style.setProperty('--primary-light', `rgba(${r}, ${g}, ${b}, 0.1)`);
   root.style.setProperty('--primary-glow', `rgba(${r}, ${g}, ${b}, 0.2)`);
   root.style.setProperty('--primary-gradient', grad);
-  
+
   updateThemeSwatches(color);
 }
 
@@ -620,14 +620,14 @@ function updateThemeSwatches(active) {
 
 function setLayout(layout) {
   localStorage.setItem('hifzLayout', layout);
-  
+
   // Reset buttons
   document.querySelectorAll('.layout-btn').forEach(b => {
     b.style.borderColor = 'var(--border-strong)';
     b.style.color = 'var(--text)';
     b.style.background = 'transparent';
   });
-  
+
   // Highlight active
   const btn = layout === 'list' ? $('btnLayoutList') : $('btnLayoutGrid');
   if (btn) {
@@ -635,38 +635,38 @@ function setLayout(layout) {
     btn.style.color = 'var(--primary)';
     btn.style.background = 'var(--primary-light)';
   }
-  
+
   if (currentView === $('homeView')) {
     renderModuleGrid();
   }
 }
 
-$('userName').addEventListener('keydown',e=>{if(e.key==='Enter')$('saveNameBtn').click();});
+$('userName').addEventListener('keydown', e => { if (e.key === 'Enter') $('saveNameBtn').click(); });
 
 // ===== Theme =====
-$('themeToggle').addEventListener('click',()=>{
+$('themeToggle').addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
-  const d=document.body.classList.contains('dark-mode');
-  $('themeToggle').innerHTML=d?'<i class="fa-solid fa-sun"></i>':'<i class="fa-solid fa-moon"></i>';
-  localStorage.setItem('hifzDarkMode',d);
+  const d = document.body.classList.contains('dark-mode');
+  $('themeToggle').innerHTML = d ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+  localStorage.setItem('hifzDarkMode', d);
 });
-if(localStorage.getItem('hifzDarkMode')==='true'){document.body.classList.add('dark-mode');$('themeToggle').innerHTML='<i class="fa-solid fa-sun"></i>';}
+if (localStorage.getItem('hifzDarkMode') === 'true') { document.body.classList.add('dark-mode'); $('themeToggle').innerHTML = '<i class="fa-solid fa-sun"></i>'; }
 
 // ===== Settings =====
 function openSettings() {
-  $('settingsPanel').classList.add('active'); 
+  $('settingsPanel').classList.add('active');
   $('settingsOverlay').classList.add('active');
-  
+
   const sd = studentData[currentUser];
   if (sd && sd.settings) {
     $('settingsToggleDailyAyah').checked = sd.settings.showDailyAyah || false;
     $('ayahSourceContainer').style.display = sd.settings.showDailyAyah ? 'block' : 'none';
-    
+
     const sel = $('ayahModuleSelect');
     sel.innerHTML = '<option value="random">Random from Quran</option>';
     sel.innerHTML += '<option value="current">Current Module</option>';
     const inst = getInstitute();
-    for (const [key,info] of Object.entries(moduleInfo)) {
+    for (const [key, info] of Object.entries(moduleInfo)) {
       const dn = getDisplayNum(info.num);
       const titleStr = inst === 'zikura' ? `Hifz ${dn}` : info.title;
       sel.innerHTML += `<option value="${key}">${titleStr}</option>`;
@@ -676,30 +676,30 @@ function openSettings() {
 }
 
 $('settingsBtn').addEventListener('click', openSettings);
-$('settingsOverlay').addEventListener('click',closeSettings);
-function closeSettings(){$('settingsPanel').classList.remove('active');$('settingsOverlay').classList.remove('active');}
+$('settingsOverlay').addEventListener('click', closeSettings);
+function closeSettings() { $('settingsPanel').classList.remove('active'); $('settingsOverlay').classList.remove('active'); }
 
 function updateDailyAyahSettings() {
   const show = $('settingsToggleDailyAyah').checked;
   const source = $('ayahModuleSelect').value;
   $('ayahSourceContainer').style.display = show ? 'block' : 'none';
-  
+
   if (currentUser) {
     studentData[currentUser].settings.showDailyAyah = show;
     studentData[currentUser].settings.ayahSource = source;
     saveStudentData();
   }
 }
-function changeName(){
-  const n=$('changeNameInput').value.trim(); if(!n) return alert('Enter a valid name.');
-  currentUser=n; localStorage.setItem('hifzCurrentUser',n);
+function changeName() {
+  const n = $('changeNameInput').value.trim(); if (!n) return alert('Enter a valid name.');
+  currentUser = n; localStorage.setItem('hifzCurrentUser', n);
   closeSettings();
 }
-function exportData(){
-  const d={user:currentUser,moduleInfo,pageLinks,exportDate:new Date().toISOString()};
-  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  const u=URL.createObjectURL(b),a=document.createElement('a');
-  a.href=u; a.download=`hifz-backup-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(u);
+function exportData() {
+  const d = { user: currentUser, moduleInfo, pageLinks, exportDate: new Date().toISOString() };
+  const b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+  const u = URL.createObjectURL(b), a = document.createElement('a');
+  a.href = u; a.download = `hifz-backup-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(u);
 }
 
 // ===== ADMIN =====
@@ -711,48 +711,48 @@ $('appTitle').addEventListener('click', () => {
   adminClickTimer = setTimeout(() => { adminClicks = 0; }, 2000);
   if (adminClicks >= 5) {
     adminClicks = 0;
-    $('appTitle').querySelector('.title-text').textContent='Admin Dashboard';
+    $('appTitle').querySelector('.title-text').textContent = 'Admin Dashboard';
     showView(adminView);
   }
 });
 
-$('adminLoginBtn').addEventListener('click',()=>{
-  const p=$('adminPassword').value;
+$('adminLoginBtn').addEventListener('click', () => {
+  const p = $('adminPassword').value;
   const saved = localStorage.getItem('hifzAdminPass') || 'Ahsan@2026';
-  if(p === saved){
-    adminAuthed=true; $('adminLogin').style.display='none'; $('adminPanel').style.display='block';
-    $('adminError').style.display='none'; $('adminPassword').value='';
+  if (p === saved) {
+    adminAuthed = true; $('adminLogin').style.display = 'none'; $('adminPanel').style.display = 'block';
+    $('adminError').style.display = 'none'; $('adminPassword').value = '';
     populateAdminSelects();
     renderStudentAnalytics();
-  } else { $('adminError').style.display='block'; }
+  } else { $('adminError').style.display = 'block'; }
 });
-$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('adminLoginBtn').click();});
+$('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') $('adminLoginBtn').click(); });
 
-function populateAdminSelects(){
-  const s=$('adminModuleSelect'), d=$('adminDeleteModuleSelect');
-  s.innerHTML='<option value="">-- Choose Module --</option>';
-  d.innerHTML='<option value="">-- Choose Module --</option>';
-  for(const[k,info] of Object.entries(moduleInfo)){
-    s.innerHTML+=`<option value="${k}">Hifz ${info.num} (${info.code})</option>`;
-    d.innerHTML+=`<option value="${k}">Hifz ${info.num} (${info.code})</option>`;
+function populateAdminSelects() {
+  const s = $('adminModuleSelect'), d = $('adminDeleteModuleSelect');
+  s.innerHTML = '<option value="">-- Choose Module --</option>';
+  d.innerHTML = '<option value="">-- Choose Module --</option>';
+  for (const [k, info] of Object.entries(moduleInfo)) {
+    s.innerHTML += `<option value="${k}">Hifz ${info.num} (${info.code})</option>`;
+    d.innerHTML += `<option value="${k}">Hifz ${info.num} (${info.code})</option>`;
   }
 }
 
-$('adminModuleSelect').addEventListener('change',function(){
-  const k=this.value;
-  if(!k){$('adminModuleEdit').style.display='none';$('adminPagesEdit').style.display='none';return;}
-  const info=moduleInfo[k];
-  $('adminModNum').value=info.num; $('adminModCode').value=info.code; $('adminModTitle').value=info.title;
-  $('adminModuleEdit').style.display='block'; $('adminPagesEdit').style.display='block';
+$('adminModuleSelect').addEventListener('change', function () {
+  const k = this.value;
+  if (!k) { $('adminModuleEdit').style.display = 'none'; $('adminPagesEdit').style.display = 'none'; return; }
+  const info = moduleInfo[k];
+  $('adminModNum').value = info.num; $('adminModCode').value = info.code; $('adminModTitle').value = info.title;
+  $('adminModuleEdit').style.display = 'block'; $('adminPagesEdit').style.display = 'block';
   renderAdminPages(k);
 });
 
-function renderAdminPages(k){
-  const c=$('adminPagesList'); c.innerHTML='';
-  const pages=pageLinks[k]||{};
-  for(const[pn,url] of Object.entries(pages)){
-    const r=document.createElement('div'); r.className='admin-page-row';
-    r.innerHTML=`<span class="admin-page-num">Page ${pn}</span><span class="admin-page-url" title="${url}">${url}</span>
+function renderAdminPages(k) {
+  const c = $('adminPagesList'); c.innerHTML = '';
+  const pages = pageLinks[k] || {};
+  for (const [pn, url] of Object.entries(pages)) {
+    const r = document.createElement('div'); r.className = 'admin-page-row';
+    r.innerHTML = `<span class="admin-page-num">Page ${pn}</span><span class="admin-page-url" title="${url}">${url}</span>
       <div class="admin-page-actions">
         <button class="admin-page-edit" title="Edit" onclick="editPageUrl('${k}',${pn})"><i class="fa-solid fa-pen"></i></button>
         <button class="admin-page-del" title="Delete" onclick="deletePage('${k}',${pn})"><i class="fa-solid fa-trash"></i></button>
@@ -761,58 +761,58 @@ function renderAdminPages(k){
   }
 }
 
-function saveModuleInfo(){
-  const k=$('adminModuleSelect').value; if(!k) return;
-  moduleInfo[k]={num:parseInt($('adminModNum').value),code:$('adminModCode').value,title:$('adminModTitle').value};
+function saveModuleInfo() {
+  const k = $('adminModuleSelect').value; if (!k) return;
+  moduleInfo[k] = { num: parseInt($('adminModNum').value), code: $('adminModCode').value, title: $('adminModTitle').value };
   saveData(); alert('Module info saved!'); populateAdminSelects();
 }
-function editPageUrl(k,pn){
-  const newUrl=prompt('Enter new audio URL for Page '+pn+':',pageLinks[k][pn]);
-  if(newUrl!==null){pageLinks[k][pn]=newUrl;saveData();renderAdminPages(k);}
+function editPageUrl(k, pn) {
+  const newUrl = prompt('Enter new audio URL for Page ' + pn + ':', pageLinks[k][pn]);
+  if (newUrl !== null) { pageLinks[k][pn] = newUrl; saveData(); renderAdminPages(k); }
 }
-function deletePage(k,pn){
-  if(!confirm('Delete Page '+pn+'?')) return;
+function deletePage(k, pn) {
+  if (!confirm('Delete Page ' + pn + '?')) return;
   delete pageLinks[k][pn]; saveData(); renderAdminPages(k);
 }
-function addNewPage(){
-  const k=$('adminModuleSelect').value; if(!k) return alert('Select a module first.');
-  const pn=parseInt($('adminNewPageNum').value), url=$('adminNewPageUrl').value.trim();
-  if(!pn||!url) return alert('Enter page number and URL.');
-  if(!pageLinks[k]) pageLinks[k]={};
-  pageLinks[k][pn]=url; saveData(); renderAdminPages(k);
-  $('adminNewPageNum').value=''; $('adminNewPageUrl').value='';
-  alert('Page '+pn+' added!');
+function addNewPage() {
+  const k = $('adminModuleSelect').value; if (!k) return alert('Select a module first.');
+  const pn = parseInt($('adminNewPageNum').value), url = $('adminNewPageUrl').value.trim();
+  if (!pn || !url) return alert('Enter page number and URL.');
+  if (!pageLinks[k]) pageLinks[k] = {};
+  pageLinks[k][pn] = url; saveData(); renderAdminPages(k);
+  $('adminNewPageNum').value = ''; $('adminNewPageUrl').value = '';
+  alert('Page ' + pn + ' added!');
 }
-function addNewModule(){
-  const key=$('adminNewModKey').value.trim(), num=parseInt($('adminNewModNum').value);
-  const code=$('adminNewModCode').value.trim(), title=$('adminNewModTitle').value.trim();
-  if(!key||!num||!code||!title) return alert('Fill all fields.');
-  if(moduleInfo[key]) return alert('Module key already exists.');
-  moduleInfo[key]={num,code,title}; pageLinks[key]={};
+function addNewModule() {
+  const key = $('adminNewModKey').value.trim(), num = parseInt($('adminNewModNum').value);
+  const code = $('adminNewModCode').value.trim(), title = $('adminNewModTitle').value.trim();
+  if (!key || !num || !code || !title) return alert('Fill all fields.');
+  if (moduleInfo[key]) return alert('Module key already exists.');
+  moduleInfo[key] = { num, code, title }; pageLinks[key] = {};
   saveData(); populateAdminSelects();
-  $('adminNewModKey').value='';$('adminNewModNum').value='';$('adminNewModCode').value='';$('adminNewModTitle').value='';
+  $('adminNewModKey').value = ''; $('adminNewModNum').value = ''; $('adminNewModCode').value = ''; $('adminNewModTitle').value = '';
   alert('Module added!');
 }
-function deleteModule(){
-  const k=$('adminDeleteModuleSelect').value; if(!k) return alert('Select a module.');
-  if(!confirm('Delete module '+moduleInfo[k].code+'? This cannot be undone.')) return;
+function deleteModule() {
+  const k = $('adminDeleteModuleSelect').value; if (!k) return alert('Select a module.');
+  if (!confirm('Delete module ' + moduleInfo[k].code + '? This cannot be undone.')) return;
   delete moduleInfo[k]; delete pageLinks[k]; saveData(); populateAdminSelects();
-  $('adminModuleEdit').style.display='none'; $('adminPagesEdit').style.display='none';
+  $('adminModuleEdit').style.display = 'none'; $('adminPagesEdit').style.display = 'none';
   alert('Module deleted.');
 }
-function changeAdminPassword(source){
+function changeAdminPassword(source) {
   const oldId = source === 'dash' ? 'adminDashOldPass' : 'adminSettingsOldPass';
   const newId = source === 'dash' ? 'adminDashNewPass' : 'adminSettingsNewPass';
-  const old=$(oldId).value, np=$(newId).value;
-  if(old!==localStorage.getItem('hifzAdminPass')) return alert('Current password is incorrect.');
-  if(np.length<4) return alert('Password must be at least 4 characters.');
-  localStorage.setItem('hifzAdminPass',np);
-  $(oldId).value=''; $(newId).value='';
+  const old = $(oldId).value, np = $(newId).value;
+  if (old !== localStorage.getItem('hifzAdminPass')) return alert('Current password is incorrect.');
+  if (np.length < 4) return alert('Password must be at least 4 characters.');
+  localStorage.setItem('hifzAdminPass', np);
+  $(oldId).value = ''; $(newId).value = '';
   alert('Password updated!');
 }
-function adminLogout(){
-  adminAuthed=false; $('adminPanel').style.display='none'; $('adminLogin').style.display='block';
-  $('appTitle').querySelector('.title-text').textContent='Hifz Tracker';
+function adminLogout() {
+  adminAuthed = false; $('adminPanel').style.display = 'none'; $('adminLogin').style.display = 'block';
+  $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
   renderModuleGrid(); showView(homeView);
 }
 
@@ -820,15 +820,15 @@ function renderStudentAnalytics() {
   const container = $('adminAnalyticsContainer');
   const prizeContainer = $('adminPrizeAnalyticsContainer');
   const summaryCards = $('adminSummaryCards');
-  
+
   const totalStudents = Object.keys(userStats).length;
   let totalLogins = 0;
   let prizesWon = 0;
-  
+
   for (const stats of Object.values(userStats)) {
     totalLogins += stats.logins || 0;
   }
-  
+
   const fullData = JSON.parse(localStorage.getItem('hifzStudentData') || '{}');
   for (const n of userNames) {
     const pd = fullData[n]?.prizeChallenge;
@@ -845,24 +845,24 @@ function renderStudentAnalytics() {
     <div class="admin-summary-card"><span class="val">${prizesWon}</span><span class="lbl">Prizes Won</span></div>
   `;
 
-    const passSelect = $('adminStudentPassSelect');
-    passSelect.innerHTML = '<option value="">-- Select Student --</option>';
+  const passSelect = $('adminStudentPassSelect');
+  passSelect.innerHTML = '<option value="">-- Select Student --</option>';
 
-    let html = '<table class="analytics-table"><thead><tr><th>Name</th><th>Institute</th><th>Logins</th><th>Last Login</th></tr></thead><tbody>';
-    for (const [name, stats] of Object.entries(userStats)) {
-      const inst = stats.institute === 'zikura' ? 'Zikura' : 'IUM';
-      html += `<tr><td>${name}</td><td>${inst}</td><td>${stats.logins}</td><td>${stats.lastLogin || '-'}</td></tr>`;
-      
-      const opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      passSelect.appendChild(opt);
-    }
-    html += '</tbody></table>';
-    container.innerHTML = html;
-  
+  let html = '<table class="analytics-table"><thead><tr><th>Name</th><th>Institute</th><th>Logins</th><th>Last Login</th></tr></thead><tbody>';
+  for (const [name, stats] of Object.entries(userStats)) {
+    const inst = stats.institute === 'zikura' ? 'Zikura' : 'IUM';
+    html += `<tr><td>${name}</td><td>${inst}</td><td>${stats.logins}</td><td>${stats.lastLogin || '-'}</td></tr>`;
+
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    passSelect.appendChild(opt);
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+
   let phtml = '<table class="analytics-table" style="font-size:12px;"><thead><tr><th>Name</th><th>Module</th><th>Status</th><th>Mistakes</th><th>Time Taken</th><th>Date</th></tr></thead><tbody>';
   let hasPrizeData = false;
-  
+
   for (const n of userNames) {
     const pd = fullData[n]?.prizeChallenge;
     if (pd) {
@@ -874,14 +874,14 @@ function renderStudentAnalytics() {
           <td>${moduleInfo[mod]?.title || mod}</td>
           <td style="color:${cColor}; font-weight:800;">${data.status}</td>
           <td>${data.mistakes !== undefined ? data.mistakes : '-'}</td>
-          <td>${data.timeTaken ? Math.floor(data.timeTaken/60)+'m '+(data.timeTaken%60)+'s' : '-'}</td>
+          <td>${data.timeTaken ? Math.floor(data.timeTaken / 60) + 'm ' + (data.timeTaken % 60) + 's' : '-'}</td>
           <td>${data.date}</td>
         </tr>`;
       }
     }
   }
   phtml += '</tbody></table>';
-  
+
   if (!hasPrizeData) {
     prizeContainer.innerHTML = '<p class="admin-label">No one has started the Prize Challenge yet.</p>';
   } else {
@@ -901,7 +901,7 @@ function resetStudentPassword() {
   const name = $('adminStudentPassSelect').value;
   const newPass = $('adminNewStudentPass').value.trim();
   if (!name || !newPass) return alert("Select a student and enter a new password.");
-  
+
   if (userStats[name]) {
     userStats[name].password = newPass;
     localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
@@ -918,9 +918,9 @@ function exportAllData() {
     pageLinks: JSON.parse(localStorage.getItem('hifzPageLinks') || '{}'),
     exportDate: new Date().toISOString()
   };
-  const b=new Blob([JSON.stringify(allData,null,2)],{type:'application/json'});
-  const u=URL.createObjectURL(b),a=document.createElement('a');
-  a.href=u; a.download=`hifz-admin-export-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(u);
+  const b = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+  const u = URL.createObjectURL(b), a = document.createElement('a');
+  a.href = u; a.download = `hifz-admin-export-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(u);
 }
 
 
@@ -932,18 +932,18 @@ function toggleMobilePreview() {
 
 
 // ===== SCOREBOARD VIEW =====
-const scoreboardView=$('scoreboardView');
+const scoreboardView = $('scoreboardView');
 allViews.push(scoreboardView);
 
 function openScoreboard() {
-  if(!currentUser) return alert('Please get started with your name first.');
+  if (!currentUser) return alert('Please get started with your name first.');
   $('appTitle').querySelector('.title-text').textContent = "Global Scoreboard";
-  $('appTitle').style.paddingLeft='12px';
-  
+  $('appTitle').style.paddingLeft = '12px';
+
   const sel = $('scoreboardModuleSelect');
   sel.innerHTML = '';
   const inst = getInstitute();
-  for (const [key,info] of Object.entries(moduleInfo)) {
+  for (const [key, info] of Object.entries(moduleInfo)) {
     const dn = getDisplayNum(info.num);
     const opt = document.createElement('option');
     opt.value = key;
@@ -951,7 +951,7 @@ function openScoreboard() {
     sel.appendChild(opt);
   }
   if (currentModule) sel.value = currentModule;
-  
+
   renderScoreboard();
   showView(scoreboardView);
 }
@@ -962,7 +962,7 @@ function renderScoreboard() {
   const mod = $('scoreboardModuleSelect').value;
   currentScoreboardStudents = [];
   const fullData = JSON.parse(localStorage.getItem('hifzStudentData') || '{}');
-  
+
   userNames.forEach(n => {
     const cs = fullData[n]?.companionSmart?.[mod];
     if (cs && cs.currentTask > 1) { // Only show if they completed at least task 1
@@ -970,7 +970,7 @@ function renderScoreboard() {
       const instCode = nStat.institute || 'ium';
       const instShort = instCode === 'zikura' ? 'Zikura' : 'IUM';
       currentScoreboardStudents.push({
-        name: n, 
+        name: n,
         institute: instShort,
         currentTask: cs.currentTask,
         totalMistakes: cs.totalMistakes,
@@ -979,27 +979,27 @@ function renderScoreboard() {
       });
     }
   });
-  
+
   // Sort: 1. Tasks completed (desc), 2. Mistakes (asc), 3. Time (asc)
-  currentScoreboardStudents.sort((a,b) => {
+  currentScoreboardStudents.sort((a, b) => {
     if (b.currentTask !== a.currentTask) return b.currentTask - a.currentTask;
     if (a.totalMistakes !== b.totalMistakes) return a.totalMistakes - b.totalMistakes;
     return a.totalTimeTaken - b.totalTimeTaken;
   });
-  
+
   const podium = $('podiumContainer');
   const list = $('leaderboardList');
   podium.innerHTML = ''; list.innerHTML = '';
-  
-  if(currentScoreboardStudents.length === 0) {
+
+  if (currentScoreboardStudents.length === 0) {
     list.innerHTML = '<p style="text-align:center;padding:32px;color:var(--text-3);font-weight:600;">No one has started the Gauntlet for this module yet. Be the first!</p>';
     return;
   }
-  
-  const top3 = currentScoreboardStudents.slice(0,3);
-  const ranks = [2, 1, 3]; 
+
+  const top3 = currentScoreboardStudents.slice(0, 3);
+  const ranks = [2, 1, 3];
   ranks.forEach(r => {
-    if(top3.length >= r) {
+    if (top3.length >= r) {
       const studentIdx = r - 1;
       const student = top3[studentIdx];
       const html = `
@@ -1014,14 +1014,14 @@ function renderScoreboard() {
       podium.insertAdjacentHTML('beforeend', html);
     }
   });
-  
-  if(currentScoreboardStudents.length > 3) {
+
+  if (currentScoreboardStudents.length > 3) {
     const rest = currentScoreboardStudents.slice(3);
     rest.forEach((student, idx) => {
       const rank = idx + 4;
       const studentIdx = idx + 3;
       const html = `
-        <div class="leaderboard-item" style="animation-delay:${idx*0.05}s" onclick="openStudentDetail(${studentIdx})">
+        <div class="leaderboard-item" style="animation-delay:${idx * 0.05}s" onclick="openStudentDetail(${studentIdx})">
           <div class="leaderboard-rank">#${rank}</div>
           <div class="leaderboard-info" style="flex:1;">
             <div class="leaderboard-name">${student.name}</div>
@@ -1037,12 +1037,12 @@ function renderScoreboard() {
 
 function openStudentDetail(idx) {
   const student = currentScoreboardStudents[idx];
-  if(!student) return;
-  
+  if (!student) return;
+
   $('detailName').textContent = student.name;
   $('detailInstitute').textContent = student.institute === 'Zikura' ? 'Zikura International College' : 'Islamic University of Maldives';
-  const formatTime = (sec) => `${Math.floor(sec/60)}m ${sec%60}s`;
-  
+  const formatTime = (sec) => `${Math.floor(sec / 60)}m ${sec % 60}s`;
+
   if (student.currentTask > 5) {
     $('detailStatus').innerHTML = `<i class="fa-solid fa-trophy"></i> Finished 5 tasks with ${student.totalMistakes} mistakes in ${formatTime(student.totalTimeTaken)}`;
     $('detailStatus').style.background = 'var(--primary-light)';
@@ -1052,10 +1052,10 @@ function openStudentDetail(idx) {
     $('detailStatus').style.background = 'rgba(245,158,11,0.15)';
     $('detailStatus').style.color = '#d97706';
   }
-  
+
   const tList = $('detailTaskList');
   tList.innerHTML = '';
-  
+
   if (student.tasks && student.tasks.length > 0) {
     student.tasks.forEach(t => {
       tList.innerHTML += `
@@ -1071,20 +1071,20 @@ function openStudentDetail(idx) {
   } else {
     tList.innerHTML = '<p style="color:var(--text-3); font-size:13px; font-weight:600; text-align:center;">No tasks completed yet.</p>';
   }
-  
+
   $('studentDetailOverlay').classList.add('active');
 }
 
 // ===== PROFILE VIEW =====
-const profileView=$('profileView');
+const profileView = $('profileView');
 allViews.push(profileView);
 
 function openProfile() {
-  if(!currentUser) return alert('Please get started with your name first.');
+  if (!currentUser) return alert('Please get started with your name first.');
   $('appTitle').querySelector('.title-text').textContent = "Student Profile";
-  $('appTitle').style.paddingLeft='12px';
+  $('appTitle').style.paddingLeft = '12px';
   $('profileName').textContent = currentUser;
-  
+
   const inst = getInstitute();
   const instFull = inst === 'zikura' ? 'Zikura International College' : 'Islamic University of Maldives';
   $('profileInstitute').textContent = instFull;
@@ -1092,16 +1092,16 @@ function openProfile() {
   // Prize challenge only for IUM
   const prizeCard = $('prizeChallengeCard');
   if (prizeCard) prizeCard.style.display = inst === 'ium' ? 'block' : 'none';
-  
+
   initStudentData(currentUser);
   const sd = studentData[currentUser];
   $('statQuizzes').textContent = sd.quizHistory.length;
   $('statChallenges').textContent = sd.challengesWon || 0;
-  
+
   if ($('toggleDailyAyah')) {
     $('toggleDailyAyah').checked = sd.settings ? sd.settings.showDailyAyah : true;
   }
-  
+
   let memCount = 0;
   for (const mod in sd.progress) {
     for (const page in sd.progress[mod]) {
@@ -1109,22 +1109,22 @@ function openProfile() {
     }
   }
   $('statMemorized').textContent = memCount;
-  
+
   const sel = $('profileModuleSelect');
   sel.innerHTML = '';
   // inst is already declared above at line 1019
-  for (const [key,info] of Object.entries(moduleInfo)) {
+  for (const [key, info] of Object.entries(moduleInfo)) {
     const dn = getDisplayNum(info.num);
     const opt = document.createElement('option');
     opt.value = key;
     opt.textContent = inst === 'zikura' ? `Hifz ${dn}` : info.title;
     sel.appendChild(opt);
   }
-  
+
   if (sd.currentModule && moduleInfo[sd.currentModule]) {
     sel.value = sd.currentModule;
   }
-  
+
   renderProgressGrid();
   renderQuizHistory();
   showView(profileView);
@@ -1134,19 +1134,19 @@ function renderProgressGrid() {
   const mod = $('profileModuleSelect').value;
   const grid = $('progressGrid');
   grid.innerHTML = '';
-  
+
   const sd = studentData[currentUser];
   sd.currentModule = mod;
   saveStudentData();
-  
-  const pList = Object.keys(pageLinks[mod]||{}).map(Number);
-  if(pList.length === 0) {
+
+  const pList = Object.keys(pageLinks[mod] || {}).map(Number);
+  if (pList.length === 0) {
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-3);font-weight:600;padding:20px;">No pages assigned to this module yet.</p>';
     return;
   }
-  
+
   if (!sd.progress[mod]) sd.progress[mod] = {};
-  
+
   pList.forEach(pn => {
     const status = sd.progress[mod][pn] || 'none';
     const btn = document.createElement('button');
@@ -1160,16 +1160,16 @@ function renderProgressGrid() {
 function togglePageProgress(mod, pn, btn) {
   const sd = studentData[currentUser];
   let current = sd.progress[mod][pn] || 'none';
-  
+
   if (current === 'none') current = 'ongoing';
   else if (current === 'ongoing') current = 'memorized';
   else current = 'none';
-  
+
   sd.progress[mod][pn] = current;
   saveStudentData();
-  
+
   btn.className = `progress-btn ${current !== 'none' ? current : ''}`;
-  
+
   let memCount = 0;
   for (const m in sd.progress) {
     for (const p in sd.progress[m]) {
@@ -1193,9 +1193,9 @@ function renderQuizHistory() {
     list.innerHTML = '<div class="quiz-history-empty">No quizzes taken yet. Test yourself to build your history!</div>';
     return;
   }
-  
+
   list.innerHTML = '';
-  const history = [...sd.quizHistory].reverse().slice(0,10); // Show last 10
+  const history = [...sd.quizHistory].reverse().slice(0, 10); // Show last 10
   history.forEach(q => {
     const item = document.createElement('div');
     item.className = 'quiz-history-item';
@@ -1223,7 +1223,7 @@ function startChallenge(type, mode) {
   let title = '';
   $('challengeName').dataset.type = type;
   $('challengeName').dataset.mode = mode;
-  
+
   if (type === 'walking') {
     title = 'Walking Challenge';
     minutes = mode === 'easy' ? 5 : 10;
@@ -1240,16 +1240,16 @@ function startChallenge(type, mode) {
   } else if (type === 'prize') {
     const inst = getInstitute();
     if (inst !== 'ium') { alert("The Prize Challenge is currently only available for IUM students."); return; }
-    if(!currentModule) { alert("Please open a module from the home screen first."); showView(homeView); return; }
+    if (!currentModule) { alert("Please open a module from the home screen first."); showView(homeView); return; }
     title = 'Win a Prize Challenge';
     minutes = 18;
     text = 'Full module! Recite perfectly within 18m without any break. No mistakes!';
     initStudentData(currentUser);
-    studentData[currentUser].prizeChallenge[currentModule] = { 
-      status: 'Started', 
-      mistakes: 0, 
-      timeTaken: 0, 
-      date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+    studentData[currentUser].prizeChallenge[currentModule] = {
+      status: 'Started',
+      mistakes: 0,
+      timeTaken: 0,
+      date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     saveStudentData();
   } else {
@@ -1257,34 +1257,34 @@ function startChallenge(type, mode) {
     if (mode === 'easy') { minutes = 2; text = 'Recite 1 page in 2 minutes without mistakes.'; }
     else { minutes = 6; text = 'Recite 3 pages in 6 minutes without mistakes.'; }
   }
-  
+
   pendingChallengeData = { minutes: minutes, title: title, text: text };
   $('confirmChallengeTitle').textContent = title;
-  
+
   document.querySelectorAll('.challenge-phase').forEach(p => p.classList.remove('active'));
   $('challengeConfirmPhase').classList.add('active');
   $('challengeOverlay').classList.add('active');
 }
 
 function openGauntletMenu() {
-  if(!currentModule) { alert("Please open a module from the home screen first to play the Gauntlet."); showView(homeView); return; }
+  if (!currentModule) { alert("Please open a module from the home screen first to play the Gauntlet."); showView(homeView); return; }
   initStudentData(currentUser);
   const modData = studentData[currentUser].companionSmart;
-  if(!modData[currentModule]) { modData[currentModule] = { currentTask: 1, totalMistakes: 0, totalTimeTaken: 0, tasks: [] }; saveStudentData(); }
-  
+  if (!modData[currentModule]) { modData[currentModule] = { currentTask: 1, totalMistakes: 0, totalTimeTaken: 0, tasks: [] }; saveStudentData(); }
+
   const ct = modData[currentModule].currentTask;
-  
+
   $('challengeName').textContent = "The Gauntlet";
   $('challengeModeText').textContent = "";
-  
+
   const list = $('gauntletTaskList');
   list.innerHTML = '';
-  
-  for(let i=1; i<=5; i++) {
+
+  for (let i = 1; i <= 5; i++) {
     let statusHTML = '';
     let btnStyle = '';
     let clickAction = '';
-    
+
     if (i < ct) {
       statusHTML = '<i class="fa-solid fa-check" style="color:var(--primary);"></i> Passed';
       btnStyle = 'background:var(--surface-2); border:1px solid var(--border); color:var(--text-2);';
@@ -1296,19 +1296,19 @@ function openGauntletMenu() {
       statusHTML = '<i class="fa-solid fa-lock"></i> Locked';
       btnStyle = 'background:var(--surface); border:1px dashed var(--border-strong); color:var(--text-3); opacity:0.6;';
     }
-    
+
     list.innerHTML += `
-      <div style="padding:16px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; cursor:${i===ct?'pointer':'default'}; transition:all 0.2s; ${btnStyle}" ${clickAction}>
+      <div style="padding:16px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; cursor:${i === ct ? 'pointer' : 'default'}; transition:all 0.2s; ${btnStyle}" ${clickAction}>
         <div style="font-weight:800;">Task ${i}</div>
         <div style="font-size:13px; font-weight:700;">${statusHTML}</div>
       </div>
     `;
   }
-  
+
   if (ct > 5) {
     list.innerHTML += `<div style="text-align:center; padding:16px; color:var(--primary); font-weight:800;"><i class="fa-solid fa-crown"></i> You are a Gauntlet Champion!</div>`;
   }
-  
+
   document.querySelectorAll('.challenge-phase').forEach(p => p.classList.remove('active'));
   $('challengeGauntletMenuPhase').classList.add('active');
   $('challengeOverlay').classList.add('active');
@@ -1328,16 +1328,16 @@ function startGauntletTask(ct) {
   let minutes = 0;
   let text = '';
   let title = `Gauntlet Task ${ct}/5`;
-  
-  if(ct === 1) { minutes = 1.5; text = '1st 3 pages. 3 Questions. Answer within 1m 30s. No mistakes!'; }
-  else if(ct === 2) { minutes = 1.5; text = '2nd 3 pages. 3 Questions. Answer within 1m 30s. No mistakes!'; }
-  else if(ct === 3) { minutes = 2; text = 'Last 4 pages. 4 Questions. Answer within 2m. No mistakes!'; }
-  else if(ct === 4) { minutes = 3; text = '1st 5 pages. 5 Questions. Answer within 3m. No mistakes!'; }
-  else if(ct === 5) { minutes = 3; text = 'Last 5 pages. 5 Questions. Answer within 3m. No mistakes!'; }
-  
+
+  if (ct === 1) { minutes = 1.5; text = '1st 3 pages. 3 Questions. Answer within 1m 30s. No mistakes!'; }
+  else if (ct === 2) { minutes = 1.5; text = '2nd 3 pages. 3 Questions. Answer within 1m 30s. No mistakes!'; }
+  else if (ct === 3) { minutes = 2; text = 'Last 4 pages. 4 Questions. Answer within 2m. No mistakes!'; }
+  else if (ct === 4) { minutes = 3; text = '1st 5 pages. 5 Questions. Answer within 3m. No mistakes!'; }
+  else if (ct === 5) { minutes = 3; text = 'Last 5 pages. 5 Questions. Answer within 3m. No mistakes!'; }
+
   pendingChallengeData = { minutes: minutes, title: title, text: text };
   $('confirmChallengeTitle').textContent = title;
-  
+
   document.querySelectorAll('.challenge-phase').forEach(p => p.classList.remove('active'));
   $('challengeConfirmPhase').classList.add('active');
   $('challengeOverlay').classList.add('active');
@@ -1345,17 +1345,17 @@ function startGauntletTask(ct) {
 
 function executeChallengeStart() {
   if (!pendingChallengeData) return;
-  
+
   $('challengeName').textContent = pendingChallengeData.title;
   $('challengeModeText').textContent = pendingChallengeData.text;
-  
+
   challengeTimeLeft = Math.floor(pendingChallengeData.minutes * 60);
   $('challengeTimerPhase').dataset.totalTime = challengeTimeLeft;
   updateTimerDisplay();
-  
+
   document.querySelectorAll('.challenge-phase').forEach(p => p.classList.remove('active'));
   $('challengeTimerPhase').classList.add('active');
-  
+
   clearInterval(challengeTimerInterval);
   isChallengeActive = true;
   challengeTimerInterval = setInterval(() => {
@@ -1404,22 +1404,22 @@ function showReportPhase() {
 function submitChallengeResult() {
   const mistakes = parseInt($('challengeMistakes').value) || 0;
   $('challengeReportPhase').classList.remove('active');
-  
+
   const icon = $('challengeResultIcon');
   const title = $('challengeResultTitle');
-  
+
   const type = $('challengeName').dataset.type;
   const mode = $('challengeName').dataset.mode;
-  
+
   $('prizeContactInfo').style.display = 'none';
   $('gauntletActionBtns').style.display = 'none';
   $('normalCloseBtn').style.display = 'block';
-  
+
   if (type === 'companion' && mode === 'smart') {
     const modData = studentData[currentUser].companionSmart[currentModule];
     const totalTime = parseInt($('challengeTimerPhase').dataset.totalTime);
     const timeTaken = totalTime - challengeTimeLeft;
-    
+
     if (challengeTimeLeft <= 0) {
       icon.className = 'result-icon fail';
       icon.innerHTML = '<i class="fa-solid fa-clock"></i>';
@@ -1439,10 +1439,10 @@ function submitChallengeResult() {
       modData.totalTimeTaken += timeTaken;
       modData.currentTask++;
       saveStudentData();
-      
+
       icon.className = 'result-icon success';
       icon.innerHTML = '<i class="fa-solid fa-award"></i>';
-      if(modData.currentTask > 5) {
+      if (modData.currentTask > 5) {
         title.textContent = 'YOU BEAT THE GAUNTLET!';
         studentData[currentUser].challengesWon = (studentData[currentUser].challengesWon || 0) + 1;
         saveStudentData();
@@ -1459,8 +1459,8 @@ function submitChallengeResult() {
     const timeTaken = totalTime - challengeTimeLeft;
     pd.mistakes = mistakes;
     pd.timeTaken = timeTaken;
-    pd.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
+    pd.date = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     if (challengeTimeLeft <= 0) {
       icon.className = 'result-icon fail'; icon.innerHTML = '<i class="fa-solid fa-clock"></i>'; title.textContent = 'Time Ran Out!';
       pd.status = 'Failed';
@@ -1491,7 +1491,7 @@ function submitChallengeResult() {
       else title.textContent = 'Mistakes Made. Try Again!';
     }
   }
-  
+
   $('challengeResultPhase').classList.add('active');
 }
 
@@ -1501,9 +1501,9 @@ function closeChallengeModal() {
 }
 
 // Keyboard
-document.addEventListener('keydown',e=>{
-  if(!moduleView.classList.contains('view-active')) return;
-  if(e.code==='Space'&&!e.target.matches('input,textarea')){e.preventDefault();audioPlayer.src&&(audioPlayer.paused?audioPlayer.play():audioPlayer.pause());}
+document.addEventListener('keydown', e => {
+  if (!moduleView.classList.contains('view-active')) return;
+  if (e.code === 'Space' && !e.target.matches('input,textarea')) { e.preventDefault(); audioPlayer.src && (audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause()); }
 });
 
 // ===== QUIZ LOGIC =====
@@ -1541,20 +1541,20 @@ async function loadNextQuizQuestion() {
   document.querySelectorAll('.quiz-screen').forEach(s => s.classList.remove('active'));
   $('quizLoadingScreen').classList.add('active');
   isAnswering = false;
-  
+
   if (pagesList.length === 0) return alert("No pages available in this module.");
 
   let verses = [];
   let attempts = 0;
   let targetPage = 0;
-  
+
   // Find a page with verses
   while (verses.length < 2 && attempts < 5) {
     targetPage = pagesList[Math.floor(Math.random() * pagesList.length)];
     verses = await fetchPageVerses(targetPage);
     attempts++;
   }
-  
+
   if (verses.length < 2) {
     alert("Could not load verses for quiz. Please check internet connection.");
     $('quizLoadingScreen').classList.remove('active');
@@ -1566,37 +1566,37 @@ async function loadNextQuizQuestion() {
   const qIndex = Math.floor(Math.random() * (verses.length - 1));
   const questionVerse = verses[qIndex];
   const correctVerse = verses[qIndex + 1];
-  
+
   // Get wrong options
   let allVersesList = [];
   for (const p in quizCache) allVersesList.push(...quizCache[p]);
-  
+
   // Filter out the correct verse and question verse
   let wrongPool = allVersesList.filter(v => v.text_uthmani !== correctVerse.text_uthmani && v.text_uthmani !== questionVerse.text_uthmani);
-  
+
   // Fallback: If pool is too small, use other verses from the current page
   if (wrongPool.length < 3) {
     wrongPool = verses.filter(v => v.text_uthmani !== correctVerse.text_uthmani && v.text_uthmani !== questionVerse.text_uthmani);
   }
-  
+
   let wrongOptions = [];
-  for(let i=0; i<3; i++) {
+  for (let i = 0; i < 3; i++) {
     if (wrongPool.length > 0) {
       const wIdx = Math.floor(Math.random() * wrongPool.length);
       wrongOptions.push(wrongPool[wIdx]);
       wrongPool.splice(wIdx, 1);
     }
   }
-  
+
   currentQuizOptions = [correctVerse, ...wrongOptions];
   currentQuizOptions.sort(() => Math.random() - 0.5); // Shuffle
   correctQuizAnswer = correctVerse.text_uthmani;
-  
+
   // Render
   $('quizProgress').textContent = `Question ${currentQuizQuestion}/${MAX_QUIZ_QUESTIONS}`;
   $('quizScoreDisplay').textContent = `Score: ${currentQuizScore}`;
   $('quizQuestionText').textContent = questionVerse.text_uthmani;
-  
+
   const optionsContainer = $('quizOptions');
   optionsContainer.innerHTML = '';
   currentQuizOptions.forEach((opt, idx) => {
@@ -1606,7 +1606,7 @@ async function loadNextQuizQuestion() {
     btn.onclick = () => checkQuizAnswer(btn, opt.text_uthmani);
     optionsContainer.appendChild(btn);
   });
-  
+
   document.querySelectorAll('.quiz-screen').forEach(s => s.classList.remove('active'));
   $('quizGameScreen').classList.add('active');
 }
@@ -1614,9 +1614,9 @@ async function loadNextQuizQuestion() {
 function checkQuizAnswer(btn, selectedText) {
   if (isAnswering) return;
   isAnswering = true;
-  
+
   const buttons = document.querySelectorAll('.quiz-option');
-  
+
   if (selectedText === correctQuizAnswer) {
     btn.classList.add('correct');
     currentQuizScore++;
@@ -1629,19 +1629,19 @@ function checkQuizAnswer(btn, selectedText) {
       }
     });
   }
-  
+
   setTimeout(() => {
     if (currentQuizQuestion >= MAX_QUIZ_QUESTIONS) {
       // End game
       document.querySelectorAll('.quiz-screen').forEach(s => s.classList.remove('active'));
       $('quizFinalScore').textContent = `You scored ${currentQuizScore} / ${MAX_QUIZ_QUESTIONS}`;
       $('quizResultScreen').classList.add('active');
-      
+
       // Save Score
       if (currentUser) {
         initStudentData(currentUser);
         studentData[currentUser].quizHistory.push({
-          date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+          date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           module: currentModule,
           score: currentQuizScore,
           total: MAX_QUIZ_QUESTIONS
@@ -1657,13 +1657,13 @@ function checkQuizAnswer(btn, selectedText) {
 
 // ===== Init =====
 renderModuleGrid();
-if(userNames.length>0 && localStorage.getItem('hifzCurrentUser')){
-  currentUser=localStorage.getItem('hifzCurrentUser');
+if (userNames.length > 0 && localStorage.getItem('hifzCurrentUser')) {
+  currentUser = localStorage.getItem('hifzCurrentUser');
   if (currentUser) {
     initStudentData(currentUser);
     applyInstituteBranding();
-    
-    if(userStats[currentUser]) {
+
+    if (userStats[currentUser]) {
       userStats[currentUser].logins += 1;
       userStats[currentUser].lastLogin = new Date().toLocaleDateString();
       localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
@@ -1681,27 +1681,27 @@ if(userNames.length>0 && localStorage.getItem('hifzCurrentUser')){
 }
 
 // Expose globals
-window.changeName=changeName; window.closeSettings=closeSettings; window.exportData=exportData;
-window.saveModuleInfo=saveModuleInfo; window.editPageUrl=editPageUrl; window.deletePage=deletePage;
-window.addNewPage=addNewPage; window.addNewModule=addNewModule; window.deleteModule=deleteModule;
-window.changeAdminPassword=changeAdminPassword; window.adminLogout=adminLogout;
-window.startPlay=startPlay; window.openReader=openReader; window.clearStudentAnalytics=clearStudentAnalytics;
-window.startQuiz=startQuiz; window.openProfile=openProfile; window.renderProgressGrid=renderProgressGrid;
-window.startChallenge=startChallenge; window.finishChallengeRecitation=finishChallengeRecitation; 
-window.submitChallengeResult=submitChallengeResult; window.closeChallengeModal=closeChallengeModal;
-window.openScoreboard=openScoreboard; window.openStudentDetail=openStudentDetail;
-window.openGauntletMenu=openGauntletMenu; window.confirmGauntletStart=confirmGauntletStart;
-window.startGauntletTaskFromWin=startGauntletTaskFromWin; window.executeChallengeStart=executeChallengeStart;
-window.cancelChallengeStart=cancelChallengeStart;
-window.navigateReader=navigateReader; window.exportAllData=exportAllData;
-window.resetAllData=handleResetAllData; window.handleResetAllData=handleResetAllData; 
-window.openAdminDashboard=()=>showView(adminView);
-window.selectInstitute=selectInstitute; window.toggleInstituteSelector=toggleInstituteSelector;
-window.applyColorTheme=applyColorTheme; window.adminLoginPrompt=adminLoginPrompt;
-window.updateDailyAyahSettings=updateDailyAyahSettings; window.toggleHomepageSetting=toggleHomepageSetting;
-window.renderStudentAnalytics=renderStudentAnalytics; window.resetStudentPassword=resetStudentPassword;
+window.changeName = changeName; window.closeSettings = closeSettings; window.exportData = exportData;
+window.saveModuleInfo = saveModuleInfo; window.editPageUrl = editPageUrl; window.deletePage = deletePage;
+window.addNewPage = addNewPage; window.addNewModule = addNewModule; window.deleteModule = deleteModule;
+window.changeAdminPassword = changeAdminPassword; window.adminLogout = adminLogout;
+window.startPlay = startPlay; window.openReader = openReader; window.clearStudentAnalytics = clearStudentAnalytics;
+window.startQuiz = startQuiz; window.openProfile = openProfile; window.renderProgressGrid = renderProgressGrid;
+window.startChallenge = startChallenge; window.finishChallengeRecitation = finishChallengeRecitation;
+window.submitChallengeResult = submitChallengeResult; window.closeChallengeModal = closeChallengeModal;
+window.openScoreboard = openScoreboard; window.openStudentDetail = openStudentDetail;
+window.openGauntletMenu = openGauntletMenu; window.confirmGauntletStart = confirmGauntletStart;
+window.startGauntletTaskFromWin = startGauntletTaskFromWin; window.executeChallengeStart = executeChallengeStart;
+window.cancelChallengeStart = cancelChallengeStart;
+window.navigateReader = navigateReader; window.exportAllData = exportAllData;
+window.resetAllData = handleResetAllData; window.handleResetAllData = handleResetAllData;
+window.openAdminDashboard = () => showView(adminView);
+window.selectInstitute = selectInstitute; window.toggleInstituteSelector = toggleInstituteSelector;
+window.applyColorTheme = applyColorTheme; window.adminLoginPrompt = adminLoginPrompt;
+window.updateDailyAyahSettings = updateDailyAyahSettings; window.toggleHomepageSetting = toggleHomepageSetting;
+window.renderStudentAnalytics = renderStudentAnalytics; window.resetStudentPassword = resetStudentPassword;
 
-window.onerror = function(msg, url, lineNo, columnNo, error) {
+window.onerror = function (msg, url, lineNo, columnNo, error) {
   console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
   return false;
 };
