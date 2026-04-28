@@ -492,15 +492,16 @@
 
       <!-- Admin Login -->
       <div id="adminLogin" class="admin-login-card">
-        <h3>Enter Admin Password</h3>
+        <h3>Admin Login</h3>
         <div class="input-group">
+          <input type="email" id="adminEmail" placeholder="Admin email..." style="margin-bottom:12px;"/>
           <input type="password" id="adminPassword" placeholder="Password..."/>
           <button class="btn-primary" id="adminLoginBtn">
             <span>Login</span>
             <i class="fa-solid fa-lock-open"></i>
           </button>
         </div>
-        <p class="admin-error" id="adminError" style="display:none;">Incorrect password</p>
+        <p class="admin-error" id="adminError" style="display:none;">Incorrect credentials</p>
       </div>
 
       <!-- Admin Panel (hidden until authenticated) -->
@@ -553,16 +554,6 @@
             <input type="text" id="adminNewPageUrl" class="admin-input" placeholder="https://..."/>
             <button class="btn-primary btn-sm" onclick="addNewPage()">Add Page</button>
           </div>
-        </div>
-
-        <!-- Change Password -->
-        <div class="admin-section">
-          <h3 class="admin-section-title">Change Admin Password</h3>
-          <label class="admin-label">Current Password</label>
-          <input type="password" id="adminDashOldPass" class="admin-input"/>
-          <label class="admin-label">New Password</label>
-          <input type="password" id="adminDashNewPass" class="admin-input"/>
-          <button class="btn-danger btn-sm" onclick="changeAdminPassword('dash')">Update Password</button>
         </div>
 
         <!-- Add New Module -->
@@ -708,6 +699,10 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="db.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

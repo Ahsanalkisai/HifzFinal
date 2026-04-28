@@ -27,6 +27,8 @@ let moduleInfo = JSON.parse(localStorage.getItem('hifzModuleInfo')) || JSON.pars
 function saveData() {
   localStorage.setItem('hifzPageLinks', JSON.stringify(pageLinks));
   localStorage.setItem('hifzModuleInfo', JSON.stringify(moduleInfo));
+  dbSetConfig('pageLinks', pageLinks);
+  dbSetConfig('moduleInfo', moduleInfo);
 }
 
 // DOM
@@ -55,13 +57,9 @@ window.onerror = function (msg, url, line, col, error) {
 };
 
 let userNames = JSON.parse(localStorage.getItem('hifzUserNames') || '[]');
-let userStats = JSON.parse(localStorage.getItem('hifzUserStats') || '{}');
-let studentData = JSON.parse(localStorage.getItem('hifzStudentData') || '{}');
+let userStats = {};
+let studentData = {};
 let currentModule = '', pagesList = [], currentPageIndex = -1, playbackSpeed = 1.0, isLooping = false;
-// Default admin password
-if (!localStorage.getItem('hifzAdminPass') || localStorage.getItem('hifzAdminPass') === 'admin123' || localStorage.getItem('hifzAdminPass') === 'Ahsanalkisai@2026') {
-  localStorage.setItem('hifzAdminPass', 'Ahsan@2026');
-}
 let adminAuthed = false;
 let selectedInst = localStorage.getItem('hifzSelectedInst') || '';
 
@@ -71,6 +69,9 @@ function getInstitute() {
 
 function saveStudentData() {
   localStorage.setItem('hifzStudentData', JSON.stringify(studentData));
+  if (currentUser && userStats[currentUser]) {
+    dbSaveStudent(currentUser, userStats[currentUser], studentData[currentUser] || {});
+  }
 }
 
 function initStudentData(n) {
@@ -386,60 +387,62 @@ function selectInstitute(id) {
   applyInstituteBranding();
 }
 
+let _validateTimer;
 function validateOnboarding() {
   const name = $('userName').value.trim();
   const pass = $('userPass').value.trim();
-
-  if (name && userStats[name]) {
-    $('passHint').textContent = "Student exists. Enter your password to continue.";
-    $('forgotPassMsg').style.display = 'block';
-    $('userPass').placeholder = "Enter your password...";
-  } else {
-    $('passHint').textContent = "This password will be saved to your device.";
-    $('forgotPassMsg').style.display = 'none';
-    $('userPass').placeholder = "Create a password...";
-  }
-
   $('saveNameBtn').disabled = !(name && pass && selectedInst);
+
+  clearTimeout(_validateTimer);
+  _validateTimer = setTimeout(async () => {
+    if (!name) return;
+    const existing = await dbGetStudent(name);
+    if (existing) {
+      $('passHint').textContent = "Student exists. Enter your password to continue.";
+      $('forgotPassMsg').style.display = 'block';
+      $('userPass').placeholder = "Enter your password...";
+    } else {
+      $('passHint').textContent = "This password will be saved to your device.";
+      $('forgotPassMsg').style.display = 'none';
+      $('userPass').placeholder = "Create a password...";
+    }
+  }, 500);
 }
 
 $('userName').addEventListener('input', validateOnboarding);
 $('userPass').addEventListener('input', validateOnboarding);
 
 function adminLoginPrompt() {
-  const pass = prompt("Enter Admin Password:");
-  const saved = localStorage.getItem('hifzAdminPass') || 'Ahsan@2026';
-  if (pass === saved) {
-    adminAuthed = true;
-    $('adminLogin').style.display = 'none';
-    $('adminPanel').style.display = 'block';
-    showView(adminView);
-    renderStudentAnalytics();
-  } else if (pass !== null) {
-    alert("Incorrect admin password.");
-  }
+  $('appTitle').querySelector('.title-text').textContent = 'Admin Dashboard';
+  showView(adminView);
 }
 
-$('saveNameBtn').addEventListener('click', () => {
+$('saveNameBtn').addEventListener('click', async () => {
   const n = $('userName').value.trim();
-  if (!n || !selectedInst) return;
-
-  if (!userNames.includes(n)) { userNames.push(n); localStorage.setItem('hifzUserNames', JSON.stringify(userNames)); }
-
   const p = $('userPass').value.trim();
-  if (userStats[n] && userStats[n].password && userStats[n].password !== p) {
+  if (!n || !p || !selectedInst) return;
+
+  $('saveNameBtn').disabled = true;
+
+  const existing = await dbGetStudent(n);
+  if (existing && existing.password && existing.password !== p) {
     alert("Incorrect password for this student name.");
+    $('saveNameBtn').disabled = false;
     return;
   }
 
+  if (!userNames.includes(n)) { userNames.push(n); localStorage.setItem('hifzUserNames', JSON.stringify(userNames)); }
+
   if (!userStats[n]) userStats[n] = { joined: new Date().toISOString(), logins: 0 };
   userStats[n].logins = (userStats[n].logins || 0) + 1;
+  userStats[n].lastLogin = new Date().toLocaleDateString();
   userStats[n].institute = selectedInst;
-  userStats[n].password = p; // Store/Update password
-  localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
+  userStats[n].password = p;
   localStorage.setItem('hifzSelectedInst', selectedInst);
 
+  if (existing && existing.data) studentData[n] = existing.data;
   initStudentData(n);
+  await dbSaveStudent(n, userStats[n], studentData[n]);
 
   currentUser = n; localStorage.setItem('hifzCurrentUser', n);
   applyInstituteBranding();
@@ -716,15 +719,27 @@ $('appTitle').addEventListener('click', () => {
   }
 });
 
-$('adminLoginBtn').addEventListener('click', () => {
+$('adminLoginBtn').addEventListener('click', async () => {
+  const email = $('adminEmail').value.trim();
   const p = $('adminPassword').value;
-  const saved = localStorage.getItem('hifzAdminPass') || 'Ahsan@2026';
-  if (p === saved) {
-    adminAuthed = true; $('adminLogin').style.display = 'none'; $('adminPanel').style.display = 'block';
-    $('adminError').style.display = 'none'; $('adminPassword').value = '';
+  try {
+    await adminLogin(email, p);
+    adminAuthed = true;
+    $('adminLogin').style.display = 'none'; $('adminPanel').style.display = 'block';
+    $('adminError').style.display = 'none'; $('adminPassword').value = ''; $('adminEmail').value = '';
+
+    const all = await dbGetAllStudents();
+    for (const [name, val] of Object.entries(all)) {
+      const { data, ...stats } = val;
+      userStats[name] = stats;
+      if (data) studentData[name] = data;
+      if (!userNames.includes(name)) userNames.push(name);
+    }
+    localStorage.setItem('hifzUserNames', JSON.stringify(userNames));
+
     populateAdminSelects();
     renderStudentAnalytics();
-  } else { $('adminError').style.display = 'block'; }
+  } catch (e) { $('adminError').style.display = 'block'; }
 });
 $('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') $('adminLoginBtn').click(); });
 
@@ -800,17 +815,8 @@ function deleteModule() {
   $('adminModuleEdit').style.display = 'none'; $('adminPagesEdit').style.display = 'none';
   alert('Module deleted.');
 }
-function changeAdminPassword(source) {
-  const oldId = source === 'dash' ? 'adminDashOldPass' : 'adminSettingsOldPass';
-  const newId = source === 'dash' ? 'adminDashNewPass' : 'adminSettingsNewPass';
-  const old = $(oldId).value, np = $(newId).value;
-  if (old !== localStorage.getItem('hifzAdminPass')) return alert('Current password is incorrect.');
-  if (np.length < 4) return alert('Password must be at least 4 characters.');
-  localStorage.setItem('hifzAdminPass', np);
-  $(oldId).value = ''; $(newId).value = '';
-  alert('Password updated!');
-}
-function adminLogout() {
+async function adminLogout() {
+  await auth.signOut();
   adminAuthed = false; $('adminPanel').style.display = 'none'; $('adminLogin').style.display = 'block';
   $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
   renderModuleGrid(); showView(homeView);
@@ -829,9 +835,8 @@ function renderStudentAnalytics() {
     totalLogins += stats.logins || 0;
   }
 
-  const fullData = JSON.parse(localStorage.getItem('hifzStudentData') || '{}');
-  for (const n of userNames) {
-    const pd = fullData[n]?.prizeChallenge;
+  for (const n of Object.keys(userStats)) {
+    const pd = studentData[n]?.prizeChallenge;
     if (pd) {
       for (const data of Object.values(pd)) {
         if (data.status === 'Won') prizesWon++;
@@ -863,8 +868,8 @@ function renderStudentAnalytics() {
   let phtml = '<table class="analytics-table" style="font-size:12px;"><thead><tr><th>Name</th><th>Module</th><th>Status</th><th>Mistakes</th><th>Time Taken</th><th>Date</th></tr></thead><tbody>';
   let hasPrizeData = false;
 
-  for (const n of userNames) {
-    const pd = fullData[n]?.prizeChallenge;
+  for (const n of Object.keys(userStats)) {
+    const pd = studentData[n]?.prizeChallenge;
     if (pd) {
       for (const [mod, data] of Object.entries(pd)) {
         hasPrizeData = true;
@@ -889,35 +894,33 @@ function renderStudentAnalytics() {
   }
 }
 
-function clearStudentAnalytics() {
+async function clearStudentAnalytics() {
   if (!confirm('Are you sure you want to delete all student analytics data? This cannot be undone.')) return;
-  userStats = {};
-  localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
+  const snap = await db.collection('students').get();
+  const batch = db.batch();
+  snap.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+  userStats = {}; studentData = {}; userNames = [];
+  localStorage.setItem('hifzUserNames', JSON.stringify(userNames));
   renderStudentAnalytics();
   alert('Analytics data cleared.');
 }
 
-function resetStudentPassword() {
+async function resetStudentPassword() {
   const name = $('adminStudentPassSelect').value;
   const newPass = $('adminNewStudentPass').value.trim();
   if (!name || !newPass) return alert("Select a student and enter a new password.");
 
   if (userStats[name]) {
     userStats[name].password = newPass;
-    localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
+    await dbSaveStudent(name, userStats[name], studentData[name] || {});
     alert(`Password for ${name} has been reset successfully.`);
     $('adminNewStudentPass').value = '';
   }
 }
 
 function exportAllData() {
-  const allData = {
-    userStats: JSON.parse(localStorage.getItem('hifzUserStats') || '{}'),
-    studentData: JSON.parse(localStorage.getItem('hifzStudentData') || '{}'),
-    moduleInfo: JSON.parse(localStorage.getItem('hifzModuleInfo') || '{}'),
-    pageLinks: JSON.parse(localStorage.getItem('hifzPageLinks') || '{}'),
-    exportDate: new Date().toISOString()
-  };
+  const allData = { userStats, studentData, moduleInfo, pageLinks, exportDate: new Date().toISOString() };
   const b = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
   const u = URL.createObjectURL(b), a = document.createElement('a');
   a.href = u; a.download = `hifz-admin-export-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(u);
@@ -961,10 +964,8 @@ let currentScoreboardStudents = [];
 function renderScoreboard() {
   const mod = $('scoreboardModuleSelect').value;
   currentScoreboardStudents = [];
-  const fullData = JSON.parse(localStorage.getItem('hifzStudentData') || '{}');
-
-  userNames.forEach(n => {
-    const cs = fullData[n]?.companionSmart?.[mod];
+  Object.keys(userStats).forEach(n => {
+    const cs = studentData[n]?.companionSmart?.[mod];
     if (cs && cs.currentTask > 1) { // Only show if they completed at least task 1
       const nStat = userStats[n] || {};
       const instCode = nStat.institute || 'ium';
@@ -1656,35 +1657,51 @@ function checkQuizAnswer(btn, selectedText) {
 }
 
 // ===== Init =====
-renderModuleGrid();
-if (userNames.length > 0 && localStorage.getItem('hifzCurrentUser')) {
-  currentUser = localStorage.getItem('hifzCurrentUser');
-  if (currentUser) {
-    initStudentData(currentUser);
-    applyInstituteBranding();
+async function initApp() {
+  const pl = await dbGetConfig('pageLinks');
+  if (pl) { pageLinks = pl; localStorage.setItem('hifzPageLinks', JSON.stringify(pl)); }
+  const mi = await dbGetConfig('moduleInfo');
+  if (mi) { moduleInfo = mi; localStorage.setItem('hifzModuleInfo', JSON.stringify(mi)); }
 
-    if (userStats[currentUser]) {
-      userStats[currentUser].logins += 1;
+  renderModuleGrid();
+
+  const savedUser = localStorage.getItem('hifzCurrentUser');
+  if (savedUser) {
+    const existing = await dbGetStudent(savedUser);
+    if (existing) {
+      currentUser = savedUser;
+      const { data, ...stats } = existing;
+      userStats[savedUser] = stats;
+      if (data) studentData[savedUser] = data;
+      if (!userNames.includes(savedUser)) { userNames.push(savedUser); localStorage.setItem('hifzUserNames', JSON.stringify(userNames)); }
+
+      initStudentData(currentUser);
+      applyInstituteBranding();
+
+      userStats[currentUser].logins = (userStats[currentUser].logins || 0) + 1;
       userStats[currentUser].lastLogin = new Date().toLocaleDateString();
-      localStorage.setItem('hifzUserStats', JSON.stringify(userStats));
+      await dbSaveStudent(currentUser, userStats[currentUser], studentData[currentUser]);
+
+      showView(homeView);
+    } else {
+      localStorage.removeItem('hifzCurrentUser');
+      showView(nameView);
+      applyInstituteBranding();
+      validateOnboarding();
     }
-    showView(homeView);
   } else {
     showView(nameView);
     applyInstituteBranding();
     validateOnboarding();
   }
-} else {
-  showView(nameView);
-  applyInstituteBranding();
-  validateOnboarding();
 }
+initApp();
 
 // Expose globals
 window.changeName = changeName; window.closeSettings = closeSettings; window.exportData = exportData;
 window.saveModuleInfo = saveModuleInfo; window.editPageUrl = editPageUrl; window.deletePage = deletePage;
 window.addNewPage = addNewPage; window.addNewModule = addNewModule; window.deleteModule = deleteModule;
-window.changeAdminPassword = changeAdminPassword; window.adminLogout = adminLogout;
+window.adminLogout = adminLogout;
 window.startPlay = startPlay; window.openReader = openReader; window.clearStudentAnalytics = clearStudentAnalytics;
 window.startQuiz = startQuiz; window.openProfile = openProfile; window.renderProgressGrid = renderProgressGrid;
 window.startChallenge = startChallenge; window.finishChallengeRecitation = finishChallengeRecitation;
