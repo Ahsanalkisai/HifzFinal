@@ -33,13 +33,14 @@ function saveData() {
 
 // DOM
 const $ = id => document.getElementById(id);
-const nameView = $('nameView'), homeView = $('homeView'), moduleView = $('moduleView'), readerView = $('readerView'), adminView = $('adminView');
-const allViews = [nameView, homeView, moduleView, readerView, adminView];
+const homeView = $('homeView'), moduleView = $('moduleView'), readerView = $('readerView'), adminView = $('adminView');
+const allViews = [homeView, moduleView, readerView, adminView];
 const audioPlayer = $('audioPlayer'), audioBar = $('audioBar');
 
 // Global state
 let currentUser = localStorage.getItem('hifzCurrentUser') || '';
-let currentView = nameView;
+let currentView = homeView;
+let challengesUnlocked = localStorage.getItem('hifzChallengesUnlocked') === 'true';
 
 function handleResetAllData() {
   if (!confirm('CRITICAL: This will delete ALL student progress and settings. Are you sure?')) return;
@@ -61,10 +62,9 @@ let userStats = {};
 let studentData = {};
 let currentModule = '', pagesList = [], currentPageIndex = -1, playbackSpeed = 1.0, isLooping = false;
 let adminAuthed = false;
-let selectedInst = localStorage.getItem('hifzSelectedInst') || '';
 
 function getInstitute() {
-  return selectedInst || localStorage.getItem('hifzSelectedInst') || '';
+  return 'ium';
 }
 
 function saveStudentData() {
@@ -106,46 +106,35 @@ function showView(v) {
     }
   }
 
-  const isWelcome = (v === nameView);
-  $('backBtn').style.visibility = (isWelcome || v === homeView) ? 'hidden' : 'visible';
+  $('backBtn').style.visibility = (v === homeView) ? 'hidden' : 'visible';
 
-  // Hide top bar actions on onboarding screen
-  if (isWelcome) {
-    document.body.classList.add('onboarding-active');
-    $('scoreBtn').style.display = 'none';
-    $('profileBtn').style.display = 'none';
-    $('settingsBtn').style.display = 'none';
-  } else {
-    document.body.classList.remove('onboarding-active');
-    $('scoreBtn').style.display = '';
-    $('profileBtn').style.display = '';
-    $('settingsBtn').style.display = '';
-  }
+  // Hide student nav on the admin view; show it everywhere else
+  const isAdmin = (v === adminView);
+  $('scoreBtn').style.display = isAdmin ? 'none' : '';
+  $('profileBtn').style.display = isAdmin ? 'none' : '';
+  $('settingsBtn').style.display = isAdmin ? 'none' : '';
   window.scrollTo(0, 0);
 }
 
-// ===== Display Number (Zikura maps Hifz 6-11 → 1-6) =====
+// ===== Display Number =====
 function getDisplayNum(num) {
-  const inst = getInstitute();
-  if (inst === 'zikura' && num >= 6) return num - 5;
   return num;
 }
 
 // ===== Render Modules =====
 function renderModuleGrid() {
   const g = $('moduleGrid'); g.innerHTML = '';
-  const inst = getInstitute();
   const layout = localStorage.getItem('hifzLayout') || 'list';
   g.className = layout === 'grid' ? 'module-grid-view' : 'module-list-view';
 
   for (const [key, info] of Object.entries(moduleInfo)) {
     const dn = getDisplayNum(info.num);
-    const codeHtml = inst === 'zikura' ? '' : `<div class="module-card-code">${info.code}</div>`;
+    const codeHtml = `<div class="module-card-code">${info.code}</div>`;
     const c = document.createElement('div');
     c.className = layout === 'grid' ? 'module-card-grid' : 'module-card-list';
     c.dataset.module = key;
 
-    const titleStr = inst === 'zikura' ? `Hifz ${dn}` : info.title;
+    const titleStr = info.title;
 
     if (layout === 'grid') {
       c.innerHTML = `<div class="module-card-number">${dn}</div><div class="module-card-title">${titleStr}</div>${codeHtml}`;
@@ -168,7 +157,6 @@ function renderModuleGrid() {
 function openModule(key) {
   currentModule = key; const info = moduleInfo[key];
   const dn = getDisplayNum(info.num);
-  const inst = getInstitute();
   pagesList = Object.keys(pageLinks[key] || {}).map(Number);
   renderPageGrid();
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -178,7 +166,7 @@ function openModule(key) {
   audioBar.style.display = 'none';
   $('motivationMessage').classList.remove('show');
 
-  const titleStr = inst === 'zikura' ? `Hifz ${dn}` : info.title;
+  const titleStr = info.title;
   const titleEl = $('appTitle').querySelector('.title-text');
   titleEl.style.opacity = '0';
   setTimeout(() => {
@@ -355,127 +343,51 @@ $('backBtn').addEventListener('click', () => {
     $('appTitle').querySelector('.title-text').textContent = 'Hifz Tracker';
     showView(homeView); return;
   }
-  if (homeView.classList.contains('view-active')) showView(nameView);
 });
 
-// ===== Name & Institute =====
-function toggleInstituteSelector() {
-  const wrap = $('instituteGridWrap');
-  const arrow = $('instTriggerArrow');
-  wrap.classList.toggle('collapsed');
-  arrow.classList.toggle('rotated');
+// ===== Device Identity =====
+// No sign-in: each device owns its own profile. A unique, private device id is the
+// storage key (so progress stays bound to this device and never collides with others),
+// while the DISPLAY name defaults to "Guest" and can be renamed freely by anyone.
+function generateDeviceId() {
+  return 'device-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-function selectInstitute(id) {
-  selectedInst = id;
-  localStorage.setItem('hifzSelectedInst', id);
-  document.querySelectorAll('.institute-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('inst-' + id).classList.add('selected');
-
-  // Update trigger button
-  const trigger = $('instTrigger');
-  const triggerValue = $('instTriggerValue');
-  trigger.classList.add('selected');
-  if (id === 'ium') triggerValue.textContent = 'Islamic University of Maldives';
-  else if (id === 'zikura') triggerValue.textContent = 'Zikura International College';
-
-  // Collapse the grid
-  $('instituteGridWrap').classList.add('collapsed');
-  $('instTriggerArrow').classList.remove('rotated');
-
-  validateOnboarding();
-  applyInstituteBranding();
+// The friendly, renameable label shown in the UI for the current device profile.
+function getDisplayName() {
+  const s = userStats[currentUser];
+  return (s && s.displayName) || localStorage.getItem('hifzProfileName') || 'Guest';
 }
 
-let _validateTimer;
-function validateOnboarding() {
-  const name = $('userName').value.trim();
-  const pass = $('userPass').value.trim();
-  $('saveNameBtn').disabled = !(name && pass && selectedInst);
-
-  clearTimeout(_validateTimer);
-  _validateTimer = setTimeout(async () => {
-    if (!name) return;
-    const existing = await dbGetStudent(name);
+async function ensureDeviceUser() {
+  let id = localStorage.getItem('hifzCurrentUser');
+  if (id) {
+    const existing = await dbGetStudent(id);
+    currentUser = id;
     if (existing) {
-      $('passHint').textContent = "Student exists. Enter your password to continue.";
-      $('forgotPassMsg').style.display = 'block';
-      $('userPass').placeholder = "Enter your password...";
-    } else {
-      $('passHint').textContent = "This password will be saved to your device.";
-      $('forgotPassMsg').style.display = 'none';
-      $('userPass').placeholder = "Create a password...";
+      const { data, ...stats } = existing;
+      userStats[id] = stats;
+      if (data) studentData[id] = data;
     }
-  }, 500);
-}
-
-$('userName').addEventListener('input', validateOnboarding);
-$('userPass').addEventListener('input', validateOnboarding);
-
-function adminLoginPrompt() {
-  $('appTitle').querySelector('.title-text').textContent = 'Admin Dashboard';
-  showView(adminView);
-}
-
-$('saveNameBtn').addEventListener('click', async () => {
-  const n = $('userName').value.trim();
-  const p = $('userPass').value.trim();
-  if (!n || !p || !selectedInst) return;
-
-  $('saveNameBtn').disabled = true;
-
-  const existing = await dbGetStudent(n);
-  if (existing && existing.password && existing.password !== p) {
-    alert("Incorrect password for this student name.");
-    $('saveNameBtn').disabled = false;
-    return;
+  } else {
+    id = generateDeviceId();
+    currentUser = id;
+    localStorage.setItem('hifzCurrentUser', id);
   }
+  if (!userNames.includes(id)) userNames.push(id);
+  localStorage.setItem('hifzUserNames', JSON.stringify(userNames));
 
-  if (!userNames.includes(n)) { userNames.push(n); localStorage.setItem('hifzUserNames', JSON.stringify(userNames)); }
-
-  if (!userStats[n]) userStats[n] = { joined: new Date().toISOString(), logins: 0 };
-  userStats[n].logins = (userStats[n].logins || 0) + 1;
-  userStats[n].lastLogin = new Date().toLocaleDateString();
-  userStats[n].institute = selectedInst;
-  userStats[n].password = p;
-  localStorage.setItem('hifzSelectedInst', selectedInst);
-
-  if (existing && existing.data) studentData[n] = existing.data;
-  initStudentData(n);
-  await dbSaveStudent(n, userStats[n], studentData[n]);
-
-  currentUser = n; localStorage.setItem('hifzCurrentUser', n);
-  applyInstituteBranding();
-  updateWelcomeHeader();
-  fetchDailyAyah();
-  renderModuleGrid(); showView(homeView);
-});
-
-function logout() {
-  currentUser = '';
-  localStorage.removeItem('hifzCurrentUser');
-  localStorage.removeItem('hifzSelectedInst');
-  showView(nameView);
+  initStudentData(id);
+  if (!userStats[id]) userStats[id] = { joined: new Date().toISOString(), logins: 0 };
+  userStats[id].institute = 'ium';
+  if (!userStats[id].displayName) userStats[id].displayName = localStorage.getItem('hifzProfileName') || 'Guest';
+  localStorage.setItem('hifzProfileName', userStats[id].displayName);
+  userStats[id].logins = (userStats[id].logins || 0) + 1;
+  userStats[id].lastLogin = new Date().toLocaleDateString();
+  await dbSaveStudent(id, userStats[id], studentData[id]);
 }
 
 function applyInstituteBranding() {
-  const inst = getInstitute();
-  if (!inst) return;
-
-  // Update UI cards if on onboarding
-  const instCard = document.getElementById('inst-' + inst);
-  if (instCard) {
-    document.querySelectorAll('.institute-card').forEach(c => c.classList.remove('selected'));
-    instCard.classList.add('selected');
-    const trigger = $('instTrigger');
-    const triggerValue = $('instTriggerValue');
-    if (trigger && triggerValue) {
-      trigger.classList.add('selected');
-      if (inst === 'ium') triggerValue.textContent = 'Islamic University of Maldives';
-      else if (inst === 'zikura') triggerValue.textContent = 'Zikura International College';
-    }
-  }
-
   const savedTheme = localStorage.getItem('hifzColorTheme') || 'default';
   // Init Layout Settings UI
   const savedLayout = localStorage.getItem('hifzLayout') || 'list';
@@ -485,17 +397,10 @@ function applyInstituteBranding() {
     applyColorTheme(savedTheme, true);
   } else {
     const root = document.documentElement;
-    if (inst === 'zikura') {
-      root.style.setProperty('--primary', '#780000');
-      root.style.setProperty('--primary-light', 'rgba(120, 0, 0, 0.08)');
-      root.style.setProperty('--primary-glow', 'rgba(120, 0, 0, 0.15)');
-      root.style.setProperty('--primary-gradient', 'linear-gradient(135deg, #780000, #b40101)');
-    } else {
-      root.style.setProperty('--primary', '#116b32');
-      root.style.setProperty('--primary-light', 'rgba(17, 107, 50, 0.08)');
-      root.style.setProperty('--primary-glow', 'rgba(17, 107, 50, 0.15)');
-      root.style.setProperty('--primary-gradient', 'linear-gradient(135deg, #116b32, #1b9e4a)');
-    }
+    root.style.setProperty('--primary', '#116b32');
+    root.style.setProperty('--primary-light', 'rgba(17, 107, 50, 0.08)');
+    root.style.setProperty('--primary-glow', 'rgba(17, 107, 50, 0.15)');
+    root.style.setProperty('--primary-gradient', 'linear-gradient(135deg, #116b32, #1b9e4a)');
     updateThemeSwatches('default');
   }
 
@@ -503,7 +408,7 @@ function applyInstituteBranding() {
   const titleEl = $('appTitle');
   if (titleEl) {
     const titleText = titleEl.querySelector('.title-text');
-    if (titleText && (currentView === homeView || currentView === nameView)) {
+    if (titleText && currentView === homeView) {
       titleText.textContent = 'Hifz Tracker';
     }
   }
@@ -569,7 +474,10 @@ async function fetchDailyAyah() {
 
 function updateWelcomeHeader() {
   if (currentUser) {
-    $('welcomeUser').textContent = `Assalamu Alaikum, ${currentUser.split(' ')[0]}`;
+    const dn = getDisplayName();
+    $('welcomeUser').textContent = (dn && dn !== 'Guest')
+      ? `Assalamu Alaikum, ${dn.split(' ')[0]}`
+      : 'Assalamu Alaikum';
     const hours = new Date().getHours();
     let msg = "May Allah bless your Hifz journey today.";
     if (hours < 12) msg = "A blessed morning to you! A great time for Muraja'ah.";
@@ -644,7 +552,6 @@ function setLayout(layout) {
   }
 }
 
-$('userName').addEventListener('keydown', e => { if (e.key === 'Enter') $('saveNameBtn').click(); });
 
 // ===== Theme =====
 $('themeToggle').addEventListener('click', () => {
@@ -660,6 +567,8 @@ function openSettings() {
   $('settingsPanel').classList.add('active');
   $('settingsOverlay').classList.add('active');
 
+  if ($('changeNameInput')) $('changeNameInput').value = getDisplayName() === 'Guest' ? '' : getDisplayName();
+
   const sd = studentData[currentUser];
   if (sd && sd.settings) {
     $('settingsToggleDailyAyah').checked = sd.settings.showDailyAyah || false;
@@ -668,11 +577,8 @@ function openSettings() {
     const sel = $('ayahModuleSelect');
     sel.innerHTML = '<option value="random">Random from Quran</option>';
     sel.innerHTML += '<option value="current">Current Module</option>';
-    const inst = getInstitute();
     for (const [key, info] of Object.entries(moduleInfo)) {
-      const dn = getDisplayNum(info.num);
-      const titleStr = inst === 'zikura' ? `Hifz ${dn}` : info.title;
-      sel.innerHTML += `<option value="${key}">${titleStr}</option>`;
+      sel.innerHTML += `<option value="${key}">${info.title}</option>`;
     }
     sel.value = sd.settings.ayahSource || 'random';
   }
@@ -695,7 +601,13 @@ function updateDailyAyahSettings() {
 }
 function changeName() {
   const n = $('changeNameInput').value.trim(); if (!n) return alert('Enter a valid name.');
-  currentUser = n; localStorage.setItem('hifzCurrentUser', n);
+  // Rename the display label only — the device keeps the same underlying profile/progress.
+  if (!userStats[currentUser]) userStats[currentUser] = { joined: new Date().toISOString(), logins: 0 };
+  userStats[currentUser].displayName = n;
+  localStorage.setItem('hifzProfileName', n);
+  dbSaveStudent(currentUser, userStats[currentUser], studentData[currentUser] || {});
+  updateWelcomeHeader();
+  if ($('profileName')) $('profileName').textContent = n;
   closeSettings();
 }
 function exportData() {
@@ -720,13 +632,12 @@ $('appTitle').addEventListener('click', () => {
 });
 
 $('adminLoginBtn').addEventListener('click', async () => {
-  const email = $('adminEmail').value.trim();
   const p = $('adminPassword').value;
   try {
-    await adminLogin(email, p);
+    await adminLogin(p);
     adminAuthed = true;
     $('adminLogin').style.display = 'none'; $('adminPanel').style.display = 'block';
-    $('adminError').style.display = 'none'; $('adminPassword').value = ''; $('adminEmail').value = '';
+    $('adminError').style.display = 'none'; $('adminPassword').value = '';
 
     const all = await dbGetAllStudents();
     for (const [name, val] of Object.entries(all)) {
@@ -739,9 +650,53 @@ $('adminLoginBtn').addEventListener('click', async () => {
 
     populateAdminSelects();
     renderStudentAnalytics();
+    updateChallengeLockButton();
   } catch (e) { $('adminError').style.display = 'block'; }
 });
 $('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') $('adminLoginBtn').click(); });
+
+// ===== Challenge Lock (global, admin-controlled) =====
+function applyChallengeLock() {
+  const locked = !challengesUnlocked;
+  document.querySelectorAll('.challenge-card').forEach(card => {
+    card.classList.toggle('locked', locked);
+    card.querySelectorAll('button').forEach(b => { b.disabled = locked; });
+  });
+}
+
+function updateChallengeLockButton() {
+  const btn = $('challengeLockToggle');
+  if (!btn) return;
+  if (challengesUnlocked) {
+    btn.innerHTML = '<i class="fa-solid fa-lock"></i> Lock Challenges';
+    btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
+    $('challengeLockStatus').textContent = 'Challenges are UNLOCKED for all students.';
+  } else {
+    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Unlock Challenges';
+    btn.style.borderColor = '#116b32'; btn.style.color = '#116b32';
+    $('challengeLockStatus').textContent = 'Challenges are LOCKED for all students.';
+  }
+}
+
+async function toggleChallengeLock() {
+  challengesUnlocked = !challengesUnlocked;
+  localStorage.setItem('hifzChallengesUnlocked', challengesUnlocked ? 'true' : 'false');
+  await dbSetConfig('challenges', { unlocked: challengesUnlocked });
+  updateChallengeLockButton();
+  applyChallengeLock();
+}
+
+async function changeAdminPassword() {
+  const val = $('adminNewPassword').value;
+  if (!val.trim()) return alert('Enter a new password.');
+  try {
+    await setAdminPassword(val);
+    $('adminNewPassword').value = '';
+    alert('Master admin password updated in Firebase.');
+  } catch (e) {
+    alert(e.message || 'Failed to update password.');
+  }
+}
 
 function populateAdminSelects() {
   const s = $('adminModuleSelect'), d = $('adminDeleteModuleSelect');
@@ -855,11 +810,11 @@ function renderStudentAnalytics() {
 
   let html = '<table class="analytics-table"><thead><tr><th>Name</th><th>Institute</th><th>Logins</th><th>Last Login</th></tr></thead><tbody>';
   for (const [name, stats] of Object.entries(userStats)) {
-    const inst = stats.institute === 'zikura' ? 'Zikura' : 'IUM';
-    html += `<tr><td>${name}</td><td>${inst}</td><td>${stats.logins}</td><td>${stats.lastLogin || '-'}</td></tr>`;
+    const label = stats.displayName || name;
+    html += `<tr><td>${label}</td><td>IUM</td><td>${stats.logins}</td><td>${stats.lastLogin || '-'}</td></tr>`;
 
     const opt = document.createElement('option');
-    opt.value = name; opt.textContent = name;
+    opt.value = name; opt.textContent = label;
     passSelect.appendChild(opt);
   }
   html += '</tbody></table>';
@@ -945,12 +900,10 @@ function openScoreboard() {
 
   const sel = $('scoreboardModuleSelect');
   sel.innerHTML = '';
-  const inst = getInstitute();
   for (const [key, info] of Object.entries(moduleInfo)) {
-    const dn = getDisplayNum(info.num);
     const opt = document.createElement('option');
     opt.value = key;
-    opt.textContent = inst === 'zikura' ? `Hifz ${dn}` : info.title;
+    opt.textContent = info.title;
     sel.appendChild(opt);
   }
   if (currentModule) sel.value = currentModule;
@@ -967,12 +920,9 @@ function renderScoreboard() {
   Object.keys(userStats).forEach(n => {
     const cs = studentData[n]?.companionSmart?.[mod];
     if (cs && cs.currentTask > 1) { // Only show if they completed at least task 1
-      const nStat = userStats[n] || {};
-      const instCode = nStat.institute || 'ium';
-      const instShort = instCode === 'zikura' ? 'Zikura' : 'IUM';
       currentScoreboardStudents.push({
-        name: n,
-        institute: instShort,
+        name: (userStats[n] && userStats[n].displayName) || 'Guest',
+        institute: 'IUM',
         currentTask: cs.currentTask,
         totalMistakes: cs.totalMistakes,
         totalTimeTaken: cs.totalTimeTaken,
@@ -1041,7 +991,7 @@ function openStudentDetail(idx) {
   if (!student) return;
 
   $('detailName').textContent = student.name;
-  $('detailInstitute').textContent = student.institute === 'Zikura' ? 'Zikura International College' : 'Islamic University of Maldives';
+  $('detailInstitute').textContent = 'Islamic University of Maldives';
   const formatTime = (sec) => `${Math.floor(sec / 60)}m ${sec % 60}s`;
 
   if (student.currentTask > 5) {
@@ -1084,15 +1034,14 @@ function openProfile() {
   if (!currentUser) return alert('Please get started with your name first.');
   $('appTitle').querySelector('.title-text').textContent = "Student Profile";
   $('appTitle').style.paddingLeft = '12px';
-  $('profileName').textContent = currentUser;
+  $('profileName').textContent = getDisplayName();
 
-  const inst = getInstitute();
-  const instFull = inst === 'zikura' ? 'Zikura International College' : 'Islamic University of Maldives';
-  $('profileInstitute').textContent = instFull;
+  $('profileInstitute').textContent = 'Islamic University of Maldives';
 
-  // Prize challenge only for IUM
   const prizeCard = $('prizeChallengeCard');
-  if (prizeCard) prizeCard.style.display = inst === 'ium' ? 'block' : 'none';
+  if (prizeCard) prizeCard.style.display = 'block';
+
+  applyChallengeLock();
 
   initStudentData(currentUser);
   const sd = studentData[currentUser];
@@ -1113,12 +1062,10 @@ function openProfile() {
 
   const sel = $('profileModuleSelect');
   sel.innerHTML = '';
-  // inst is already declared above at line 1019
   for (const [key, info] of Object.entries(moduleInfo)) {
-    const dn = getDisplayNum(info.num);
     const opt = document.createElement('option');
     opt.value = key;
-    opt.textContent = inst === 'zikura' ? `Hifz ${dn}` : info.title;
+    opt.textContent = info.title;
     sel.appendChild(opt);
   }
 
@@ -1219,6 +1166,10 @@ let isChallengeActive = false;
 let pendingChallengeData = null;
 
 function startChallenge(type, mode) {
+  if (!challengesUnlocked) {
+    alert('Challenges are currently locked. Please check back later.');
+    return;
+  }
   let minutes = 0;
   let text = '';
   let title = '';
@@ -1239,8 +1190,6 @@ function startChallenge(type, mode) {
       text = 'Friend asks 3 questions. Answer each (3 lines min) within 30s. No mistakes!';
     }
   } else if (type === 'prize') {
-    const inst = getInstitute();
-    if (inst !== 'ium') { alert("The Prize Challenge is currently only available for IUM students."); return; }
     if (!currentModule) { alert("Please open a module from the home screen first."); showView(homeView); return; }
     title = 'Win a Prize Challenge';
     minutes = 18;
@@ -1657,42 +1606,33 @@ function checkQuizAnswer(btn, selectedText) {
 }
 
 // ===== Init =====
+function isAdminRoute() {
+  return /\/admin\/?$/i.test(location.pathname);
+}
+
 async function initApp() {
   const pl = await dbGetConfig('pageLinks');
   if (pl) { pageLinks = pl; localStorage.setItem('hifzPageLinks', JSON.stringify(pl)); }
   const mi = await dbGetConfig('moduleInfo');
   if (mi) { moduleInfo = mi; localStorage.setItem('hifzModuleInfo', JSON.stringify(mi)); }
 
+  // Global challenge lock state (admin-controlled)
+  const chal = await dbGetConfig('challenges');
+  challengesUnlocked = chal ? !!chal.unlocked : false;
+  localStorage.setItem('hifzChallengesUnlocked', challengesUnlocked ? 'true' : 'false');
+
   renderModuleGrid();
 
-  const savedUser = localStorage.getItem('hifzCurrentUser');
-  if (savedUser) {
-    const existing = await dbGetStudent(savedUser);
-    if (existing) {
-      currentUser = savedUser;
-      const { data, ...stats } = existing;
-      userStats[savedUser] = stats;
-      if (data) studentData[savedUser] = data;
-      if (!userNames.includes(savedUser)) { userNames.push(savedUser); localStorage.setItem('hifzUserNames', JSON.stringify(userNames)); }
+  await ensureDeviceUser();
+  applyInstituteBranding();
+  applyChallengeLock();
 
-      initStudentData(currentUser);
-      applyInstituteBranding();
-
-      userStats[currentUser].logins = (userStats[currentUser].logins || 0) + 1;
-      userStats[currentUser].lastLogin = new Date().toLocaleDateString();
-      await dbSaveStudent(currentUser, userStats[currentUser], studentData[currentUser]);
-
-      showView(homeView);
-    } else {
-      localStorage.removeItem('hifzCurrentUser');
-      showView(nameView);
-      applyInstituteBranding();
-      validateOnboarding();
-    }
+  // /admin route opens the master-admin login; everything else goes straight to Home
+  if (isAdminRoute()) {
+    $('appTitle').querySelector('.title-text').textContent = 'Admin Dashboard';
+    showView(adminView);
   } else {
-    showView(nameView);
-    applyInstituteBranding();
-    validateOnboarding();
+    showView(homeView);
   }
 }
 initApp();
@@ -1713,8 +1653,8 @@ window.cancelChallengeStart = cancelChallengeStart;
 window.navigateReader = navigateReader; window.exportAllData = exportAllData;
 window.resetAllData = handleResetAllData; window.handleResetAllData = handleResetAllData;
 window.openAdminDashboard = () => showView(adminView);
-window.selectInstitute = selectInstitute; window.toggleInstituteSelector = toggleInstituteSelector;
-window.applyColorTheme = applyColorTheme; window.adminLoginPrompt = adminLoginPrompt;
+window.applyColorTheme = applyColorTheme; window.toggleChallengeLock = toggleChallengeLock;
+window.changeAdminPassword = changeAdminPassword;
 window.updateDailyAyahSettings = updateDailyAyahSettings; window.toggleHomepageSetting = toggleHomepageSetting;
 window.renderStudentAnalytics = renderStudentAnalytics; window.resetStudentPassword = resetStudentPassword;
 

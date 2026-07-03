@@ -8,7 +8,17 @@
       "Bash(git commit -m ' *)",
       "Bash(git remote *)",
       "Bash(git branch *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(node --check app.js)",
+      "Bash(ls *.json *.js)",
+      "Bash(cat vercel.json)",
+      "Bash(node --check db.js)",
+      "PowerShell(Start-Process powershell -ArgumentList '-NoProfile','-File','c:\\\\Projects\\\\ium hifz\\\\server.ps1' -WindowStyle Hidden; Start-Sleep -Seconds 2; try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:8000/; Write-Host \"ROOT status:\" $r.StatusCode \"len:\" $r.Content.Length; $a = Invoke-WebRequest -UseBasicParsing http://localhost:8000/admin; Write-Host \"ADMIN status:\" $a.StatusCode \"len:\" $a.Content.Length; $j = Invoke-WebRequest -UseBasicParsing http://localhost:8000/app.js; Write-Host \"APPJS status:\" $j.StatusCode \"len:\" $j.Content.Length } catch { Write-Host \"ERR:\" $_.Exception.Message })",
+      "PowerShell($job = Start-Job -ScriptBlock { powershell -NoProfile -File 'c:\\\\Projects\\\\ium hifz\\\\server.ps1' }; Start-Sleep -Seconds 3; try { $r = Invoke-WebRequest -UseBasicParsing http://localhost:8000/ -TimeoutSec 5; \"ROOT \" + $r.StatusCode + \" len=\" + $r.Content.Length; $a = Invoke-WebRequest -UseBasicParsing http://localhost:8000/admin -TimeoutSec 5; \"ADMIN \" + $a.StatusCode + \" len=\" + $a.Content.Length } catch { \"ERR: \" + $_.Exception.Message; Receive-Job $job })",
+      "PowerShell(Get-Job)",
+      "PowerShell(Stop-Job)",
+      "PowerShell(Remove-Job)",
+      "PowerShell(\"jobs cleaned\")"
     ]
   }
 }

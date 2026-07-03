@@ -14,16 +14,38 @@ const auth = firebase.auth();
 db.enablePersistence().catch(() => {});
 
 // --- ADMIN ---
-async function adminLogin(email, password) {
-  await auth.signInWithEmailAndPassword(email, password);
+// The master-admin password lives in Firestore at config/admin ({ password: '...' }),
+// so it can be changed in the Firebase console (or the admin panel) without a redeploy.
+// NOTE: with open Firestore rules this value is readable by anyone; it is a soft gate,
+// not real security. The default below is seeded only if config/admin does not exist yet.
+const DEFAULT_ADMIN_PASSWORD = 'Hifz@2022';
+
+async function getAdminPassword() {
+  let cfg = await dbGetConfig('admin');
+  if (!cfg || typeof cfg.password !== 'string' || cfg.password === '') {
+    // First-time setup: seed the default into Firebase so login works out of the box.
+    await dbSetConfig('admin', { password: DEFAULT_ADMIN_PASSWORD });
+    cfg = { password: DEFAULT_ADMIN_PASSWORD };
+  }
+  return cfg.password;
 }
 
-async function adminLogout() {
-  await auth.signOut();
+async function adminLogin(password) {
+  const stored = await getAdminPassword();
+  if (password !== stored) throw new Error('Invalid admin password');
 }
+
+// Update the master-admin password in Firebase.
+async function setAdminPassword(newPassword) {
+  const p = (newPassword || '').trim();
+  if (!p) throw new Error('Password cannot be empty');
+  await dbSetConfig('admin', { password: p });
+}
+
+async function adminLogout() {}
 
 function isAdminLoggedIn() {
-  return !!auth.currentUser;
+  return false;
 }
 
 // --- STUDENTS ---

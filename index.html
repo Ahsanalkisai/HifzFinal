@@ -50,58 +50,8 @@
   <!-- Main Content -->
   <main class="main-content">
 
-    <!-- NAME VIEW -->
-    <section class="view view-active" id="nameView">
-      <div class="onboarding-card">
-        <div class="onboarding-icon" style="margin-bottom: 12px; cursor: pointer;" onclick="adminLoginPrompt()">
-          <img src="Logo/logo.png" style="width: 120px; height: 120px; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 24px var(--primary-glow);" alt="Hifz Tracker Logo">
-        </div>
-        <h1 class="onboarding-title">Hifz Tracker</h1>
-
-        <div class="institute-selector">
-          <button type="button" class="inst-trigger" id="instTrigger" onclick="toggleInstituteSelector()">
-            <span class="inst-trigger-value" id="instTriggerValue">Select your Institute</span>
-            <i class="fa-solid fa-chevron-down inst-trigger-arrow" id="instTriggerArrow"></i>
-          </button>
-          <div class="institute-grid-wrap collapsed" id="instituteGridWrap">
-            <div class="institute-grid">
-              <div class="institute-card" id="inst-ium" onclick="selectInstitute('ium')">
-                <div class="inst-logo"><img src="https://ium-media.s3.ap-southeast-1.amazonaws.com/logo-icon-75x75-1633813827fxUJ5.png" alt="IUM" class="inst-logo-img"/></div>
-                <div class="inst-info">
-                  <span class="inst-name">Islamic University of Maldives</span>
-                  <span class="inst-url">ium.edu.mv</span>
-                </div>
-                <div class="inst-check"><i class="fa-solid fa-circle-check"></i></div>
-              </div>
-              <div class="institute-card" id="inst-zikura" onclick="selectInstitute('zikura')">
-                <div class="inst-logo"><img src="https://hr.zikura.edu.mv/assets/img/ZI-COLLEGE-LOGO-REMAKE-x-72px.png" alt="Zikura" class="inst-logo-img"/></div>
-                <div class="inst-info">
-                  <span class="inst-name">Zikura International College</span>
-                  <span class="inst-url">zikura.edu.mv</span>
-                </div>
-                <div class="inst-check"><i class="fa-solid fa-circle-check"></i></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="input-group" style="margin-top: 32px;">
-          <input type="text" id="userName" placeholder="Enter your full name..." autocomplete="name" style="margin-bottom: 12px;"/>
-          <input type="password" id="userPass" placeholder="Password..." style="margin-bottom: 4px;"/>
-          <p id="passHint" style="font-size: 10px; color: var(--text-3); margin-bottom: 12px; font-weight: 600;">This password will be saved to your device.</p>
-          <div id="forgotPassMsg" style="display:none; font-size: 11px; color: var(--text-secondary); margin-bottom: 16px; background: var(--primary-light); padding: 10px; border-radius: 8px; border: 1px solid var(--primary-glow);">
-            Forgot your password? Please contact <a href="mailto:Ahmed.ahsan@gmail.com" style="color:var(--primary); font-weight:700;">Ahmed.ahsan@gmail.com</a> or send a Viber message to <span style="color:var(--primary); font-weight:700;">+9609145695</span>
-          </div>
-          <button id="saveNameBtn" class="btn-primary" style="width: 100%;" disabled>
-            <span>Start</span>
-            <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-      </div>
-    </section>
-
     <!-- HOME VIEW -->
-    <section class="view" id="homeView">
+    <section class="view view-active" id="homeView">
       <div class="welcome-header" id="welcomeHeader">
         <h2 id="welcomeUser">Assalamu Alaikum</h2>
         <p>May Allah bless your Hifz journey today.</p>
@@ -142,9 +92,6 @@
             <span class="stat-label">Challenges Won</span>
           </div>
         </div>
-        <button class="btn-outline btn-sm" onclick="logout()" style="margin-top:16px; width:100%; border-color:#ef4444; color:#ef4444;">
-          <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </button>
       </div>
 
       <h3 class="section-heading"><i class="fa-solid fa-chart-line"></i> Memorization Progress</h3>
@@ -492,16 +439,15 @@
 
       <!-- Admin Login -->
       <div id="adminLogin" class="admin-login-card">
-        <h3>Admin Login</h3>
+        <h3>Master Admin Login</h3>
         <div class="input-group">
-          <input type="email" id="adminEmail" placeholder="Admin email..." style="margin-bottom:12px;"/>
-          <input type="password" id="adminPassword" placeholder="Password..."/>
+          <input type="password" id="adminPassword" placeholder="Master admin password..."/>
           <button class="btn-primary" id="adminLoginBtn">
             <span>Login</span>
             <i class="fa-solid fa-lock-open"></i>
           </button>
         </div>
-        <p class="admin-error" id="adminError" style="display:none;">Incorrect credentials</p>
+        <p class="admin-error" id="adminError" style="display:none;">Incorrect password</p>
       </div>
 
       <!-- Admin Panel (hidden until authenticated) -->
@@ -512,6 +458,23 @@
           <select id="adminModuleSelect" class="admin-select">
             <option value="">-- Choose Module --</option>
           </select>
+        </div>
+
+        <!-- Challenge Access Control -->
+        <div class="admin-section">
+          <h3 class="admin-label">Challenge Access</h3>
+          <p id="challengeLockStatus" style="font-size:13px; font-weight:700; color:var(--text-2); margin-bottom:12px;">Challenges are LOCKED for all students.</p>
+          <button class="btn-outline" id="challengeLockToggle" onclick="toggleChallengeLock()" style="width:100%;">
+            <i class="fa-solid fa-lock-open"></i> Unlock Challenges
+          </button>
+        </div>
+
+        <!-- Master Admin Password -->
+        <div class="admin-section">
+          <h3 class="admin-label">Master Admin Password</h3>
+          <p style="font-size:12px; color:var(--text-3); margin-bottom:10px; font-weight:600;">Stored in Firebase. Changing it here updates it for everyone immediately.</p>
+          <input type="password" id="adminNewPassword" class="admin-input" placeholder="New master admin password..."/>
+          <button class="btn-primary btn-sm" onclick="changeAdminPassword()"><i class="fa-solid fa-key"></i> Update Password</button>
         </div>
 
         <!-- Student Analytics -->

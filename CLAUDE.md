@@ -3,8 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-
-**IUM Hifz Tracker** — a Quran memorization tracker for students at Islamic University of Maldives (IUM) and Zikura International College. It is a **zero-build, vanilla JS single-page app** with no package manager, no bundler, and no framework. Open `index.html` in a browser to run it.
+fff
+**IUM Hifz Tracker** — a Quran memorization tracker for students at Islamic University of Maldives (IUM). It is a **zero-build, vanilla JS single-page app** with no package manager, no bundler, and no framework. Open `index.html` in a browser to run it.
 
 ## Running the App
 
@@ -23,31 +23,34 @@ There are no tests, no linter config, and no CI pipeline.
 - `Logo/` — image assets
 
 ### View System
-All views (sections) exist in the DOM simultaneously. Navigation is done by `showView(v)` which removes `view-active` from all views and adds it to the target. The `allViews` array is the authoritative list — **note that `scoreboardView` and `profileView` are pushed to it at runtime** (lines 935–936), not in the initial declaration.
+All views (sections) exist in the DOM simultaneously. Navigation is done by `showView(v)` which removes `view-active` from all views and adds it to the target. The `allViews` array is the authoritative list — **note that `scoreboardView` and `profileView` are pushed to it at runtime**, not in the initial declaration.
 
-Views: `nameView` (onboarding) → `homeView` → `moduleView` (pages + quiz + motivation) → `readerView` / `profileView` / `scoreboardView` / `adminView`.
+There is **no onboarding/sign-in view** — the app opens directly to `homeView`. Views: `homeView` → `moduleView` (pages + quiz + motivation) → `readerView` / `profileView` / `scoreboardView` / `adminView`.
+
+### Device Identity (no sign-in)
+There is no login. On first load, `ensureDeviceUser()` mints a unique private id (`device-…`) stored in `hifzCurrentUser` — this is the storage/Firestore key, so **progress is bound to the device** and never collides with other devices. The user-visible label is a separate **display name** (`userStats[id].displayName`, mirrored to `hifzProfileName`), defaulting to `'Guest'` and renameable by anyone via Settings → Change Name (`changeName()` edits the display name only, not the key). `getDisplayName()` resolves the label used in the header, profile, scoreboard, and admin table.
 
 ### Data Layer
-**All data is stored in `localStorage`** — there is no backend or server.
+Data is stored in **`localStorage`** (device-local) and mirrored to a **Firebase Firestore** backend (`db.js`, project `ium-hifz-final`) via `dbSaveStudent` / `dbGetStudent` / `dbGetAllStudents` and `dbGetConfig` / `dbSetConfig`. Firestore reads/writes are unauthenticated (open rules).
 
 | Key | Contents |
 |---|---|
-| `hifzCurrentUser` | Active student name string |
-| `hifzUserNames` | JSON array of all student names |
-| `hifzUserStats` | JSON object: name → `{ joined, logins, lastLogin, institute, password }` |
-| `hifzStudentData` | JSON object: name → per-student data (progress, quizHistory, challenges, settings) |
+| `hifzCurrentUser` | This device's private profile id (Firestore/storage key) |
+| `hifzProfileName` | This device's display name (default `'Guest'`) |
+| `hifzUserNames` | JSON array of known profile ids |
+| `hifzUserStats` | JSON object: id → `{ joined, logins, lastLogin, institute, displayName }` |
+| `hifzStudentData` | JSON object: id → per-profile data (progress, quizHistory, challenges, settings) |
 | `hifzPageLinks` | JSON object: moduleKey → `{ pageNum: audioUrl }` (admin-editable) |
 | `hifzModuleInfo` | JSON object: moduleKey → `{ num, code, title }` (admin-editable) |
-| `hifzAdminPass` | Admin password plaintext |
-| `hifzSelectedInst` | `'ium'` or `'zikura'` |
+| `hifzChallengesUnlocked` | `'true'`/`'false'` — cached copy of the global challenge lock |
 | `hifzDarkMode` | `'true'`/`'false'` |
 | `hifzColorTheme` | `'default'`, `'green'`, `'purple'`, `'pink'`, `'gold'`, `'blue'` |
 | `hifzLayout` | `'list'` or `'grid'` |
 
-`pageLinks` and `moduleInfo` fall back to hardcoded `defaultPageLinks` / `defaultModuleInfo` constants if not set in localStorage.
+`pageLinks` and `moduleInfo` fall back to hardcoded `defaultPageLinks` / `defaultModuleInfo` constants if not set. The global challenge-lock flag lives in Firestore config doc `challenges` (`{ unlocked: bool }`), fetched on load into `challengesUnlocked`.
 
 ### Institute Branding
-The `getInstitute()` function returns `'ium'` or `'zikura'`. Zikura remaps Hifz module numbers 6–11 to display as 1–6 via `getDisplayNum()`. Primary color is set to IUM green or Zikura dark red in `applyInstituteBranding()`, unless overridden by a custom color theme.
+The app is IUM-only. `applyInstituteBranding()` sets the primary color to IUM green unless overridden by a custom color theme. (`getInstitute()` still exists and always returns `'ium'`; `getDisplayNum()` is now an identity passthrough.)
 
 ### External APIs
 - **Quran text & quiz:** `https://api.quran.com/api/v4/` — used in `openReader()` and `fetchPageVerses()`
@@ -59,10 +62,13 @@ All design tokens are CSS custom properties on `:root`. Dark mode is `body.dark-
 
 ### Admin Access
 Two entry points:
-1. Click the logo on the onboarding screen (`adminLoginPrompt()`) — uses `prompt()`
-2. Click the app title 5 times rapidly (hidden easter egg, `appTitle` click handler)
+1. Navigate to the `/admin` URL. `isAdminRoute()` detects the path on load and shows the admin login. A `vercel.json` rewrite (and a matching rule in `server.ps1`) serves `index.html` for `/admin`.
+2. Click the app title 5 times rapidly (hidden easter egg, `appTitle` click handler).
 
-Admin password defaults to `Ahsan@2026` and is stored in `localStorage`. Passwords (admin and student) are stored **plaintext** — do not add features that assume they are secure.
+The master-admin password lives in **Firestore at `config/admin` (`{ password }`)**, not in code. `adminLogin(password)` reads it via `getAdminPassword()`, which seeds `DEFAULT_ADMIN_PASSWORD` (`Hifz@2022` in `db.js`) into that doc on first use if it's missing. Change it in the Firebase console or via the admin panel's "Master Admin Password" field (`setAdminPassword()` → `changeAdminPassword()`). With open Firestore rules this value is still client-readable — it's a **soft gate**, not real security.
+
+### Challenge Lock
+All challenges (Walking, Busy, Companion/Gauntlet, Prize — rendered in `profileView`) are **locked globally by default**. The master admin toggles `toggleChallengeLock()` in the admin panel, which writes the Firestore `challenges` config and flips `challengesUnlocked`. `applyChallengeLock()` adds a `.locked` overlay and disables the buttons; `startChallenge()` also guards against a locked state. Other devices pick up the change on their next load.
 
 ### Challenge System
 `startChallenge(type, mode)` handles four challenge types: `walking`, `busy`, `companion` (includes the Gauntlet), `prize`. The Gauntlet (`companion`/`smart`) is a 5-task sequential challenge tracked in `studentData[user].companionSmart[moduleKey]`. Prize Challenge is IUM-only and tracked in `studentData[user].prizeChallenge[moduleKey]`. All challenge results are **self-reported** by the student — there is no server-side validation.
