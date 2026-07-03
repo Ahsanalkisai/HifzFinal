@@ -651,7 +651,17 @@ $('adminLoginBtn').addEventListener('click', async () => {
     populateAdminSelects();
     renderStudentAnalytics();
     updateChallengeLockButton();
-  } catch (e) { $('adminError').style.display = 'block'; }
+  } catch (e) {
+    const el = $('adminError');
+    if (e && e.code === 'auth/user-not-found') {
+      el.textContent = 'Admin account not set up yet in Firebase Authentication.';
+    } else if (e && (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')) {
+      el.textContent = 'Incorrect password';
+    } else {
+      el.textContent = 'Login failed. Please try again.';
+    }
+    el.style.display = 'block';
+  }
 });
 $('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') $('adminLoginBtn').click(); });
 

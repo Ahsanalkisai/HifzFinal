@@ -14,46 +14,32 @@ const auth = firebase.auth();
 db.enablePersistence().catch(() => {});
 
 // --- ADMIN ---
-// The master-admin password lives in Firestore at config/admin ({ password: '...' }),
-// so it can be changed in the Firebase console (or the admin panel) without a redeploy.
-// NOTE: with open Firestore rules this value is readable by anyone; it is a soft gate,
-// not real security. The default below is seeded only if config/admin does not exist yet.
-const DEFAULT_ADMIN_PASSWORD = 'Hifz@2022';
-
-async function getAdminPassword() {
-  let cfg = null;
-  try { cfg = await dbGetConfig('admin'); } catch (e) { cfg = null; }
-  if (!cfg || typeof cfg.password !== 'string' || cfg.password === '') {
-    // First-time setup: try to seed the default into Firebase so it persists.
-    // If the write is blocked (rules) or offline, we still fall back to the default
-    // so the admin is never locked out.
-    try { await dbSetConfig('admin', { password: DEFAULT_ADMIN_PASSWORD }); } catch (e) {}
-    return DEFAULT_ADMIN_PASSWORD;
-  }
-  return cfg.password;
-}
+// The master-admin password is held ONLY by Firebase Authentication (stored as a
+// salted server-side hash — unreadable by anyone, never in Firestore or in code).
+// We hard-code a fixed admin *email* (an email is not secret) so the login UI can
+// stay password-only. Create this exact user in Firebase Console -> Authentication,
+// and change the password there or via the admin panel (setAdminPassword) while logged in.
+const ADMIN_EMAIL = 'ahmed.ahsan@ium.edu.mv';
 
 async function adminLogin(password) {
-  let stored;
-  try {
-    stored = await getAdminPassword();
-  } catch (e) {
-    stored = DEFAULT_ADMIN_PASSWORD; // never lock out if Firestore is unreachable
-  }
-  if (password !== stored) throw new Error('Invalid admin password');
+  // Throws on wrong password / missing user; the caller shows the error.
+  await auth.signInWithEmailAndPassword(ADMIN_EMAIL, password);
 }
 
-// Update the master-admin password in Firebase.
+// Change the master-admin password in Firebase Auth (must be logged in as admin).
 async function setAdminPassword(newPassword) {
   const p = (newPassword || '').trim();
   if (!p) throw new Error('Password cannot be empty');
-  await dbSetConfig('admin', { password: p });
+  if (!auth.currentUser) throw new Error('You must be logged in as admin to change the password.');
+  await auth.currentUser.updatePassword(p);
 }
 
-async function adminLogout() {}
+async function adminLogout() {
+  try { await auth.signOut(); } catch (e) {}
+}
 
 function isAdminLoggedIn() {
-  return false;
+  return !!(auth.currentUser);
 }
 
 // --- STUDENTS ---
