@@ -21,17 +21,25 @@ db.enablePersistence().catch(() => {});
 const DEFAULT_ADMIN_PASSWORD = 'Hifz@2022';
 
 async function getAdminPassword() {
-  let cfg = await dbGetConfig('admin');
+  let cfg = null;
+  try { cfg = await dbGetConfig('admin'); } catch (e) { cfg = null; }
   if (!cfg || typeof cfg.password !== 'string' || cfg.password === '') {
-    // First-time setup: seed the default into Firebase so login works out of the box.
-    await dbSetConfig('admin', { password: DEFAULT_ADMIN_PASSWORD });
-    cfg = { password: DEFAULT_ADMIN_PASSWORD };
+    // First-time setup: try to seed the default into Firebase so it persists.
+    // If the write is blocked (rules) or offline, we still fall back to the default
+    // so the admin is never locked out.
+    try { await dbSetConfig('admin', { password: DEFAULT_ADMIN_PASSWORD }); } catch (e) {}
+    return DEFAULT_ADMIN_PASSWORD;
   }
   return cfg.password;
 }
 
 async function adminLogin(password) {
-  const stored = await getAdminPassword();
+  let stored;
+  try {
+    stored = await getAdminPassword();
+  } catch (e) {
+    stored = DEFAULT_ADMIN_PASSWORD; // never lock out if Firestore is unreachable
+  }
   if (password !== stored) throw new Error('Invalid admin password');
 }
 
