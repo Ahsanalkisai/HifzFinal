@@ -40,7 +40,44 @@ const audioPlayer = $('audioPlayer'), audioBar = $('audioBar');
 // Global state
 let currentUser = localStorage.getItem('hifzCurrentUser') || '';
 let currentView = homeView;
-let challengesUnlocked = localStorage.getItem('hifzChallengesUnlocked') === 'true';
+
+// Per-challenge lock state (true = unlocked). Admin toggles each one individually.
+const CHALLENGE_TYPES = [
+  { key: 'walking', label: 'Walking Challenge' },
+  { key: 'busy', label: 'Busy Day Challenge' },
+  { key: 'companion', label: "Companion's Test (Gauntlet)" },
+  { key: 'prize', label: 'Win a Prize Challenge' }
+];
+function defaultChallengeUnlock() {
+  return { walking: false, busy: false, companion: false, prize: false };
+}
+function normalizeChallengeConfig(cfg) {
+  const out = defaultChallengeUnlock();
+  if (!cfg || typeof cfg !== 'object') return out;
+  // Backward compat: old global format was { unlocked: bool } for all challenges.
+  if (typeof cfg.unlocked === 'boolean' && !('walking' in cfg)) {
+    out.walking = out.busy = out.companion = out.prize = cfg.unlocked;
+    return out;
+  }
+  for (const t of CHALLENGE_TYPES) {
+    if (typeof cfg[t.key] === 'boolean') out[t.key] = cfg[t.key];
+  }
+  return out;
+}
+function loadChallengeUnlock() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('hifzChallengeUnlock'));
+    if (saved && typeof saved === 'object') return { ...defaultChallengeUnlock(), ...saved };
+  } catch (e) {}
+  // Migrate the old single-flag cache if present.
+  const old = localStorage.getItem('hifzChallengesUnlocked');
+  if (old !== null) {
+    const v = old === 'true';
+    return { walking: v, busy: v, companion: v, prize: v };
+  }
+  return defaultChallengeUnlock();
+}
+let challengeUnlock = loadChallengeUnlock();
 
 function handleResetAllData() {
   if (!confirm('CRITICAL: This will delete ALL student progress and settings. Are you sure?')) return;
@@ -650,7 +687,7 @@ $('adminLoginBtn').addEventListener('click', async () => {
 
     populateAdminSelects();
     renderStudentAnalytics();
-    updateChallengeLockButton();
+    renderChallengeLockControls();
   } catch (e) {
     const el = $('adminError');
     if (e && e.code === 'auth/user-not-found') {
@@ -665,35 +702,49 @@ $('adminLoginBtn').addEventListener('click', async () => {
 });
 $('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') $('adminLoginBtn').click(); });
 
-// ===== Challenge Lock (global, admin-controlled) =====
+// ===== Challenge Lock (per-challenge, admin-controlled) =====
 function applyChallengeLock() {
-  const locked = !challengesUnlocked;
   document.querySelectorAll('.challenge-card').forEach(card => {
-    card.classList.toggle('locked', locked);
-    card.querySelectorAll('button').forEach(b => { b.disabled = locked; });
+    const type = card.dataset.challenge;
+    const unlocked = type ? !!challengeUnlock[type] : false;
+    card.classList.toggle('locked', !unlocked);
+    card.querySelectorAll('button').forEach(b => { b.disabled = !unlocked; });
   });
 }
 
-function updateChallengeLockButton() {
-  const btn = $('challengeLockToggle');
-  if (!btn) return;
-  if (challengesUnlocked) {
-    btn.innerHTML = '<i class="fa-solid fa-lock"></i> Lock Challenges';
-    btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
-    $('challengeLockStatus').textContent = 'Challenges are UNLOCKED for all students.';
-  } else {
-    btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Unlock Challenges';
-    btn.style.borderColor = '#116b32'; btn.style.color = '#116b32';
-    $('challengeLockStatus').textContent = 'Challenges are LOCKED for all students.';
-  }
+// Renders one lock/unlock row per challenge in the admin panel.
+function renderChallengeLockControls() {
+  const list = $('challengeLockList');
+  if (!list) return;
+  list.innerHTML = '';
+  CHALLENGE_TYPES.forEach(t => {
+    const unlocked = !!challengeUnlock[t.key];
+    const row = document.createElement('div');
+    row.className = 'challenge-lock-row';
+    row.innerHTML = `
+      <div class="challenge-lock-info">
+        <span class="challenge-lock-name">${t.label}</span>
+        <span class="challenge-lock-state ${unlocked ? 'unlocked' : 'locked'}">${unlocked ? 'Unlocked' : 'Locked'}</span>
+      </div>
+      <button class="btn-outline btn-sm challenge-lock-btn">
+        <i class="fa-solid ${unlocked ? 'fa-lock' : 'fa-lock-open'}"></i> ${unlocked ? 'Lock' : 'Unlock'}
+      </button>`;
+    row.querySelector('button').addEventListener('click', () => toggleChallengeLock(t.key));
+    list.appendChild(row);
+  });
 }
 
-async function toggleChallengeLock() {
-  challengesUnlocked = !challengesUnlocked;
-  localStorage.setItem('hifzChallengesUnlocked', challengesUnlocked ? 'true' : 'false');
-  await dbSetConfig('challenges', { unlocked: challengesUnlocked });
-  updateChallengeLockButton();
+async function toggleChallengeLock(type) {
+  if (!(type in challengeUnlock)) return;
+  challengeUnlock[type] = !challengeUnlock[type];
+  localStorage.setItem('hifzChallengeUnlock', JSON.stringify(challengeUnlock));
+  renderChallengeLockControls();
   applyChallengeLock();
+  try {
+    await dbSetConfig('challenges', challengeUnlock);
+  } catch (e) {
+    alert('Could not save the change to Firebase. Make sure you are logged in as admin.');
+  }
 }
 
 async function changeAdminPassword() {
@@ -1176,8 +1227,8 @@ let isChallengeActive = false;
 let pendingChallengeData = null;
 
 function startChallenge(type, mode) {
-  if (!challengesUnlocked) {
-    alert('Challenges are currently locked. Please check back later.');
+  if (!challengeUnlock[type]) {
+    alert('This challenge is currently locked. Please check back later.');
     return;
   }
   let minutes = 0;
@@ -1626,10 +1677,10 @@ async function initApp() {
   const mi = await dbGetConfig('moduleInfo');
   if (mi) { moduleInfo = mi; localStorage.setItem('hifzModuleInfo', JSON.stringify(mi)); }
 
-  // Global challenge lock state (admin-controlled)
+  // Per-challenge lock state (admin-controlled)
   const chal = await dbGetConfig('challenges');
-  challengesUnlocked = chal ? !!chal.unlocked : false;
-  localStorage.setItem('hifzChallengesUnlocked', challengesUnlocked ? 'true' : 'false');
+  challengeUnlock = normalizeChallengeConfig(chal);
+  localStorage.setItem('hifzChallengeUnlock', JSON.stringify(challengeUnlock));
 
   renderModuleGrid();
 

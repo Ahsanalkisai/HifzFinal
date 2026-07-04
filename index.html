@@ -111,7 +111,7 @@
       <h3 class="section-heading"><i class="fa-solid fa-fire" style="color:#ef4444;"></i> Hifz Challenges</h3>
       <div class="challenges-grid">
         <!-- Walking Challenge -->
-        <div class="challenge-card walking-card">
+        <div class="challenge-card walking-card" data-challenge="walking">
           <div class="challenge-icon"><i class="fa-solid fa-person-walking"></i></div>
           <h4 class="challenge-title">Walking Challenge</h4>
           <p class="challenge-desc">Recite while walking!</p>
@@ -122,7 +122,7 @@
         </div>
 
         <!-- Busy Day Challenge -->
-        <div class="challenge-card busy-card">
+        <div class="challenge-card busy-card" data-challenge="busy">
           <div class="challenge-icon"><i class="fa-solid fa-bolt"></i></div>
           <h4 class="challenge-title">Busy Day Challenge</h4>
           <p class="challenge-desc">Recite fast & flawlessly.</p>
@@ -133,7 +133,7 @@
         </div>
         
         <!-- Companion's Test Challenge -->
-        <div class="challenge-card companion-card">
+        <div class="challenge-card companion-card" data-challenge="companion">
           <div class="challenge-icon"><i class="fa-solid fa-user-group"></i></div>
           <h4 class="challenge-title">The Companion's Test (Gauntlet)</h4>
           <p class="challenge-desc">Have a friend test your Hifz under pressure!</p>
@@ -144,7 +144,7 @@
         </div>
 
         <!-- Win a Prize Challenge -->
-        <div class="challenge-card prize-card" id="prizeChallengeCard">
+        <div class="challenge-card prize-card" id="prizeChallengeCard" data-challenge="prize">
           <div class="challenge-icon"><i class="fa-solid fa-gift"></i></div>
           <h4 class="challenge-title">Win a Prize Challenge!</h4>
           <p class="challenge-desc">Recite the FULL module perfectly without a single mistake within 18 minutes without break. Win an exclusive prize!</p>
@@ -463,10 +463,8 @@
         <!-- Challenge Access Control -->
         <div class="admin-section">
           <h3 class="admin-label">Challenge Access</h3>
-          <p id="challengeLockStatus" style="font-size:13px; font-weight:700; color:var(--text-2); margin-bottom:12px;">Challenges are LOCKED for all students.</p>
-          <button class="btn-outline" id="challengeLockToggle" onclick="toggleChallengeLock()" style="width:100%;">
-            <i class="fa-solid fa-lock-open"></i> Unlock Challenges
-          </button>
+          <p style="font-size:12px; color:var(--text-3); margin-bottom:12px; font-weight:600;">Lock or unlock each challenge individually for all students.</p>
+          <div id="challengeLockList" class="challenge-lock-list"></div>
         </div>
 
         <!-- Master Admin Password -->

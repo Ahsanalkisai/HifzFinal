@@ -675,6 +675,17 @@ body.dark-mode .progress-btn.memorized { background: rgba(17,107,50,0.15); color
   border-radius: inherit;
 }
 .challenge-card.locked button { cursor: not-allowed; }
+
+/* Admin: per-challenge lock/unlock controls */
+.challenge-lock-list { display: flex; flex-direction: column; gap: 10px; }
+.challenge-lock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }
+.challenge-lock-info { display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.challenge-lock-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.challenge-lock-state { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.challenge-lock-state.unlocked { color: #16a34a; }
+.challenge-lock-state.locked { color: #ef4444; }
+.challenge-lock-btn { flex-shrink: 0; white-space: nowrap; }
+
 .challenge-icon { width: 64px; height: 64px; border-radius: 16px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; color: var(--primary); }
 .busy-card .challenge-icon { color: #f59e0b; background: rgba(245,158,11,0.1); }
 .walking-card .challenge-icon { color: #3b82f6; background: rgba(59,130,246,0.1); }
