@@ -815,16 +815,29 @@ function updateDailyAyahSettings() {
     saveStudentData();
   }
 }
-function changeName() {
-  const n = $('changeNameInput').value.trim(); if (!n) return alert('Enter a valid name.');
-  // Rename the display label only — the device keeps the same underlying profile/progress.
+// Save the display label for this device (keeps the same underlying profile/progress).
+function saveDisplayName(name) {
+  const n = (name || '').trim();
+  if (!n) return false;
   if (!userStats[currentUser]) userStats[currentUser] = { joined: new Date().toISOString(), logins: 0 };
   userStats[currentUser].displayName = n;
   localStorage.setItem('hifzProfileName', n);
   dbSaveStudent(currentUser, userStats[currentUser], studentData[currentUser] || {});
   updateWelcomeHeader();
   if ($('profileName')) $('profileName').textContent = n;
+  return true;
+}
+
+function changeName() {
+  if (!saveDisplayName($('changeNameInput').value)) return alert('Enter a valid name.');
   closeSettings();
+}
+
+// If the profile is still unnamed ("Guest"), ask for a name and save it to this device.
+function promptProfileName() {
+  if (getDisplayName() !== 'Guest') return;
+  const entered = prompt('Please write your name — it will be saved on this device:', '');
+  if (entered && entered.trim()) saveDisplayName(entered);
 }
 function exportData() {
   const d = { user: currentUser, moduleInfo, pageLinks, exportDate: new Date().toISOString() };
@@ -1316,6 +1329,9 @@ function openProfile() {
   renderProgressGrid();
   renderQuizHistory();
   showView(profileView);
+
+  // First time on the profile with no name yet — ask for one (after the view paints).
+  if (getDisplayName() === 'Guest') setTimeout(promptProfileName, 400);
 }
 
 function renderProgressGrid() {
