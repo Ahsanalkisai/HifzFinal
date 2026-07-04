@@ -370,6 +370,18 @@ body.onboarding-active #themeToggle { display: flex !important; }
   font-style: italic;
   font-weight: 500;
 }
+.daily-ayah-content #dailyAyahDhivehi {
+  font-family: 'Faruma', sans-serif;
+  font-size: 15px;
+  line-height: 2;
+  color: var(--text-2);
+  font-weight: 500;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  direction: rtl;
+}
+.daily-ayah-content #dailyAyahDhivehi:empty { display: none; }
 
 /* Section Heading */
 .section-heading { display:flex; align-items:center; gap:12px; font-size:18px; font-weight:800; color:var(--text); margin-bottom:16px; padding-left:4px; }

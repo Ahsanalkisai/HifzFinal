@@ -642,7 +642,11 @@ async function fetchDailyAyah() {
   const card = $('dailyAyahCard');
   const arabicEl = $('dailyAyahArabic');
   const englishEl = $('dailyAyahEnglish');
+  const dhivehiEl = $('dailyAyahDhivehi');
   const refEl = $('dailyAyahRef');
+  // quran.com translation IDs: 20 = Saheeh International (English),
+  // 86 = Office of the President of Maldives (Dhivehi)
+  const TRANSLATIONS = '20,86';
 
   // Determine source
   const source = sd.settings.ayahSource || 'random';
@@ -656,11 +660,11 @@ async function fetchDailyAyah() {
   }
 
   try {
-    let url = 'https://api.quran.com/api/v4/verses/random?language=en&words=false&translations=131&fields=text_uthmani';
+    let url = `https://api.quran.com/api/v4/verses/random?language=en&words=false&translations=${TRANSLATIONS}&fields=text_uthmani`;
 
     if (pList.length > 0) {
       const randomPage = pList[Math.floor(Math.random() * pList.length)];
-      url = `https://api.quran.com/api/v4/verses/by_page/${randomPage}?language=en&words=false&translations=131&fields=text_uthmani&per_page=50`;
+      url = `https://api.quran.com/api/v4/verses/by_page/${randomPage}?language=en&words=false&translations=${TRANSLATIONS}&fields=text_uthmani&per_page=50`;
     }
 
     const res = await fetch(url);
@@ -676,14 +680,19 @@ async function fetchDailyAyah() {
 
     if (!v) throw new Error("No verse found");
 
+    const strip = t => (t || '').replace(/<[^>]*>?/gm, '').trim();
+    const trans = v.translations || [];
+    const en = trans.find(t => t.resource_id === 20);
+    const dv = trans.find(t => t.resource_id === 86);
+
     arabicEl.textContent = v.text_uthmani;
     refEl.textContent = `Surah ${v.verse_key}`;
-    if (v.translations && v.translations.length > 0) {
-      englishEl.textContent = v.translations[0].text.replace(/<[^>]*>?/gm, '');
-    }
+    englishEl.textContent = en ? strip(en.text) : '';
+    if (dhivehiEl) dhivehiEl.textContent = dv ? strip(dv.text) : '';
   } catch (e) {
     arabicEl.textContent = "إِنَّ مَعَ الْعُسْرِ يُسْرًا";
     englishEl.textContent = "Indeed, with hardship [will be] ease.";
+    if (dhivehiEl) dhivehiEl.textContent = "ހަމަކަށަވަރުން، އުނދަގޫކަމާއެކު ފަސޭހަކަންވެއެވެ.";
     refEl.textContent = "94:6";
   }
 }

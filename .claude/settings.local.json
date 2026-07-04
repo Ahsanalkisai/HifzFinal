@@ -38,7 +38,18 @@
       "Bash(node shot.js)",
       "Bash(node shot2.js)",
       "Bash(node shot3.js)",
-      "Bash(node shot4.js)"
+      "Bash(node shot4.js)",
+      "Bash(curl -s \"https://api.quran.com/api/v4/resources/translations\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{const t=JSON.parse\\(s\\).translations;t.filter\\(x=>/div|dhiv|maldiv/i.test\\(\\(x.language_name||\"\"\\)+\" \"+\\(x.name||\"\"\\)\\)\\).forEach\\(x=>console.log\\(x.id,\"|\",x.language_name,\"|\",x.name,\"|\",x.author_name\\)\\);}\\)')",
+      "Bash(curl -s \"https://api.quran.com/api/v4/verses/by_key/94:6?language=en&translations=131,86&fields=text_uthmani\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{const v=JSON.parse\\(s\\).verse;console.log\\(\"AR:\",v.text_uthmani\\);v.translations.forEach\\(t=>console.log\\(\"[\"+t.resource_id+\"]\",t.text.replace\\(/<[^>]*>?/gm,\"\"\\)\\)\\);}\\)')",
+      "Bash(curl -s \"https://api.quran.com/api/v4/verses/random?language=en&translations=131,86&fields=text_uthmani\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{const v=JSON.parse\\(s\\).verse;console.log\\(\"key\",v.verse_key,\"| translations count:\",v.translations.length\\);v.translations.forEach\\(t=>console.log\\(\"  id\",t.resource_id,\":\",t.text.replace\\(/<[^>]*>?/gm,\"\"\\).slice\\(0,60\\)\\)\\);}\\)')",
+      "Bash(curl -s \"https://api.quran.com/api/v4/verses/by_key/2:255?translations=131,84,86\")",
+      "Bash(cp shot4.js shot5.js)",
+      "Bash(node -e \"const fs=require\\('fs'\\);let s=fs.readFileSync\\('shot5.js','utf8'\\);s=s.replace\\('namemodaltest','ayahtest'\\).replace\\('namemodal.png','ayah.png'\\).replace\\('width: 420, height: 560','width: 520, height: 620'\\);fs.writeFileSync\\('shot5.js',s\\);\")",
+      "Bash(node shot5.js)",
+      "Bash(node -e \"const fs=require\\('fs'\\);let h=fs.readFileSync\\('ayahtest.html','utf8'\\);h=h.replace\\('by_key/2:255','by_key/94:6'\\);fs.writeFileSync\\('ayahtest.html',h\\);let s=fs.readFileSync\\('shot5.js','utf8'\\);s=s.replace\\('path: \\\\'ayah.png\\\\'','path: \\\\'ayah.png\\\\', fullPage: true'\\);fs.writeFileSync\\('shot5.js',s\\);\")"
     ]
   }
 }
