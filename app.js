@@ -284,7 +284,7 @@ async function openReader(pageNum) {
   try {
     // words=true gives per-word glyph codes + line numbers (for Mushaf mode);
     // text_uthmani is still returned per verse (for Big mode).
-    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=text_uthmani,line_number,char_type_name`);
+    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=text_uthmani,code_v1,line_number,char_type_name`);
     const data = await res.json();
     $('readerLoading').style.display = 'none';
     if (!data.verses || !data.verses.length) { $('quranText').innerHTML = '<p style="text-align:center;color:var(--text-3)">No verses found for this page.</p>'; return; }
@@ -325,10 +325,28 @@ function applyReaderMode() {
   });
 }
 
-function renderReader() {
+async function renderReader() {
   if (!currentPageData) return;
-  if (readerMode === 'mushaf') renderReaderMushaf(currentPageData);
+  if (readerMode === 'mushaf') await renderReaderMushaf(currentPageData);
   else renderReaderBig(currentPageData);
+}
+
+// Loads the King Fahd per-page Quran font (QCF v1) for a page. The font's glyphs
+// map the code_v1 codepoints to that exact printed page. Cached per page.
+// NOTE: do NOT gate this with document.fonts.check() — that returns true for a
+// not-yet-loaded family (it falls back to system fonts), which silently skips
+// loading and produces scattered letters.
+const loadedPageFonts = {};
+async function loadPageFont(page) {
+  const p3 = String(page).padStart(3, '0');
+  const fam = 'QCF_P' + p3;
+  if (loadedPageFonts[page]) return fam;
+  const url = `https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P${p3}.woff2`;
+  const ff = new FontFace(fam, `url("${url}")`);
+  await ff.load();
+  document.fonts.add(ff);
+  loadedPageFonts[page] = fam;
+  return fam;
 }
 
 // Big mode: large spaced verses with gold ayah circles (the original look).
@@ -352,34 +370,37 @@ function toArabicNum(n) {
   return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 }
 
-// Mushaf mode: renders the page using real Uthmani word text, grouped by the
-// mushaf's own line numbers (authentic line breaks), justified line by line,
-// with green ayah-end markers. Falls back to a continuous justified block if
-// per-word line data is unavailable.
-function renderReaderMushaf(verses) {
+// Mushaf mode: renders the exact printed page using the per-page QCF font +
+// glyph codes, grouped by the mushaf's own line numbers, each line justified
+// full-width, with green ayah-end medallions. Falls back to Uthmani word text
+// if the glyph codes or the per-page font are unavailable.
+async function renderReaderMushaf(verses) {
+  const page = currentPageNum;
   const lines = {};
-  let hasLines = false;
+  let hasCode = false;
   verses.forEach(v => {
     (v.words || []).forEach(w => {
       if (w.char_type_name !== 'word' && w.char_type_name !== 'end') return;
+      if (w.code_v1) hasCode = true;
       const ln = w.line_number || 0;
-      if (w.line_number) hasLines = true;
       (lines[ln] = lines[ln] || []).push(w);
     });
   });
-  if (!hasLines) { renderReaderMushafFallback(verses); return; }
+  if (!hasCode) { renderReaderMushafFallback(verses); return; }
+
+  let fam;
+  try { fam = await loadPageFont(page); }
+  catch (e) { renderReaderMushafFallback(verses); return; }
+  // Bail if the user changed page/mode while the font was loading.
+  if (readerMode !== 'mushaf' || currentPageNum !== page) return;
 
   const lineNums = Object.keys(lines).map(Number).sort((a, b) => a - b);
-  let html = '<div class="mushaf-page">';
+  let html = `<div class="mushaf-page" style="font-family:'${fam}';">`;
   lineNums.forEach(ln => {
     html += '<div class="mushaf-line">';
     lines[ln].forEach(w => {
-      const t = w.text_uthmani || w.text || '';
-      if (w.char_type_name === 'end') {
-        html += `<span class="mushaf-end">${t}</span> `;
-      } else {
-        html += `<span class="mushaf-word">${t}</span> `;
-      }
+      const cls = w.char_type_name === 'end' ? 'mushaf-word mushaf-end' : 'mushaf-word';
+      html += `<span class="${cls}">${w.code_v1}</span> `;
     });
     html += '</div>';
   });
