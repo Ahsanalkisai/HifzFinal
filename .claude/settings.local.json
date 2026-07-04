@@ -18,7 +18,13 @@
       "PowerShell(Get-Job)",
       "PowerShell(Stop-Job)",
       "PowerShell(Remove-Job)",
-      "PowerShell(\"jobs cleaned\")"
+      "PowerShell(\"jobs cleaned\")",
+      "Read(//c/Users/fathi/.claude/uploads/35747133-b1fa-49ac-bcd6-69e8b69bde14/**)",
+      "Bash(curl -s \"https://api.quran.com/api/v4/verses/by_page/522?language=en&words=true&per_page=2&fields=text_uthmani,verse_key&word_fields=code_v1,line_number,char_type_name\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} size=%{size_download}\\\\n\" \"https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P522.woff2\")",
+      "Bash(node -e ' *)",
+      "Read(//c/Users/fathi/.claude/projects/c--Projects-ium-hifz/memory/**)",
+      "Bash(cat MEMORY.md)"
     ]
   }
 }
