@@ -986,19 +986,7 @@ body.dark-mode .reader-topbar { border-bottom-color: rgba(156,128,56,0.3); }
   font-family: var(--font); letter-spacing: 1px;
 }
 
-/* Page Fold Effect */
-.reader-body::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 100%;
-  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.05), transparent);
-  box-shadow: 0 0 15px rgba(0,0,0,0.03);
-  pointer-events: none;
-}
+.reader-body::after { content: none; }
 
 .reader-body::before { content: none; }
 

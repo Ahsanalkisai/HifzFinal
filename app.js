@@ -468,7 +468,7 @@ function navigateReader(direction) {
     const dx = e.changedTouches[0].clientX - x0;
     const dy = e.changedTouches[0].clientY - y0;
     if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-      navigateReader(dx < 0 ? 1 : -1);
+      navigateReader(dx > 0 ? 1 : -1); // swipe left-to-right = next page
     }
   }, { passive: true });
 })();
