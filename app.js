@@ -270,7 +270,6 @@ function startPlay(idx, pn) {
 let currentPageNum = 0;
 let currentPageData = null; // cached verses for the open page (so mode toggle doesn't refetch)
 let readerMode = localStorage.getItem('hifzReaderMode') || 'big'; // 'big' | 'mushaf'
-const loadedPageFonts = {}; // page -> font-family name (cache)
 
 async function openReader(pageNum) {
   currentPageNum = pageNum;
@@ -285,7 +284,7 @@ async function openReader(pageNum) {
   try {
     // words=true gives per-word glyph codes + line numbers (for Mushaf mode);
     // text_uthmani is still returned per verse (for Big mode).
-    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=code_v1,line_number,char_type_name`);
+    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=text_uthmani,line_number,char_type_name`);
     const data = await res.json();
     $('readerLoading').style.display = 'none';
     if (!data.verses || !data.verses.length) { $('quranText').innerHTML = '<p style="text-align:center;color:var(--text-3)">No verses found for this page.</p>'; return; }
@@ -326,9 +325,9 @@ function applyReaderMode() {
   });
 }
 
-async function renderReader() {
+function renderReader() {
   if (!currentPageData) return;
-  if (readerMode === 'mushaf') await renderReaderMushaf(currentPageData);
+  if (readerMode === 'mushaf') renderReaderMushaf(currentPageData);
   else renderReaderBig(currentPageData);
 }
 
@@ -349,48 +348,38 @@ function renderReaderBig(verses) {
   $('quranText').innerHTML = html;
 }
 
-// Loads the King Fahd per-page Quran font (QCF v1) for a given page.
-async function loadPageFont(page) {
-  const p3 = String(page).padStart(3, '0');
-  const fam = 'QCF_P' + p3;
-  if (loadedPageFonts[page]) return fam;
-  try { if (document.fonts && document.fonts.check(`24px "${fam}"`)) { loadedPageFonts[page] = fam; return fam; } } catch (e) {}
-  const url = `https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P${p3}.woff2`;
-  const ff = new FontFace(fam, `url("${url}")`);
-  await ff.load();
-  document.fonts.add(ff);
-  loadedPageFonts[page] = fam;
-  return fam;
+function toArabicNum(n) {
+  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 }
 
-// Mushaf mode: renders the exact printed page using per-page glyph codes + font,
-// justified line by line, with green ayah-end ornaments. Falls back to styled
-// Uthmani text if the words/font are unavailable.
-async function renderReaderMushaf(verses) {
-  const page = currentPageNum;
-  const words = [];
+// Mushaf mode: renders the page using real Uthmani word text, grouped by the
+// mushaf's own line numbers (authentic line breaks), justified line by line,
+// with green ayah-end markers. Falls back to a continuous justified block if
+// per-word line data is unavailable.
+function renderReaderMushaf(verses) {
+  const lines = {};
+  let hasLines = false;
   verses.forEach(v => {
     (v.words || []).forEach(w => {
-      if (w.char_type_name === 'word' || w.char_type_name === 'end') {
-        words.push({ code: w.code_v1, line: w.line_number, isEnd: w.char_type_name === 'end' });
-      }
+      if (w.char_type_name !== 'word' && w.char_type_name !== 'end') return;
+      const ln = w.line_number || 0;
+      if (w.line_number) hasLines = true;
+      (lines[ln] = lines[ln] || []).push(w);
     });
   });
-  if (!words.length || !words[0].code) { renderReaderMushafFallback(verses); return; }
+  if (!hasLines) { renderReaderMushafFallback(verses); return; }
 
-  let fam;
-  try { fam = await loadPageFont(page); }
-  catch (e) { renderReaderMushafFallback(verses); return; }
-
-  const lines = {};
-  words.forEach(w => { (lines[w.line] = lines[w.line] || []).push(w); });
   const lineNums = Object.keys(lines).map(Number).sort((a, b) => a - b);
-
-  let html = `<div class="mushaf-page" style="font-family:'${fam}';">`;
+  let html = '<div class="mushaf-page">';
   lineNums.forEach(ln => {
     html += '<div class="mushaf-line">';
     lines[ln].forEach(w => {
-      html += `<span class="mushaf-word${w.isEnd ? ' mushaf-end' : ''}">${w.code}</span>`;
+      const t = w.text_uthmani || w.text || '';
+      if (w.char_type_name === 'end') {
+        html += `<span class="mushaf-end">${t}</span> `;
+      } else {
+        html += `<span class="mushaf-word">${t}</span> `;
+      }
     });
     html += '</div>';
   });
@@ -398,11 +387,7 @@ async function renderReaderMushaf(verses) {
   $('quranText').innerHTML = html;
 }
 
-function toArabicNum(n) {
-  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-}
-
-// Fallback mushaf look when per-page fonts aren't available.
+// Fallback: continuous justified Uthmani text with green ayah numbers.
 function renderReaderMushafFallback(verses) {
   let html = '<div class="mushaf-page mushaf-fallback">';
   verses.forEach(v => {

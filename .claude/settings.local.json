@@ -24,7 +24,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} size=%{size_download}\\\\n\" \"https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P522.woff2\")",
       "Bash(node -e ' *)",
       "Read(//c/Users/fathi/.claude/projects/c--Projects-ium-hifz/memory/**)",
-      "Bash(cat MEMORY.md)"
+      "Bash(cat MEMORY.md)",
+      "Bash(curl -s \"https://api.quran.com/api/v4/verses/by_page/522?language=en&words=true&per_page=1&fields=text_uthmani,verse_key&word_fields=text_uthmani,line_number,char_type_name\")",
+      "Bash(python -c \"import sys,json;d=json.load\\(sys.stdin\\);w=d['verses'][0]['words'];[print\\(x.get\\('char_type_name'\\),'| line',x.get\\('line_number'\\),'|',repr\\(x.get\\('text_uthmani'\\)\\)\\) for x in w]\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{const w=JSON.parse\\(s\\).verses[0].words;w.forEach\\(x=>console.log\\(x.char_type_name,\"| line\",x.line_number,\"|\",JSON.stringify\\(x.text_uthmani\\)\\)\\);}\\)')"
     ]
   }
 }
