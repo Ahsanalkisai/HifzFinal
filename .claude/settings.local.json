@@ -49,7 +49,19 @@
       "Bash(cp shot4.js shot5.js)",
       "Bash(node -e \"const fs=require\\('fs'\\);let s=fs.readFileSync\\('shot5.js','utf8'\\);s=s.replace\\('namemodaltest','ayahtest'\\).replace\\('namemodal.png','ayah.png'\\).replace\\('width: 420, height: 560','width: 520, height: 620'\\);fs.writeFileSync\\('shot5.js',s\\);\")",
       "Bash(node shot5.js)",
-      "Bash(node -e \"const fs=require\\('fs'\\);let h=fs.readFileSync\\('ayahtest.html','utf8'\\);h=h.replace\\('by_key/2:255','by_key/94:6'\\);fs.writeFileSync\\('ayahtest.html',h\\);let s=fs.readFileSync\\('shot5.js','utf8'\\);s=s.replace\\('path: \\\\'ayah.png\\\\'','path: \\\\'ayah.png\\\\', fullPage: true'\\);fs.writeFileSync\\('shot5.js',s\\);\")"
+      "Bash(node -e \"const fs=require\\('fs'\\);let h=fs.readFileSync\\('ayahtest.html','utf8'\\);h=h.replace\\('by_key/2:255','by_key/94:6'\\);fs.writeFileSync\\('ayahtest.html',h\\);let s=fs.readFileSync\\('shot5.js','utf8'\\);s=s.replace\\('path: \\\\'ayah.png\\\\'','path: \\\\'ayah.png\\\\', fullPage: true'\\);fs.writeFileSync\\('shot5.js',s\\);\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} ct=%{content_type} size=%{size_download}\\\\n\" \"https://raw.githubusercontent.com/abdulrahmanadam/Faruma/master/Faruma.woff\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} ct=%{content_type} size=%{size_download}\\\\n\" \"https://cdn.jsdelivr.net/gh/abdulrahmanadam/Faruma@master/Faruma.woff\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} ct=%{content_type} size=%{size_download}\\\\n\" \"https://cdn.jsdelivr.net/gh/abdulrahmanadam/Faruma@master/Faruma.woff2\")",
+      "Bash(curl -s \"https://api.github.com/repos/Javaabu/thaana-web-fonts/contents\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{try{const j=JSON.parse\\(s\\);if\\(Array.isArray\\(j\\)\\)console.log\\(j.map\\(x=>x.name\\).join\\(\", \"\\)\\);else console.log\\(\"msg:\",j.message\\);}catch\\(e\\){console.log\\(\"err\"\\)}}\\)')",
+      "Bash(curl -s \"https://registry.npmjs.org/-/v1/search?text=faruma%20thaana&size=8\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{try{JSON.parse\\(s\\).objects.forEach\\(o=>console.log\\(o.package.name,\"-\",o.package.description||\"\"\\)\\);}catch\\(e\\){console.log\\(\"err\"\\)}}\\)')",
+      "Bash(curl -s \"https://api.github.com/search/code?q=Faruma+extension:woff&per_page=5\" -H \"Accept: application/vnd.github+json\")",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{try{const j=JSON.parse\\(s\\);console.log\\(j.message||\\(j.items||[]\\).map\\(i=>i.repository.full_name+\"/\"+i.path\\).join\\(\"\\\\n\"\\)\\);}catch\\(e\\){console.log\\(\"err\"\\)}}\\)')",
+      "WebSearch",
+      "Bash(node -e \"const p=require\\('puppeteer-core'\\);\\(async\\(\\)=>{const b=await p.launch\\({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:'new',args:['--no-sandbox']}\\);const pg=await b.newPage\\(\\);await pg.setViewport\\({width:520,height:400,deviceScaleFactor:2}\\);await pg.goto\\('file://'+process.cwd\\(\\).replace\\(/\\\\\\\\\\\\\\\\/g,'/'\\)+'/ayahtest.html'\\);await new Promise\\(r=>setTimeout\\(r,1500\\)\\);const info=await pg.evaluate\\(async\\(\\)=>{await document.fonts.ready;const el=document.getElementById\\('dailyAyahDhivehi'\\);return {loaded:document.fonts.check\\('16px Faruma'\\), text:el.textContent.slice\\(0,30\\), font:getComputedStyle\\(el\\).fontFamily};}\\);console.log\\('Faruma loaded:',info.loaded,'| font:',info.font,'| dv:',info.text\\);await pg.screenshot\\({path:'ayah2.png'}\\);await b.close\\(\\);}\\)\\(\\);\")",
+      "Bash(node checkfont.js)"
     ]
   }
 }

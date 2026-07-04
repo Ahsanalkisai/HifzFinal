@@ -1,7 +1,9 @@
 /* ===== IUM Hifz Tracker — Premium Styles ===== */
 @font-face {
   font-family: 'Faruma';
-  src: url('https://raw.githubusercontent.com/abdulrahmanadam/Faruma/master/Faruma.woff') format('woff');
+  src: url('https://cdn.jsdelivr.net/gh/yaaamin/dhivehi-fonts@main/Faruma.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/yaaamin/dhivehi-fonts@main/Faruma.woff') format('woff');
+  font-display: swap;
 }
 
 :root {
