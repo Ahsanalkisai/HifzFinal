@@ -473,6 +473,18 @@ function navigateReader(direction) {
   }, { passive: true });
 })();
 
+// ===== Mobile top-bar menu (hamburger) =====
+function toggleTopMenu() {
+  $('topActions').classList.toggle('menu-open');
+}
+$('topActions').addEventListener('click', e => {
+  if (e.target.closest('.icon-btn')) $('topActions').classList.remove('menu-open');
+});
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.top-actions-wrap');
+  if (wrap && !wrap.contains(e.target)) $('topActions').classList.remove('menu-open');
+});
+
 // ===== Audio Controls =====
 $('playPauseBtn').addEventListener('click', () => {
   if (audioPlayer.paused) { audioPlayer.play(); $('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>'; }
@@ -1879,7 +1891,7 @@ window.openGauntletMenu = openGauntletMenu; window.confirmGauntletStart = confir
 window.startGauntletTaskFromWin = startGauntletTaskFromWin; window.executeChallengeStart = executeChallengeStart;
 window.cancelChallengeStart = cancelChallengeStart;
 window.navigateReader = navigateReader; window.exportAllData = exportAllData;
-window.setReaderMode = setReaderMode;
+window.setReaderMode = setReaderMode; window.toggleTopMenu = toggleTopMenu;
 window.resetAllData = handleResetAllData; window.handleResetAllData = handleResetAllData;
 window.openAdminDashboard = () => showView(adminView);
 window.applyColorTheme = applyColorTheme; window.toggleChallengeLock = toggleChallengeLock;

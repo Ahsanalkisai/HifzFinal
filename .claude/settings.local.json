@@ -36,7 +36,8 @@
       "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
       "Bash(node shot.js)",
-      "Bash(node shot2.js)"
+      "Bash(node shot2.js)",
+      "Bash(node shot3.js)"
     ]
   }
 }

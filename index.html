@@ -39,11 +39,14 @@
     <h1 class="app-title" id="appTitle">
       <span class="title-text">Hifz Tracker</span>
     </h1>
-    <div class="top-actions">
-      <button id="scoreBtn" class="icon-btn" title="Global Scoreboard" onclick="openScoreboard()" style="display:none;"><i class="fa-solid fa-ranking-star"></i></button>
-      <button id="profileBtn" class="icon-btn" title="Student Profile" onclick="openProfile()" style="display:none;"><i class="fa-solid fa-user"></i></button>
-      <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none;"><i class="fa-solid fa-gear"></i></button>
-      <button id="themeToggle" class="icon-btn" title="Theme"><i class="fa-solid fa-moon"></i></button>
+    <div class="top-actions-wrap">
+      <button id="menuToggle" class="icon-btn menu-toggle" title="Menu" aria-label="Menu" onclick="toggleTopMenu()"><i class="fa-solid fa-bars"></i></button>
+      <div class="top-actions" id="topActions">
+        <button id="scoreBtn" class="icon-btn" title="Global Scoreboard" onclick="openScoreboard()" style="display:none;"><i class="fa-solid fa-ranking-star"></i></button>
+        <button id="profileBtn" class="icon-btn" title="Student Profile" onclick="openProfile()" style="display:none;"><i class="fa-solid fa-user"></i></button>
+        <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none;"><i class="fa-solid fa-gear"></i></button>
+        <button id="themeToggle" class="icon-btn" title="Theme"><i class="fa-solid fa-moon"></i></button>
+      </div>
     </div>
   </header>
 
