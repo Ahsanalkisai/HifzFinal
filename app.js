@@ -20,6 +20,28 @@ const defaultModuleInfo = {
   hifz11: { num: 11, code: "QUR0750", title: "Holy Quran Memorization 11" }
 };
 
+// Syllabus page ranges per module (Madinah mushaf). The reader is limited to these
+// pages so students only browse their module's syllabus, not the whole mushaf.
+const MODULE_PAGE_RANGES = {
+  hifz6: { start: 522, end: 531 },   // al-Dhāriyāt 51:31 → al-Qamar 54:55
+  hifz7: { start: 531, end: 541 },   // al-Raḥmān 55:1 → al-Ḥadīd 57:29
+  hifz8: { start: 502, end: 511 },   // al-Aḥqāf 46:1 → al-Fatḥ 48:9
+  hifz9: { start: 512, end: 521 },   // al-Fatḥ 48:10 → al-Dhāriyāt 51:30
+  hifz10: { start: 482, end: 491 },  // Fuṣṣilat 41:47 → al-Zukhruf 43:33
+  hifz11: { start: 492, end: 502 }   // al-Zukhruf 43:34 → al-Jāthiyah 45:37
+};
+
+// Resolve the allowed page range for a module: explicit moduleInfo override →
+// hardcoded syllabus range → the module's actual page list → whole mushaf.
+function getModuleRange(key) {
+  const info = moduleInfo[key] || {};
+  if (info.startPage && info.endPage) return { start: info.startPage, end: info.endPage };
+  if (MODULE_PAGE_RANGES[key]) return MODULE_PAGE_RANGES[key];
+  const pages = Object.keys(pageLinks[key] || {}).map(Number).filter(n => !isNaN(n));
+  if (pages.length) return { start: Math.min(...pages), end: Math.max(...pages) };
+  return { start: 1, end: 604 };
+}
+
 // Load from localStorage or use defaults
 let pageLinks = JSON.parse(localStorage.getItem('hifzPageLinks')) || JSON.parse(JSON.stringify(defaultPageLinks));
 let moduleInfo = JSON.parse(localStorage.getItem('hifzModuleInfo')) || JSON.parse(JSON.stringify(defaultModuleInfo));
@@ -246,39 +268,36 @@ function startPlay(idx, pn) {
 
 // ===== Quran Reader =====
 let currentPageNum = 0;
+let currentPageData = null; // cached verses for the open page (so mode toggle doesn't refetch)
+let readerMode = localStorage.getItem('hifzReaderMode') || 'big'; // 'big' | 'mushaf'
+const loadedPageFonts = {}; // page -> font-family name (cache)
+
 async function openReader(pageNum) {
   currentPageNum = pageNum;
+  currentPageData = null;
   $('readerTitle').textContent = `Page ${pageNum}`;
   $('readerSurah').textContent = '';
   $('quranText').innerHTML = '';
   $('readerLoading').style.display = 'block';
   $('readerNav').style.display = 'none';
   showView(readerView);
+  applyReaderMode();
   try {
-    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=false&per_page=50&fields=text_uthmani,verse_key`);
+    // words=true gives per-word glyph codes + line numbers (for Mushaf mode);
+    // text_uthmani is still returned per verse (for Big mode).
+    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=code_v1,line_number,char_type_name`);
     const data = await res.json();
     $('readerLoading').style.display = 'none';
     if (!data.verses || !data.verses.length) { $('quranText').innerHTML = '<p style="text-align:center;color:var(--text-3)">No verses found for this page.</p>'; return; }
-    // Group by surah
-    let html = '', lastSurah = '';
-    data.verses.forEach(v => {
-      const parts = v.verse_key.split(':');
-      const surahNum = parts[0], ayahNum = parts[1];
-      if (surahNum !== lastSurah) {
-        if (lastSurah) html += '</div>';
-        html += `<div class="surah-separator">Surah ${surahNum}</div><div class="surah-block">`;
-        lastSurah = surahNum;
-      }
-      html += `<span class="quran-verse">${v.text_uthmani}</span><span class="verse-number">${ayahNum}</span> `;
-    });
-    if (lastSurah) html += '</div>';
-    $('quranText').innerHTML = html;
-    // Update surah info
+    currentPageData = data.verses;
+
+    // Surah info line
     const surahs = [...new Set(data.verses.map(v => v.verse_key.split(':')[0]))];
     const arNames = surahs.map(n => surahNamesAr[parseInt(n) - 1]);
     $('readerSurah').textContent = `Surah ${surahs.join(', ')} • ${arNames.map(n => 'سورة ' + n).join(' / ')}`;
 
-    // Show Nav
+    await renderReader();
+
     $('readerNav').style.display = 'flex';
     updateReaderNavButtons();
   } catch (e) {
@@ -287,21 +306,127 @@ async function openReader(pageNum) {
   }
 }
 
+// Toggle between "Big" and "Mushaf" reading modes.
+async function setReaderMode(mode) {
+  if (mode !== 'big' && mode !== 'mushaf') return;
+  readerMode = mode;
+  localStorage.setItem('hifzReaderMode', mode);
+  applyReaderMode();
+  if (currentPageData) { $('readerLoading').style.display = 'none'; await renderReader(); }
+}
+
+function applyReaderMode() {
+  const body = $('readerBody');
+  if (body) {
+    body.classList.toggle('mushaf-mode', readerMode === 'mushaf');
+    body.classList.toggle('big-mode', readerMode === 'big');
+  }
+  document.querySelectorAll('.reader-mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === readerMode);
+  });
+}
+
+async function renderReader() {
+  if (!currentPageData) return;
+  if (readerMode === 'mushaf') await renderReaderMushaf(currentPageData);
+  else renderReaderBig(currentPageData);
+}
+
+// Big mode: large spaced verses with gold ayah circles (the original look).
+function renderReaderBig(verses) {
+  let html = '', lastSurah = '';
+  verses.forEach(v => {
+    const parts = v.verse_key.split(':');
+    const surahNum = parts[0], ayahNum = parts[1];
+    if (surahNum !== lastSurah) {
+      if (lastSurah) html += '</div>';
+      html += `<div class="surah-separator">Surah ${surahNum}</div><div class="surah-block">`;
+      lastSurah = surahNum;
+    }
+    html += `<span class="quran-verse">${v.text_uthmani}</span><span class="verse-number">${ayahNum}</span> `;
+  });
+  if (lastSurah) html += '</div>';
+  $('quranText').innerHTML = html;
+}
+
+// Loads the King Fahd per-page Quran font (QCF v1) for a given page.
+async function loadPageFont(page) {
+  const p3 = String(page).padStart(3, '0');
+  const fam = 'QCF_P' + p3;
+  if (loadedPageFonts[page]) return fam;
+  try { if (document.fonts && document.fonts.check(`24px "${fam}"`)) { loadedPageFonts[page] = fam; return fam; } } catch (e) {}
+  const url = `https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P${p3}.woff2`;
+  const ff = new FontFace(fam, `url("${url}")`);
+  await ff.load();
+  document.fonts.add(ff);
+  loadedPageFonts[page] = fam;
+  return fam;
+}
+
+// Mushaf mode: renders the exact printed page using per-page glyph codes + font,
+// justified line by line, with green ayah-end ornaments. Falls back to styled
+// Uthmani text if the words/font are unavailable.
+async function renderReaderMushaf(verses) {
+  const page = currentPageNum;
+  const words = [];
+  verses.forEach(v => {
+    (v.words || []).forEach(w => {
+      if (w.char_type_name === 'word' || w.char_type_name === 'end') {
+        words.push({ code: w.code_v1, line: w.line_number, isEnd: w.char_type_name === 'end' });
+      }
+    });
+  });
+  if (!words.length || !words[0].code) { renderReaderMushafFallback(verses); return; }
+
+  let fam;
+  try { fam = await loadPageFont(page); }
+  catch (e) { renderReaderMushafFallback(verses); return; }
+
+  const lines = {};
+  words.forEach(w => { (lines[w.line] = lines[w.line] || []).push(w); });
+  const lineNums = Object.keys(lines).map(Number).sort((a, b) => a - b);
+
+  let html = `<div class="mushaf-page" style="font-family:'${fam}';">`;
+  lineNums.forEach(ln => {
+    html += '<div class="mushaf-line">';
+    lines[ln].forEach(w => {
+      html += `<span class="mushaf-word${w.isEnd ? ' mushaf-end' : ''}">${w.code}</span>`;
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  $('quranText').innerHTML = html;
+}
+
+function toArabicNum(n) {
+  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+// Fallback mushaf look when per-page fonts aren't available.
+function renderReaderMushafFallback(verses) {
+  let html = '<div class="mushaf-page mushaf-fallback">';
+  verses.forEach(v => {
+    const ayahNum = v.verse_key.split(':')[1];
+    html += `<span class="mushaf-uthmani">${v.text_uthmani}</span><span class="mushaf-end-num">${toArabicNum(ayahNum)}</span> `;
+  });
+  html += '</div>';
+  $('quranText').innerHTML = html;
+}
+
 function updateReaderNavButtons() {
   const nextBtn = document.querySelector('.nav-btn.next');
   const prevBtn = document.querySelector('.nav-btn.prev');
 
-  // In a real Mushaf, pages go up to 604
-  if (currentPageNum >= 604) nextBtn.style.visibility = 'hidden';
-  else nextBtn.style.visibility = 'visible';
-
-  if (currentPageNum <= 1) prevBtn.style.visibility = 'hidden';
-  else prevBtn.style.visibility = 'visible';
+  // Limit navigation to the current module's syllabus range.
+  const range = getModuleRange(currentModule);
+  nextBtn.style.visibility = currentPageNum >= range.end ? 'hidden' : 'visible';
+  prevBtn.style.visibility = currentPageNum <= range.start ? 'hidden' : 'visible';
 }
 
 function navigateReader(direction) {
+  const range = getModuleRange(currentModule);
   const nextP = currentPageNum + direction;
-  if (nextP >= 1 && nextP <= 604) {
+  if (nextP >= range.start && nextP <= range.end) {
     openReader(nextP);
   }
 }
@@ -1712,6 +1837,7 @@ window.openGauntletMenu = openGauntletMenu; window.confirmGauntletStart = confir
 window.startGauntletTaskFromWin = startGauntletTaskFromWin; window.executeChallengeStart = executeChallengeStart;
 window.cancelChallengeStart = cancelChallengeStart;
 window.navigateReader = navigateReader; window.exportAllData = exportAllData;
+window.setReaderMode = setReaderMode;
 window.resetAllData = handleResetAllData; window.handleResetAllData = handleResetAllData;
 window.openAdminDashboard = () => showView(adminView);
 window.applyColorTheme = applyColorTheme; window.toggleChallengeLock = toggleChallengeLock;

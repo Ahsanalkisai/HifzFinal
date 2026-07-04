@@ -1061,6 +1061,56 @@ body.dark-mode .surah-separator { color: #e4bb42; background: rgba(201,168,76,0.
   content:'✦'; color: #c9a84c; margin: 0 12px; font-size: 11px; opacity: 0.6;
 }
 
+/* ===== Reader mode toggle (Big / Mushaf) ===== */
+.reader-mode-toggle {
+  display: flex; width: max-content; margin: 14px auto 0;
+  gap: 4px; padding: 4px; position: relative; z-index: 2;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 999px;
+}
+.reader-mode-btn {
+  border: none; background: transparent; cursor: pointer;
+  font-family: var(--font); font-weight: 800; font-size: 13px;
+  color: rgba(255,255,255,0.75); padding: 8px 18px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: all var(--transition);
+}
+.reader-mode-btn:hover { color: #fff; }
+.reader-mode-btn.active { background: #fff; color: #0d1b2a; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+/* ===== Mushaf page mode ===== */
+.reader-body.mushaf-mode .quran-text {
+  word-spacing: normal; padding: 8px 2px;
+  font-size: initial; line-height: initial; text-align: initial;
+}
+.mushaf-page { direction: rtl; color: #1a1a24; display: flex; flex-direction: column; gap: clamp(10px, 2.6vw, 20px); }
+body.dark-mode .mushaf-page { color: #f0f0f5; }
+.mushaf-line {
+  display: flex; direction: rtl; justify-content: space-between; align-items: center;
+  font-size: clamp(21px, 6.4vw, 34px); line-height: 1.3; white-space: nowrap;
+}
+.mushaf-word { display: inline-block; }
+.mushaf-end { color: #4a7c2f; }
+body.dark-mode .mushaf-end { color: #7bb661; }
+
+/* Fallback look when per-page Quran fonts can't be loaded */
+.mushaf-fallback {
+  display: block; font-family: var(--font-ar);
+  font-size: clamp(20px, 5.6vw, 30px); line-height: 2.4;
+  text-align: justify; text-align-last: center; word-spacing: 2px;
+}
+.mushaf-end-num { color: #4a7c2f; font-family: var(--font-ar); margin: 0 5px; font-weight: 700; }
+body.dark-mode .mushaf-end-num { color: #7bb661; }
+
+/* Landscape (rotate phone) — Mushaf fills the screen, big */
+@media (orientation: landscape) and (max-height: 620px) {
+  .reader-body.mushaf-mode { padding: 14px 10px; border-width: 2px; min-height: 90vh; }
+  .reader-body.mushaf-mode::before { inset: 6px; }
+  .reader-body.mushaf-mode .mushaf-page { gap: clamp(6px, 2.2vh, 16px); }
+  .reader-body.mushaf-mode .mushaf-line { font-size: clamp(26px, 7.4vh, 62px); line-height: 1.25; }
+  .reader-body.mushaf-mode .mushaf-fallback { font-size: clamp(24px, 6.6vh, 54px); line-height: 1.9; }
+}
+
 /* Reader Navigation */
 .reader-nav {
   display: flex;

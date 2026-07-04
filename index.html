@@ -409,6 +409,10 @@
       <div class="reader-header">
         <h2 id="readerTitle">Page 000</h2>
         <p id="readerSurah"></p>
+        <div class="reader-mode-toggle" role="tablist" aria-label="Reading mode">
+          <button class="reader-mode-btn active" data-mode="big" onclick="setReaderMode('big')"><i class="fa-solid fa-text-height"></i> Big</button>
+          <button class="reader-mode-btn" data-mode="mushaf" onclick="setReaderMode('mushaf')"><i class="fa-solid fa-book-quran"></i> Mushaf</button>
+        </div>
       </div>
       <div class="reader-body" id="readerBody">
         <div class="reader-loading" id="readerLoading">

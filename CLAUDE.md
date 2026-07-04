@@ -53,9 +53,14 @@ Data is stored in **`localStorage`** (device-local) and mirrored to a **Firebase
 The app is IUM-only. `applyInstituteBranding()` sets the primary color to IUM green unless overridden by a custom color theme. (`getInstitute()` still exists and always returns `'ium'`; `getDisplayNum()` is now an identity passthrough.)
 
 ### External APIs
-- **Quran text & quiz:** `https://api.quran.com/api/v4/` — used in `openReader()` and `fetchPageVerses()`
+- **Quran text & quiz:** `https://api.quran.com/api/v4/` — used in `openReader()` and `fetchPageVerses()`. The reader fetches `words=true&word_fields=code_v1,line_number,char_type_name` so both reader modes work from one request.
 - **Audio files:** `https://ia*.us.archive.org/` — MP3 URLs stored in `pageLinks`, streamed via `<audio>` element
-- **Fonts:** Google Fonts (Inter, Scheherazade New, Amiri), jsDelivr (KFGQPCUthmanicScriptHAFS), raw GitHub (Faruma/Dhivehi)
+- **Fonts:** Google Fonts (Inter, Scheherazade New, Amiri), jsDelivr (KFGQPCUthmanicScriptHAFS), raw GitHub (Faruma/Dhivehi). **Per-page mushaf fonts** (QCF v1, `QCF_P{001..604}.woff2`) are lazy-loaded from `cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts` via the `FontFace` API in `loadPageFont()`.
+
+### Reader Modes
+The reader (`readerView`) has two modes, toggled in the header and persisted in localStorage `hifzReaderMode` (`'big'` | `'mushaf'`, default `'big'`). `openReader()` caches the page verses in `currentPageData`; `renderReader()` dispatches to `renderReaderBig()` (large spaced Uthmani text + gold ayah circles) or `renderReaderMushaf()` (true printed page: per-page glyph codes rendered in the loaded `QCF_P###` font, one flex-justified `.mushaf-line` per `line_number`, green ayah-end ornaments). `renderReaderMushafFallback()` renders styled Uthmani text if words/font are unavailable. In landscape (`@media (orientation: landscape)`), mushaf text scales with `vh` to fill the screen. Known gap: surah-name banner lines on pages that begin a new surah are not rendered (API words only include verse words/end markers).
+
+**Syllabus page limits:** the reader is restricted to the current module's page range so students can't browse outside their syllabus. `getModuleRange(moduleKey)` resolves the range from `moduleInfo[key].startPage/endPage` → the hardcoded `MODULE_PAGE_RANGES` constant → the module's `pageLinks` min/max → whole mushaf (1–604). `navigateReader()` and `updateReaderNavButtons()` clamp prev/next to `[start, end]`. Default `MODULE_PAGE_RANGES`: hifz6 522–531, hifz7 531–541, hifz8 502–511, hifz9 512–521, hifz10 482–491, hifz11 492–502 (each matches that module's audio `pageLinks`).
 
 ### CSS Architecture
 All design tokens are CSS custom properties on `:root`. Dark mode is `body.dark-mode` with overrides. Arabic text uses `--font-ar`; Dhivehi (Maldivian) text uses `[lang="dv"]` with the Faruma font. The glassmorphism ambient background is pure CSS animation (`.ambient-orb`).
