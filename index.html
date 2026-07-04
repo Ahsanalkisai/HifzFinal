@@ -265,6 +265,20 @@
       </div>
     </div>
 
+    <!-- Name Modal -->
+    <div id="nameModal" class="challenge-overlay">
+      <div class="challenge-modal name-modal">
+        <div class="name-modal-icon"><i class="fa-solid fa-user-pen"></i></div>
+        <h3>What's your name?</h3>
+        <p class="name-modal-sub">Enter your name to personalise your Hifz journey. It's saved on this device.</p>
+        <input type="text" id="nameModalInput" class="name-modal-input" placeholder="Your name..." autocomplete="name" maxlength="40"/>
+        <div class="name-modal-actions">
+          <button class="btn-outline" onclick="closeNameModal()">Not now</button>
+          <button class="btn-primary" onclick="submitNameModal()"><i class="fa-solid fa-check"></i> Save</button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODULE VIEW -->
     <section class="view" id="moduleView">
       <div class="tab-bar">

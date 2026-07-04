@@ -833,12 +833,23 @@ function changeName() {
   closeSettings();
 }
 
-// If the profile is still unnamed ("Guest"), ask for a name and save it to this device.
+// If the profile is still unnamed ("Guest"), open a nice modal to set a name.
 function promptProfileName() {
   if (getDisplayName() !== 'Guest') return;
-  const entered = prompt('Please write your name — it will be saved on this device:', '');
-  if (entered && entered.trim()) saveDisplayName(entered);
+  const input = $('nameModalInput');
+  if (input) input.value = '';
+  $('nameModal').classList.add('active');
+  setTimeout(() => { if (input) input.focus(); }, 100);
 }
+function closeNameModal() {
+  $('nameModal').classList.remove('active');
+}
+function submitNameModal() {
+  const input = $('nameModalInput');
+  if (saveDisplayName(input ? input.value : '')) closeNameModal();
+  else if (input) { input.focus(); }
+}
+$('nameModalInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitNameModal(); });
 function exportData() {
   const d = { user: currentUser, moduleInfo, pageLinks, exportDate: new Date().toISOString() };
   const b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
@@ -1916,6 +1927,7 @@ window.startGauntletTaskFromWin = startGauntletTaskFromWin; window.executeChalle
 window.cancelChallengeStart = cancelChallengeStart;
 window.navigateReader = navigateReader; window.exportAllData = exportAllData;
 window.setReaderMode = setReaderMode; window.toggleTopMenu = toggleTopMenu;
+window.closeNameModal = closeNameModal; window.submitNameModal = submitNameModal;
 window.resetAllData = handleResetAllData; window.handleResetAllData = handleResetAllData;
 window.openAdminDashboard = () => showView(adminView);
 window.applyColorTheme = applyColorTheme; window.toggleChallengeLock = toggleChallengeLock;

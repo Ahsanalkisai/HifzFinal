@@ -37,7 +37,8 @@
       "Read(//c/Program Files/Google/Chrome/Application/**)",
       "Bash(node shot.js)",
       "Bash(node shot2.js)",
-      "Bash(node shot3.js)"
+      "Bash(node shot3.js)",
+      "Bash(node shot4.js)"
     ]
   }
 }
