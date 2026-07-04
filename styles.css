@@ -937,14 +937,17 @@ body.dark-mode .progress-btn.memorized { background: rgba(17,107,50,0.15); color
 }
 
 /* ===== QURAN READER (Premium Mushaf Style) ===== */
-/* Minimalist reader top bar: surah (left), juz'/hizb (right) */
+/* Minimalist reader header, sits inside the page above the first line of text:
+   surah (left), juz'/hizb (right) */
 .reader-topbar {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 4px 4px 8px;
+  gap: 12px; padding: 2px 2px 12px; margin-bottom: 14px;
+  border-bottom: 1px solid rgba(180,150,80,0.22);
 }
 .reader-surah-name { font-size: 14px; font-weight: 700; color: var(--text-2); letter-spacing: 0.2px; }
 .reader-juz { font-size: 13px; font-weight: 600; color: var(--text-3); }
-.reader-mode-row { display: flex; justify-content: center; margin-bottom: 10px; }
+body.dark-mode .reader-topbar { border-bottom-color: rgba(156,128,56,0.3); }
+.reader-mode-row { display: flex; justify-content: center; margin-bottom: 12px; }
 
 .reader-body {
   background: #fdfaf3;

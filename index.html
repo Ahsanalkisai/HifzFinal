@@ -406,10 +406,6 @@
 
     <!-- QURAN READER VIEW -->
     <section class="view" id="readerView">
-      <div class="reader-topbar">
-        <span class="reader-surah-name" id="readerSurahName"></span>
-        <span class="reader-juz" id="readerJuzHizb"></span>
-      </div>
       <div class="reader-mode-row">
         <div class="reader-mode-toggle" role="tablist" aria-label="Reading mode">
           <button class="reader-mode-btn active" data-mode="big" onclick="setReaderMode('big')"><i class="fa-solid fa-text-height"></i> Big</button>
@@ -417,6 +413,10 @@
         </div>
       </div>
       <div class="reader-body" id="readerBody">
+        <div class="reader-topbar">
+          <span class="reader-surah-name" id="readerSurahName"></span>
+          <span class="reader-juz" id="readerJuzHizb"></span>
+        </div>
         <div class="reader-loading" id="readerLoading">
           <div class="spinner"></div>
           <p>Loading Quran text...</p>

@@ -35,7 +35,8 @@
       "Bash(curl -s -o QCF_P522.woff2 \"https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P522.woff2\")",
       "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
-      "Bash(node shot.js)"
+      "Bash(node shot.js)",
+      "Bash(node shot2.js)"
     ]
   }
 }
