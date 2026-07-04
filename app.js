@@ -1851,20 +1851,10 @@ function isAdminRoute() {
 }
 
 async function initApp() {
-  const pl = await dbGetConfig('pageLinks');
-  if (pl) { pageLinks = pl; localStorage.setItem('hifzPageLinks', JSON.stringify(pl)); }
-  const mi = await dbGetConfig('moduleInfo');
-  if (mi) { moduleInfo = mi; localStorage.setItem('hifzModuleInfo', JSON.stringify(mi)); }
-
-  // Per-challenge lock state (admin-controlled)
-  const chal = await dbGetConfig('challenges');
-  challengeUnlock = normalizeChallengeConfig(chal);
-  localStorage.setItem('hifzChallengeUnlock', JSON.stringify(challengeUnlock));
-
+  // Render instantly from cached/default data so the modules show immediately —
+  // no waiting on Firebase. (moduleInfo/pageLinks/challengeUnlock are already
+  // loaded synchronously from localStorage or the built-in defaults.)
   renderModuleGrid();
-
-  await ensureDeviceUser();
-  applyInstituteBranding();
   applyChallengeLock();
 
   // /admin route opens the master-admin login; everything else goes straight to Home
@@ -1874,6 +1864,24 @@ async function initApp() {
   } else {
     showView(homeView);
   }
+
+  await ensureDeviceUser();
+  applyInstituteBranding();
+  updateWelcomeHeader();
+
+  // Refresh config from Firebase in the background; re-render if it changed.
+  try {
+    const pl = await dbGetConfig('pageLinks');
+    if (pl) { pageLinks = pl; localStorage.setItem('hifzPageLinks', JSON.stringify(pl)); }
+    const mi = await dbGetConfig('moduleInfo');
+    if (mi) { moduleInfo = mi; localStorage.setItem('hifzModuleInfo', JSON.stringify(mi)); }
+    if (pl || mi) renderModuleGrid();
+
+    const chal = await dbGetConfig('challenges');
+    challengeUnlock = normalizeChallengeConfig(chal);
+    localStorage.setItem('hifzChallengeUnlock', JSON.stringify(challengeUnlock));
+    applyChallengeLock();
+  } catch (e) { /* offline / blocked — cached data already shown */ }
 }
 initApp();
 
