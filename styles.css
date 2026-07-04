@@ -1083,12 +1083,11 @@ body.dark-mode .surah-separator { color: #e4bb42; background: rgba(201,168,76,0.
   word-spacing: normal; padding: 8px 2px;
   font-size: initial; line-height: initial; text-align: initial;
 }
-.mushaf-page { direction: rtl; color: #1a1a24; font-family: var(--font-ar); padding: 4px 2px; }
+.mushaf-page { direction: rtl; color: #1a1a24; font-family: var(--font-ar); font-size: 28px; padding: 4px 0; }
 body.dark-mode .mushaf-page { color: #f0f0f5; }
 .mushaf-line {
-  direction: rtl; text-align: justify; text-align-last: justify;
-  font-size: clamp(18px, 5.4vw, 30px); line-height: 1.75;
-  margin-bottom: clamp(4px, 1.4vw, 10px);
+  direction: rtl; text-align: center; white-space: nowrap;
+  line-height: 1.95; overflow: hidden;
 }
 .mushaf-word { display: inline; }
 .mushaf-end { color: #2f7d32; font-weight: 700; }
@@ -1107,7 +1106,7 @@ body.dark-mode .mushaf-end-num { color: #7bb661; }
 @media (orientation: landscape) and (max-height: 620px) {
   .reader-body.mushaf-mode { padding: 14px 10px; border-width: 2px; min-height: 90vh; }
   .reader-body.mushaf-mode::before { inset: 6px; }
-  .reader-body.mushaf-mode .mushaf-line { font-size: clamp(24px, 6.6vh, 54px); line-height: 1.5; margin-bottom: clamp(2px, 1vh, 10px); }
+  .reader-body.mushaf-mode .mushaf-line { line-height: 1.7; }
   .reader-body.mushaf-mode .mushaf-fallback { font-size: clamp(24px, 6.6vh, 54px); line-height: 1.9; }
 }
 

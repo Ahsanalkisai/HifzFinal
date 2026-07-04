@@ -400,13 +400,39 @@ async function renderReaderMushaf(verses) {
     html += '<div class="mushaf-line">';
     lines[ln].forEach(w => {
       const cls = w.char_type_name === 'end' ? 'mushaf-word mushaf-end' : 'mushaf-word';
-      html += `<span class="${cls}">${w.code_v1}</span> `;
+      html += `<span class="${cls}">${w.code_v1}</span>`;
     });
     html += '</div>';
   });
   html += '</div>';
   $('quranText').innerHTML = html;
+  fitMushafPage();
+  requestAnimationFrame(fitMushafPage);
 }
+
+// The QCF per-page font already justifies each line's glyphs to a uniform width,
+// so we render each line as one non-wrapping row and scale the whole page's
+// font-size so the widest (full) line exactly fills the container. Short lines
+// (e.g. end of a surah) stay centered — just like the printed mushaf.
+function fitMushafPage() {
+  const pageEl = document.querySelector('#quranText .mushaf-page');
+  if (!pageEl) return;
+  const lines = pageEl.querySelectorAll('.mushaf-line');
+  if (!lines.length) return;
+  const BASE = 28;
+  pageEl.style.fontSize = BASE + 'px';
+  const target = lines[0].clientWidth;
+  if (!target) return;
+  let maxW = 0;
+  lines.forEach(l => { if (l.scrollWidth > maxW) maxW = l.scrollWidth; });
+  if (!maxW) return;
+  let fs = BASE * (target / maxW) * 0.99; // small safety margin so lines never clip
+  fs = Math.max(12, Math.min(fs, 72));
+  pageEl.style.fontSize = fs + 'px';
+}
+window.addEventListener('resize', () => {
+  if (readerMode === 'mushaf' && currentView === readerView) fitMushafPage();
+});
 
 // Fallback: continuous justified Uthmani text with green ayah numbers.
 function renderReaderMushafFallback(verses) {
