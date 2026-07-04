@@ -83,6 +83,44 @@
 
       <h3 class="section-heading"><i class="fa-solid fa-book-quran"></i> Choose Your Module</h3>
       <div class="module-grid" id="moduleGrid"></div>
+      <script>
+        /* Paint the module cards immediately (before Firebase/app.js load) so there is
+           no empty flash. app.js re-renders this grid with proper handlers on init. */
+        (function () {
+          var mi;
+          try { mi = JSON.parse(localStorage.getItem('hifzModuleInfo')); } catch (e) { mi = null; }
+          if (!mi || typeof mi !== 'object') {
+            mi = {
+              hifz6: { num: 6, code: "QUR0514", title: "Holy Quran Memorization 6" },
+              hifz7: { num: 7, code: "QUR0516", title: "Holy Quran Memorization 7" },
+              hifz8: { num: 8, code: "QUR0609", title: "Holy Quran Memorization 8" },
+              hifz9: { num: 9, code: "QUR0612", title: "Holy Quran Memorization 9" },
+              hifz10: { num: 10, code: "QUR0747", title: "Holy Quran Memorization 10" },
+              hifz11: { num: 11, code: "QUR0750", title: "Holy Quran Memorization 11" }
+            };
+          }
+          var layout = localStorage.getItem('hifzLayout') || 'list';
+          var g = document.getElementById('moduleGrid');
+          if (!g) return;
+          g.className = layout === 'grid' ? 'module-grid-view' : 'module-list-view';
+          var html = '';
+          for (var key in mi) {
+            var info = mi[key];
+            var code = '<div class="module-card-code">' + info.code + '</div>';
+            if (layout === 'grid') {
+              html += '<div class="module-card-grid" data-module="' + key + '" onclick="openModule(\'' + key + '\')">' +
+                '<div class="module-card-number">' + info.num + '</div>' +
+                '<div class="module-card-title">' + info.title + '</div>' + code + '</div>';
+            } else {
+              html += '<div class="module-card-list" data-module="' + key + '" onclick="openModule(\'' + key + '\')">' +
+                '<div class="module-card-number">' + info.num + '</div>' +
+                '<div class="module-card-info"><div class="module-card-title">' + info.title + '</div>' + code + '</div>' +
+                '<div class="module-card-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>';
+            }
+          }
+          g.innerHTML = html;
+        })();
+      </script>
     </section>
 
     <!-- PROFILE VIEW -->
