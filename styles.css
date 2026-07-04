@@ -937,38 +937,33 @@ body.dark-mode .progress-btn.memorized { background: rgba(17,107,50,0.15); color
 }
 
 /* ===== QURAN READER (Premium Mushaf Style) ===== */
-.reader-header {
-  padding:24px 28px; background:linear-gradient(135deg,#0d1b2a,#1b3a5c);
-  border-radius:24px; color:white; margin-bottom:0;
-  text-align:center; box-shadow:0 12px 32px rgba(13,27,42,0.4);
-  position:relative; overflow:hidden;
-  border-bottom-left-radius:0; border-bottom-right-radius:0;
+/* Minimalist reader top bar: surah (left), juz'/hizb (right) */
+.reader-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 4px 4px 8px;
 }
-.reader-header::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(circle at 30% 70%, rgba(212,160,23,0.2) 0%, transparent 60%);
-  pointer-events:none; mix-blend-mode:overlay;
-}
-.reader-header h2 { font-size:24px; font-weight:800; position:relative; letter-spacing:-0.5px; }
-.reader-header p { font-size:14px; opacity:0.85; margin-top:6px; position:relative; font-weight:500; letter-spacing:0.5px; }
+.reader-surah-name { font-size: 14px; font-weight: 700; color: var(--text-2); letter-spacing: 0.2px; }
+.reader-juz { font-size: 13px; font-weight: 600; color: var(--text-3); }
+.reader-mode-row { display: flex; justify-content: center; margin-bottom: 10px; }
 
 .reader-body {
   background: #fdfaf3;
-  background-image: 
+  background-image:
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4), transparent),
     url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  border-radius: 0 0 24px 24px;
-  padding: 40px 24px;
-  border: 4px solid #dcb252;
-  border-top: none;
-  box-shadow: 
-    var(--shadow-lg), 
-    inset 0 0 100px rgba(220,178,82,0.15),
-    inset 0 0 20px rgba(0,0,0,0.02);
-  min-height: 65vh;
+  border-radius: 20px;
+  padding: 14px 12px 10px;
+  border: 1px solid rgba(220,178,82,0.55);
+  box-shadow: var(--shadow-lg), inset 0 0 60px rgba(220,178,82,0.1);
+  min-height: 74vh;
   position: relative;
   display: flex;
   flex-direction: column;
+}
+.reader-pagenum {
+  text-align: center; margin-top: auto; padding-top: 12px;
+  font-size: 15px; font-weight: 700; color: var(--text-3);
+  font-family: var(--font); letter-spacing: 1px;
 }
 
 /* Page Fold Effect */
@@ -985,11 +980,7 @@ body.dark-mode .progress-btn.memorized { background: rgba(17,107,50,0.15); color
   pointer-events: none;
 }
 
-.reader-body::before {
-  content:''; position:absolute; inset:12px;
-  border: 1px solid rgba(220,178,82,0.3);
-  border-radius: 14px; pointer-events:none;
-}
+.reader-body::before { content: none; }
 
 body.dark-mode .reader-body {
   background: #151520;
@@ -1063,20 +1054,20 @@ body.dark-mode .surah-separator { color: #e4bb42; background: rgba(201,168,76,0.
 
 /* ===== Reader mode toggle (Big / Mushaf) ===== */
 .reader-mode-toggle {
-  display: flex; width: max-content; margin: 14px auto 0;
-  gap: 4px; padding: 4px; position: relative; z-index: 2;
-  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; width: max-content;
+  gap: 4px; padding: 3px; position: relative; z-index: 2;
+  background: var(--surface-2); border: 1px solid var(--border-strong);
   border-radius: 999px;
 }
 .reader-mode-btn {
   border: none; background: transparent; cursor: pointer;
-  font-family: var(--font); font-weight: 800; font-size: 13px;
-  color: rgba(255,255,255,0.75); padding: 8px 18px; border-radius: 999px;
-  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font); font-weight: 800; font-size: 12px;
+  color: var(--text-2); padding: 6px 16px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
   transition: all var(--transition);
 }
-.reader-mode-btn:hover { color: #fff; }
-.reader-mode-btn.active { background: #fff; color: #0d1b2a; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.reader-mode-btn:hover { color: var(--text); }
+.reader-mode-btn.active { background: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
 
 /* ===== Mushaf page mode ===== */
 .reader-body.mushaf-mode .quran-text {

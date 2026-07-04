@@ -1,5 +1,6 @@
 /* ===== IUM Hifz Tracker ===== */
 
+const surahNamesEn = ["Al-Fatihah","Al-Baqarah","Ali 'Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-'Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shuraa","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","'Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duhaa","Ash-Sharh","At-Tin","Al-'Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-'Adiyat","Al-Qari'ah","At-Takathur","Al-'Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
 const surahNamesAr = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
 
 // Default data (can be overridden by admin via localStorage)
@@ -274,11 +275,11 @@ let readerMode = localStorage.getItem('hifzReaderMode') || 'big'; // 'big' | 'mu
 async function openReader(pageNum) {
   currentPageNum = pageNum;
   currentPageData = null;
-  $('readerTitle').textContent = `Page ${pageNum}`;
-  $('readerSurah').textContent = '';
   $('quranText').innerHTML = '';
+  $('readerSurahName').textContent = '';
+  $('readerJuzHizb').textContent = '';
+  $('readerPageNum').textContent = pageNum;
   $('readerLoading').style.display = 'block';
-  $('readerNav').style.display = 'none';
   showView(readerView);
   applyReaderMode();
   try {
@@ -290,15 +291,16 @@ async function openReader(pageNum) {
     if (!data.verses || !data.verses.length) { $('quranText').innerHTML = '<p style="text-align:center;color:var(--text-3)">No verses found for this page.</p>'; return; }
     currentPageData = data.verses;
 
-    // Surah info line
+    // Top bar: surah name (left), juz'/hizb (right)
     const surahs = [...new Set(data.verses.map(v => v.verse_key.split(':')[0]))];
-    const arNames = surahs.map(n => surahNamesAr[parseInt(n) - 1]);
-    $('readerSurah').textContent = `Surah ${surahs.join(', ')} • ${arNames.map(n => 'سورة ' + n).join(' / ')}`;
+    const enNames = surahs.map(n => 'Surah ' + (surahNamesEn[parseInt(n) - 1] || n));
+    $('readerSurahName').textContent = enNames.join(' / ');
+    const v0 = data.verses[0];
+    if (v0.juz_number) {
+      $('readerJuzHizb').textContent = `Juz' ${v0.juz_number}` + (v0.hizb_number ? `, Hizb ${v0.hizb_number}` : '');
+    }
 
     await renderReader();
-
-    $('readerNav').style.display = 'flex';
-    updateReaderNavButtons();
   } catch (e) {
     $('readerLoading').style.display = 'none';
     $('quranText').innerHTML = '<p style="text-align:center;color:var(--danger)">Failed to load. Check your internet connection.</p>';
@@ -445,16 +447,6 @@ function renderReaderMushafFallback(verses) {
   $('quranText').innerHTML = html;
 }
 
-function updateReaderNavButtons() {
-  const nextBtn = document.querySelector('.nav-btn.next');
-  const prevBtn = document.querySelector('.nav-btn.prev');
-
-  // Limit navigation to the current module's syllabus range.
-  const range = getModuleRange(currentModule);
-  nextBtn.style.visibility = currentPageNum >= range.end ? 'hidden' : 'visible';
-  prevBtn.style.visibility = currentPageNum <= range.start ? 'hidden' : 'visible';
-}
-
 function navigateReader(direction) {
   const range = getModuleRange(currentModule);
   const nextP = currentPageNum + direction;
@@ -462,6 +454,24 @@ function navigateReader(direction) {
     openReader(nextP);
   }
 }
+
+// Swipe left/right to change pages (RTL: swipe left = next page, right = previous).
+(function setupReaderSwipe() {
+  const el = $('readerBody');
+  if (!el) return;
+  let x0 = 0, y0 = 0, tracking = false;
+  el.addEventListener('touchstart', e => {
+    x0 = e.changedTouches[0].clientX; y0 = e.changedTouches[0].clientY; tracking = true;
+  }, { passive: true });
+  el.addEventListener('touchend', e => {
+    if (!tracking) return; tracking = false;
+    const dx = e.changedTouches[0].clientX - x0;
+    const dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      navigateReader(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+})();
 
 // ===== Audio Controls =====
 $('playPauseBtn').addEventListener('click', () => {

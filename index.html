@@ -406,9 +406,11 @@
 
     <!-- QURAN READER VIEW -->
     <section class="view" id="readerView">
-      <div class="reader-header">
-        <h2 id="readerTitle">Page 000</h2>
-        <p id="readerSurah"></p>
+      <div class="reader-topbar">
+        <span class="reader-surah-name" id="readerSurahName"></span>
+        <span class="reader-juz" id="readerJuzHizb"></span>
+      </div>
+      <div class="reader-mode-row">
         <div class="reader-mode-toggle" role="tablist" aria-label="Reading mode">
           <button class="reader-mode-btn active" data-mode="big" onclick="setReaderMode('big')"><i class="fa-solid fa-text-height"></i> Big</button>
           <button class="reader-mode-btn" data-mode="mushaf" onclick="setReaderMode('mushaf')"><i class="fa-solid fa-book-quran"></i> Mushaf</button>
@@ -420,17 +422,7 @@
           <p>Loading Quran text...</p>
         </div>
         <div class="quran-text" id="quranText" dir="rtl" lang="ar"></div>
-        
-        <div class="reader-nav" id="readerNav" style="display:none;">
-          <button class="nav-btn prev" onclick="navigateReader(-1)" title="Previous Page">
-            <i class="fa-solid fa-chevron-right"></i>
-            <span>Prev</span>
-          </button>
-          <button class="nav-btn next" onclick="navigateReader(1)" title="Next Page">
-            <span>Next</span>
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-        </div>
+        <div class="reader-pagenum" id="readerPageNum"></div>
       </div>
     </section>
 
