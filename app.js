@@ -136,16 +136,28 @@ function saveStudentData() {
 
 function initStudentData(n) {
   if (!studentData[n]) {
-    studentData[n] = { progress: {}, quizHistory: [], currentModule: '', challengesWon: 0, companionSmart: {}, prizeChallenge: {}, settings: { showDailyAyah: false, ayahSource: 'random' } };
+    studentData[n] = { progress: {}, quizHistory: [], currentModule: '', challengesWon: 0, companionSmart: {}, prizeChallenge: {}, activity: { motivation: 0, quizzes: 0, challenges: 0 }, settings: { showDailyAyah: false, ayahSource: 'random' } };
     saveStudentData();
   } else {
     if (!studentData[n].companionSmart) studentData[n].companionSmart = {};
     if (studentData[n].challengesWon === undefined) studentData[n].challengesWon = 0;
     if (!studentData[n].prizeChallenge) studentData[n].prizeChallenge = {};
+    if (!studentData[n].activity) studentData[n].activity = { motivation: 0, quizzes: 0, challenges: 0 };
     if (!studentData[n].settings) studentData[n].settings = { showDailyAyah: false, ayahSource: 'random' };
     if (!studentData[n].settings.ayahSource) studentData[n].settings.ayahSource = 'random';
     saveStudentData();
   }
+}
+
+// Engagement tracking. Counts are only kept from 1 July 2026 onward.
+const ACTIVITY_CUTOFF = Date.parse('2026-07-01T00:00:00');
+function trackActivity(kind) {
+  if (Date.now() < ACTIVITY_CUTOFF) return; // don't count anything before 1 Jul 2026
+  if (!currentUser) return;
+  initStudentData(currentUser);
+  const a = studentData[currentUser].activity;
+  a[kind] = (a[kind] || 0) + 1;
+  saveStudentData();
 }
 
 // ===== Navigation =====
@@ -511,7 +523,7 @@ document.querySelectorAll('.tab').forEach(t => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
     t.classList.add('active'); $(t.dataset.tab).classList.add('active');
-    if (t.dataset.tab === 'motivateTab') renderRandomQuote();
+    if (t.dataset.tab === 'motivateTab') { renderRandomQuote(); trackActivity('motivation'); }
   });
 });
 
@@ -1063,12 +1075,19 @@ function renderStudentAnalytics() {
     totalLogins += stats.logins || 0;
   }
 
-  for (const n of Object.keys(userStats)) {
+  let motivationOpens = 0, quizStarts = 0, challengeOpens = 0;
+  for (const n of Object.keys(studentData)) {
     const pd = studentData[n]?.prizeChallenge;
     if (pd) {
       for (const data of Object.values(pd)) {
         if (data.status === 'Won') prizesWon++;
       }
+    }
+    const a = studentData[n]?.activity;
+    if (a) {
+      motivationOpens += a.motivation || 0;
+      quizStarts += a.quizzes || 0;
+      challengeOpens += a.challenges || 0;
     }
   }
 
@@ -1076,6 +1095,9 @@ function renderStudentAnalytics() {
     <div class="admin-summary-card"><span class="val">${totalStudents}</span><span class="lbl">Students</span></div>
     <div class="admin-summary-card"><span class="val">${totalLogins}</span><span class="lbl">Total Logins</span></div>
     <div class="admin-summary-card"><span class="val">${prizesWon}</span><span class="lbl">Prizes Won</span></div>
+    <div class="admin-summary-card"><span class="val">${motivationOpens}</span><span class="lbl">Motivation Opens</span></div>
+    <div class="admin-summary-card"><span class="val">${quizStarts}</span><span class="lbl">Quizzes Started</span></div>
+    <div class="admin-summary-card"><span class="val">${challengeOpens}</span><span class="lbl">Challenges Opened</span></div>
   `;
 
   const passSelect = $('adminStudentPassSelect');
@@ -1446,6 +1468,7 @@ function startChallenge(type, mode) {
     alert('This challenge is currently locked. Please check back later.');
     return;
   }
+  trackActivity('challenges');
   let minutes = 0;
   let text = '';
   let title = '';
@@ -1742,6 +1765,7 @@ let currentQuizOptions = [];
 let isAnswering = false;
 
 async function startQuiz() {
+  trackActivity('quizzes');
   currentQuizScore = 0;
   currentQuizQuestion = 1;
   isAnswering = false;

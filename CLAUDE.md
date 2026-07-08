@@ -39,7 +39,9 @@ Data is stored in **`localStorage`** (device-local) and mirrored to a **Firebase
 | `hifzProfileName` | This device's display name (default `'Guest'`) |
 | `hifzUserNames` | JSON array of known profile ids |
 | `hifzUserStats` | JSON object: id → `{ joined, logins, lastLogin, institute, displayName }` |
-| `hifzStudentData` | JSON object: id → per-profile data (progress, quizHistory, challenges, settings) |
+| `hifzStudentData` | JSON object: id → per-profile data (progress, quizHistory, challenges, settings, `activity`) |
+
+`studentData[id].activity` = `{ motivation, quizzes, challenges }` engagement counters, incremented by `trackActivity(kind)` (motivation-tab opens, quiz starts, challenge opens). Only counted from `ACTIVITY_CUTOFF` (1 Jul 2026) onward. The admin analytics summary sums these across all profiles into "Motivation Opens / Quizzes Started / Challenges Opened" cards.
 | `hifzPageLinks` | JSON object: moduleKey → `{ pageNum: audioUrl }` (admin-editable) |
 | `hifzModuleInfo` | JSON object: moduleKey → `{ num, code, title }` (admin-editable) |
 | `hifzChallengesUnlocked` | `'true'`/`'false'` — cached copy of the global challenge lock |
