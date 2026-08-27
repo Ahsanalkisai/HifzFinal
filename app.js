@@ -265,9 +265,17 @@ function renderPageGrid() {
 }
 
 // ===== Play Audio =====
+// archive.org rebalances files across storage nodes, so hardcoded
+// ia*.us.archive.org / dn*.ca.archive.org URLs eventually stop resolving.
+// Rewrite them to the canonical /download/ URL, which redirects to the live node.
+function normalizeAudioUrl(url) {
+  if (!url) return url;
+  return url.replace(/^https?:\/\/[a-z0-9-]+\.(?:us|ca)\.archive\.org\/\d+\/items\//i, 'https://archive.org/download/');
+}
+
 function startPlay(idx, pn) {
   currentPageIndex = idx;
-  const url = (pageLinks[currentModule] || {})[pn]; if (!url) return;
+  const url = normalizeAudioUrl((pageLinks[currentModule] || {})[pn]); if (!url) return;
   audioPlayer.src = url; audioPlayer.playbackRate = playbackSpeed;
   audioPlayer.play().catch(() => { });
   $('nowPlayingPage').textContent = `Page ${pn}`;
