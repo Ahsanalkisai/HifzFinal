@@ -2,83 +2,109 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-fff
-**IUM Hifz Tracker** — a Quran memorization tracker for students at Islamic University of Maldives (IUM). It is a **zero-build, vanilla JS single-page app** with no package manager, no bundler, and no framework. Open `index.html` in a browser to run it.
+## Project overview
 
-## Running the App
+**IUM Hifz Tracker** — an **open-access Quran memorisation practice website** for the Hifz modules of the Islamic University of Maldives (IUM). Anyone can open it and immediately read, listen, test themselves and take challenges. There is **no student login, registration, name, profile, device identity, progress tracking, saved history, scoreboard or analytics**. Every result lives in browser memory for the open tab only and disappears on refresh. Firebase is used **only** for admin authentication and the admin-managed configuration.
 
-There are no build steps or install commands. To develop:
-- Open `index.html` directly in a browser, or
-- Serve locally with any static server, e.g.: `npx serve .` or `python -m http.server`
+## Tech stack and running locally
 
-There are no tests, no linter config, and no CI pipeline.
+A **zero-build, vanilla HTML/CSS/JS single-page app** — no package manager, bundler or framework. Firebase compat SDK 10.12 (Firestore + Auth) from gstatic; Quran text from api.quran.com; audio from EveryAyah and Archive.org.
 
-## Architecture
+- Serve the folder with any static server, e.g. `npx serve .` or `python -m http.server` (or `server.ps1`, which also maps `/admin`). Opening `index.html` directly works for most features.
+- For local testing without touching production, block `firestore.googleapis.com` in DevTools, or use the test suites (below), which replace `db.js` with an in-memory stand-in.
 
-### File Structure
-- `index.html` — entire DOM for all views, inline font-face, links to `styles.css` and `app.js`
-- `app.js` — all application logic (~1700 lines, vanilla JS)
-- `styles.css` — all styles (~62 KB, CSS custom properties, no preprocessor)
-- `Logo/` — image assets
+## Files
 
-### View System
-All views (sections) exist in the DOM simultaneously. Navigation is done by `showView(v)` which removes `view-active` from all views and adds it to the target. The `allViews` array is the authoritative list — **note that `scoreboardView` and `profileView` are pushed to it at runtime**, not in the initial declaration.
-
-There is **no onboarding/sign-in view** — the app opens directly to `homeView`. To avoid an empty-modules flash while Firebase/`app.js` load, an **inline `<script>` right after `#moduleGrid` in `index.html`** paints the module cards immediately from localStorage `hifzModuleInfo` (or hardcoded defaults); `renderModuleGrid()` in `app.js` then re-renders the same markup with real click handlers on init. **If you change module-card markup, update both places.** Views: `homeView` → `moduleView` (pages + quiz + motivation) → `readerView` / `profileView` / `scoreboardView` / `adminView`.
-
-### Device Identity (no sign-in)
-There is no login. On first load, `ensureDeviceUser()` mints a unique private id (`device-…`) stored in `hifzCurrentUser` — this is the storage/Firestore key, so **progress is bound to the device** and never collides with other devices. The user-visible label is a separate **display name** (`userStats[id].displayName`, mirrored to `hifzProfileName`), defaulting to `'Guest'` and renameable by anyone via Settings → Change Name (`changeName()` edits the display name only, not the key). `getDisplayName()` resolves the label used in the header, profile, scoreboard, and admin table.
-
-### Data Layer
-Data is stored in **`localStorage`** (device-local) and mirrored to a **Firebase Firestore** backend (`db.js`, project `ium-hifz-final`) via `dbSaveStudent` / `dbGetStudent` / `dbGetAllStudents` and `dbGetConfig` / `dbSetConfig`. Firestore reads/writes are unauthenticated (open rules).
-
-| Key | Contents |
+| File | Responsibility |
 |---|---|
-| `hifzCurrentUser` | This device's private profile id (Firestore/storage key) |
-| `hifzProfileName` | This device's display name (default `'Guest'`) |
-| `hifzUserNames` | JSON array of known profile ids |
-| `hifzUserStats` | JSON object: id → `{ joined, logins, lastLogin, institute, displayName }` |
-| `hifzStudentData` | JSON object: id → per-profile data (progress, quizHistory, challenges, settings, `activity`) |
+| `index.html` | All views (Home, Module with 4 tabs, Reader, Page Test, Admin), the Settings panel, challenge modal, inline theme script and the inline module-card painter |
+| `app.js` | All application logic (~2,600 lines) |
+| `styles.css` | All styles; the default **rose "light academia"** theme is the `html.theme-rose` block near the end |
+| `db.js` | Firebase init (memory-only Firestore) and the only Firebase calls: admin login/password/logout, `dbGetConfig`, `dbSetConfig`, `dbSetConfigIfUnchanged`; plus `clearLegacyFirestoreCache` (one-time removal of old versions' Firestore browser cache) |
+| `vercel.json` / `server.ps1` | `/admin` → `index.html` rewrite |
+| `Logo/` | Images |
 
-`studentData[id].activity` = `{ motivation, quizzes, challenges }` engagement counters, incremented by `trackActivity(kind)` (motivation-tab opens, quiz starts, challenge opens). Only counted from `ACTIVITY_CUTOFF` (1 Jul 2026) onward. The admin analytics summary sums these across all profiles into "Motivation Opens / Quizzes Started / Challenges Opened" cards.
-| `hifzPageLinks` | JSON object: moduleKey → `{ pageNum: audioUrl }` (admin-editable) |
-| `hifzModuleInfo` | JSON object: moduleKey → `{ num, code, title }` (admin-editable) |
-| `hifzChallengesUnlocked` | `'true'`/`'false'` — cached copy of the global challenge lock |
-| `hifzDarkMode` | `'true'`/`'false'` |
-| `hifzColorTheme` | `'default'`, `'green'`, `'purple'`, `'pink'`, `'gold'`, `'blue'` |
-| `hifzLayout` | `'list'` or `'grid'` |
+## The six Hifz modules
 
-`pageLinks` and `moduleInfo` fall back to hardcoded `defaultPageLinks` / `defaultModuleInfo` constants if not set. The global challenge-lock flag lives in Firestore config doc `challenges` (`{ unlocked: bool }`), fetched on load into `challengesUnlocked`.
+`defaultModuleInfo` / `defaultPageLinks` are the built-in defaults; the live values come from Firestore `config/moduleInfo` and `config/pageLinks`.
 
-### Institute Branding
-The app is IUM-only. `applyInstituteBranding()` sets the primary color to IUM green unless overridden by a custom color theme. (`getInstitute()` still exists and always returns `'ium'`; `getDisplayNum()` is now an identity passthrough.)
+| Module | Code | Pages (`MODULE_PAGE_RANGES`) | Ayat (`PAGE_TEST_VERSE_RANGES`) |
+|---|---|---|---|
+| Hifz 6 | QUR0514 | 522–531 | 51:31 – 54:55 |
+| Hifz 7 | QUR0516 | 531–541 | 55:1 – 57:29 |
+| Hifz 8 | QUR0609 | 502–511 | 46:1 – 48:9 |
+| Hifz 9 | QUR0612 | 512–521 | 48:10 – 51:30 |
+| Hifz 10 | QUR0747 | 482–491 | 41:47 – 43:33 |
+| Hifz 11 | QUR0750 | 492–502 | 43:34 – 45:37 |
 
-### External APIs
-- **Quran text & quiz:** `https://api.quran.com/api/v4/` — used in `openReader()` and `fetchPageVerses()`. `fetchDailyAyah()` requests `translations=20,86` (20 = Saheeh International English, 86 = Office of the President of Maldives Dhivehi) and maps them by `resource_id` to show English + Dhivehi under the ayah. (Old ID 131 was removed from quran.com — don't use it.) The reader fetches `words=true&word_fields=code_v1,line_number,char_type_name` so both reader modes work from one request.
-- **Audio files:** archive.org MP3s stored in `pageLinks`, streamed via `<audio>`. `startPlay()` passes each URL through `normalizeAudioUrl()`, which rewrites stale per-node hosts (`ia*.us.archive.org` / `dn*.ca.archive.org`) to the canonical `https://archive.org/download/{item}/{file}` URL that auto-redirects to the live node — the hardcoded node URLs go dead when archive.org rebalances storage.
-- **Fonts:** Google Fonts (Inter, Scheherazade New, Amiri), jsDelivr (KFGQPCUthmanicScriptHAFS; Faruma/Dhivehi from `yaaamin/dhivehi-fonts`). The old `raw.githubusercontent.com/abdulrahmanadam/Faruma` URL was dead (404 + wrong MIME) — Dhivehi text (`[lang="dv"]`, `.hadith-dv`, `#dailyAyahDhivehi`) now uses Faruma via jsDelivr woff2/woff. **Per-page mushaf fonts** (QCF v1, `QCF_P{001..604}.woff2`, family name matches file) are lazy-loaded from `cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts` via `loadPageFont()` (FontFace API, cached in `loadedPageFonts`). Their glyphs map the `code_v1` codepoints (U+FBxx range) to that exact printed page. **Do NOT gate loading with `document.fonts.check()`** — it returns `true` for a not-yet-loaded family (system fallback is "available"), which skips the load and renders scattered plain letters.
+**Shared pages:** page **502** = 45:33–37 (end of Hifz 11) + 46:1–5 (start of Hifz 8); page **531** = 54:50–55 (end of Hifz 6) + 55:1–16 (start of Hifz 7). Every feature that uses ayat (Page Test, Module Quiz, audio splits) restricts itself to the selected module's ayat. `getModuleRange(key)` resolves a module's page range (`moduleInfo[key].startPage/endPage` → `MODULE_PAGE_RANGES` → its `pageLinks` → 1–604). 55:17, 55:18, 55:41, 55:68 and 55:69 are excluded from questions (`PAGE_TEST_EXCLUDED_VERSES`; once page-ambiguous in the API).
 
-### Reader Modes
-The reader (`readerView`) has two modes, toggled in the header and persisted in localStorage `hifzReaderMode` (`'big'` | `'mushaf'`, default `'big'`). The fetch requests `word_fields=text_uthmani,code_v1,line_number,char_type_name` so both modes work from one request; `openReader()` caches the verses in `currentPageData`. `renderReader()` dispatches to `renderReaderBig()` (large spaced Uthmani text + gold ayah circles) or `renderReaderMushaf()` (authentic printed page: loads the page's QCF font, renders `code_v1` glyphs grouped by `line_number` into `.mushaf-line` blocks, each `text-align: justify` for full-width lines, with green ayah-end medallions). `renderReaderMushafFallback()` renders Uthmani word text if `code_v1`/the font is unavailable. In landscape (`@media (orientation: landscape) and (max-height: 620px)`), mushaf text scales to fill the screen. The reader chrome is minimalist: a thin `.reader-topbar` (English surah name left via `surahNamesEn`, `Juz' N, Hizb M` right from the first verse's `juz_number`/`hizb_number`), a compact Big/Mushaf toggle, and the page number centered at the bottom (`#readerPageNum`). There are **no prev/next buttons** — pages change by **swipe** (touch handlers on `#readerBody`; swipe left = next, right = previous, clamped to the module range via `navigateReader()`).
+## Views and navigation
 
-**Syllabus page limits:** the reader is restricted to the current module's page range so students can't browse outside their syllabus. `getModuleRange(moduleKey)` resolves the range from `moduleInfo[key].startPage/endPage` → the hardcoded `MODULE_PAGE_RANGES` constant → the module's `pageLinks` min/max → whole mushaf (1–604). `navigateReader()` and `updateReaderNavButtons()` clamp prev/next to `[start, end]`. Default `MODULE_PAGE_RANGES`: hifz6 522–531, hifz7 531–541, hifz8 502–511, hifz9 512–521, hifz10 482–491, hifz11 492–502 (each matches that module's audio `pageLinks`).
+All views exist in the DOM; `showView(v)` switches them (`allViews`; `pageTestView` is pushed at runtime). Home → **Module** (tabs: **Memorize · Quiz · Motivation · Challenges**) → Reader / Page Test; plus Admin. Showing Home closes the audio player; leaving the admin view ends the admin session. An inline `<script>` after `#moduleGrid` in `index.html` paints the module cards from cached `hifzModuleInfo` before `app.js` loads — **if you change module-card markup, update both places** (both escape their data). Each page card has **Listen** (audio only), **Read** (reader) and **Test** (Page Test).
 
-### CSS Architecture
-All design tokens are CSS custom properties on `:root`. Dark mode is `body.dark-mode` with overrides. Arabic text uses `--font-ar`; Dhivehi (Maldivian) text uses `[lang="dv"]` with the Faruma font. The glassmorphism ambient background is pure CSS animation (`.ambient-orb`).
+## Quran reader
 
-### Admin Access
-Two entry points:
-1. Navigate to the `/admin` URL. `isAdminRoute()` detects the path on load and shows the admin login. A `vercel.json` rewrite (and a matching rule in `server.ps1`) serves `index.html` for `/admin`.
-2. Click the app title 5 times rapidly (hidden easter egg, `appTitle` click handler).
+`readerView`, two modes persisted in `hifzReaderMode`: **Big** (`renderReaderBig`, large Uthmani text) and **Mushaf** (`renderReaderMushaf`, the printed page drawn from `code_v1` glyphs with the per-page QCF font; `renderReaderMushafFallback` if unavailable). One request (`verses/by_page?words=true&word_fields=text_uthmani,code_v1,line_number,char_type_name`) serves both modes; `openReader()` caches it in `currentPageData`.
+- **Navigation:** visible **Next / Previous** buttons in a sticky bar at the bottom (Arabic book order: Next on the left), **← / →** keys, and touch **swipe** (left-to-right = next). All clamp to the module's page range (`navigateReader`, `updateReaderNav`).
+- **No races:** `readerLoadToken` drops late responses for pages already left; the text keeps its height while the next page loads so the buttons don't move.
+- **Fonts:** per-page QCF v1 fonts (`QCF_P001…604.woff2`) are lazy-loaded from `cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts` via `loadPageFont()` (FontFace API, cached). **Do NOT gate loading with `document.fonts.check()`** — it returns `true` for a not-yet-loaded family and the page renders as scattered letters. Dhivehi uses Faruma from jsDelivr (`yaaamin/dhivehi-fonts`; the old raw.githubusercontent URL is dead).
 
-The master-admin password is held by **Firebase Authentication** (salted server-side hash — never stored in Firestore or in code). `db.js` hard-codes a fixed admin email `ADMIN_EMAIL` (`ahmed.ahsan@ium.edu.mv`, not secret) so the login UI stays password-only; `adminLogin(password)` calls `signInWithEmailAndPassword(ADMIN_EMAIL, password)`. This exact user must exist in Firebase Console → Authentication (Email/Password provider enabled). Change the password there or via the admin panel's "Master Admin Password" field while logged in (`setAdminPassword()` → `auth.currentUser.updatePassword()`). Because the admin is authenticated, Firestore `config` writes can be protected with `allow write: if request.auth != null` while `students` and `config` reads stay open.
+## Audio player
 
-### Challenge Lock
-The four challenges (Walking, Busy, Companion/Gauntlet, Prize — rendered in `profileView`, each card tagged with `data-challenge="<type>"`) are locked **individually**, all **locked by default**. State lives in `challengeUnlock` (`{ walking, busy, companion, prize }` booleans, true = unlocked), persisted to Firestore config doc `challenges` and cached in localStorage `hifzChallengeUnlock`. The admin panel renders one lock/unlock row per challenge via `renderChallengeLockControls()`; `toggleChallengeLock(type)` flips a single challenge and writes the whole map. `applyChallengeLock()` adds a `.locked` overlay + disables buttons per card; `startChallenge(type)` also guards. `normalizeChallengeConfig()` migrates the old global `{ unlocked: bool }` format (applies it to all four). Other devices pick up changes on their next load.
+Listen streams one Madinah page from EveryAyah (`https://everyayah.com/data/{folder}/PageMp3s/PageNNN.mp3`). `RECITERS` (fixed, verified — not admin-configurable): **Mahmoud Khalil Al-Husary (Murattal, default `DEFAULT_RECITER_ID`)**, Mishary Al-Afasy, Abdur-Rahman As-Sudais, Saud Al-Shuraim, Maher Al-Muaiqly, Muhammad Siddiq Al-Minshawi (Murattal), Saad Al-Ghamdi (`Ghamadi_40kbps`); plus **Class recording** (`id:'class'`), which plays the admin-managed Archive.org `pageLinks` URL (via `normalizeAudioUrl`; `example.com` placeholders count as missing). The choice is saved in `hifzReciter`. No Mu'allim/Mujawwad recordings.
+- **Splits (`SYLLABUS_SPLITS`):** pages 502/531 play only the module's ayah files; a split that starts a surah is preceded by the Bismillah (`001001.mp3`) — EveryAyah page files are exactly their ayah files joined (verified).
+- **No silent fallback:** a failed load shows an error with **Retry**; a 15 s stall shows a slow-connection notice. Split-page durations are read by one metadata probe after playback starts.
+- **Lifecycle:** `closeAudioPlayer()` runs when Home is shown, a module opens or a Page Test opens. `applyReciter()` restarts audio only if the player is on screen or already playing (never hidden playback). Play/Retry/seek cancel the 1 s auto next-page timer. The volume slider hides itself where `audio.volume` can't be set (iPhone/iPad).
 
-### Challenge System
-`startChallenge(type, mode)` handles four challenge types: `walking`, `busy`, `companion` (includes the Gauntlet), `prize`. The Gauntlet (`companion`/`smart`) is a 5-task sequential challenge tracked in `studentData[user].companionSmart[moduleKey]`. Prize Challenge is IUM-only and tracked in `studentData[user].prizeChallenge[moduleKey]`. All challenge results are **self-reported** by the student — there is no server-side validation.
+## Page Test (one page) — separate from the Module Quiz
 
-### Quiz System
-`startQuiz()` → `loadNextQuizQuestion()` fetches verses from `api.quran.com`, picks a random verse, uses the next verse as the correct answer, and presents 3 wrong options from the cache. Fetched verses are cached in `quizCache` (module-level object) to avoid redundant API calls within a session.
+The **Test** button on a page card opens `pageTestView` for **that page only**. `startPageTest()` loads the page (`fetchPageTestVerses`, cached) and `buildPageTest(verses, module)` builds up to 10 questions from **verse-level `text_uthmani` of that page and module only** (split on spaces — never altered or invented; every question is re-checked by `validatePageTestQuestion`). Four types: **missing word(s)**, **continue the ayah**, **next ayah** (both on the page; never a repeated ayah), **arrange fragments** (split at pause marks; graded by text, so identical fragments can't cause a false "wrong"). Options are distinct real text from the same page.
+- Screens: loading → question (counter, score, feedback, Next, "Finish test") → results (module, page, questions, correct, incorrect, %, mistakes with the correct text; **Retry Test** / **Return to Pages**). Clear messages for a failed load (**Try Again**) or a page without enough text.
+- `pageTestToken` ignores late loads after switching pages or leaving; one answer per question. Results are **in memory only** (`pageTestRun`) — never stored or sent.
+
+## Module Quiz — the whole module
+
+Quiz tab: 10 "which ayah comes next?" questions across the selected module. `startQuiz()` loads all the module's pages, keeps only the module's ayat (`filterPageTestVerses`), and `buildModuleQuiz(pool)` picks consecutive ayat (crossing pages is fine within the module), **never asks a repeated ayah** (its "next" would be ambiguous), **never repeats a question**, and gives **4 distinct options** with the answer once. One answer per question (`quizRun.answered`); `quizToken` cancels pending timers; `openModule` resets the quiz (`resetModuleQuiz`). Score shown at the end only — not saved.
+
+## Motivation and Ayah of the Day
+
+Motivation tab: static hadith/virtue cards plus a random quote (`renderRandomQuote`); the same for every module. Ayah of the Day (Settings): `translations=20,86` (Saheeh International English, Office of the President of Maldives Dhivehi; old ID 131 is gone). One ayah per day per source, cached in `hifzDailyAyah`; preferences in `hifzDailyAyahPrefs`; changes apply immediately (`showDailyAyahCard`).
+
+## Challenges (three)
+
+Challenges tab: **Walking**, **Busy Day**, **Companion's Test** (Easy, or the 5-task **Gauntlet** — tasks in order, no skipping). The Prize Challenge was removed. Each is locked/unlocked individually by the admin (`config/challenges`, `challengeUnlock`, locked by default). Results are **self-reported** (mistakes clamped ≥ 0) and **session-only** (`sessionChallenges[moduleKey]`); each run remembers the module it started in; cancelling/closing records nothing and keeps earlier results; a second submit is ignored. The timer counts down from a **deadline** (`activeChallenge.deadline`), so a locked phone or background tab can't stretch it; it catches up on `visibilitychange`.
+
+## Admin panel and Firebase
+
+- **Access:** `/admin` (`isAdminRoute`) or click the title 5×. Password-only login: `db.js` signs in the fixed `ADMIN_EMAIL` with Firebase Auth (`adminLogin`). Auth persistence is **NONE** (the session ends with the tab); `initApp` signs out any restored session; `endAdminSession()` runs on Logout, Back and leaving the admin view. Password change: `setAdminPassword()`.
+- **Manages configuration only:** module info (add/edit/delete), page audio links (= Class recording), challenge locks, password, and a configuration-only export (`exportConfiguration`). No student data exists.
+- **Loading:** `loadAdminData()` reads fresh `pageLinks` / `moduleInfo` / `challenges` and remembers their exact version (`adminConfigBaseline`). Until loaded, `adminCanEdit()` blocks edits and shows an error with **Retry**.
+- **Saving:** `commitAdminConfig(mutate, msg)` validates (`readWholeNumber`, `readRequiredText`, `readAudioUrl`), writes only changed docs and **waits** for Firebase; success is shown only after the write, failures restore the previous values ("Not saved"). Every write goes through `writeAdminConfigDoc` → `dbSetConfigIfUnchanged` (a Firestore **transaction**): if another tab/device changed the doc since it was loaded, nothing is written, the admin is told and the latest config is reloaded. `saveModuleInfo` keeps other fields; challenge-lock saves keep unused fields (`challengeConfigExtra`, e.g. the retired `prize`).
+- **Firestore usage:** the app reads/writes **only** `config/pageLinks`, `config/moduleInfo`, `config/challenges` (students read; the admin writes). It **never** accesses the `students` collection; legacy `students` records and `config/reset` are left untouched. Firestore rules are managed in the Firebase Console (not in this repo) — they should allow public reads of `config` and writes only for the authenticated admin.
+
+## Browser storage and privacy rules
+
+localStorage holds **preferences and cached config only**, always via `storeGet` / `storeSet` / `loadCachedJSON` (storage may be blocked or corrupted; cached config passes `sanitizeMapOfObjects`):
+`hifzColorTheme`, `hifzDarkMode`, `hifzLayout`, `hifzReciter`, `hifzVolume`, `hifzReaderMode`, `hifzDailyAyahPrefs`, `hifzDailyAyah`, `hifzPageLinks`, `hifzModuleInfo`, `hifzChallengeUnlock`, `hifzStorageVersion`.
+
+**Never** store or send student names, identifiers, progress, quiz/test/challenge results or usage data.
+
+**One-time clean-up of old versions' data** — `runLegacyCleanup()` (first in `initApp`, not awaited, can't block loading):
+- `clearLegacyStudentData()` (synchronous, before preferences are read) removes the old localStorage keys (`LEGACY_STUDENT_KEYS`: `hifzCurrentUser`, `hifzProfileName`, `hifzUserNames`, `hifzUserStats`, `hifzStudentData`, `hifzChallengesUnlocked`, `hifzAdminPass`, `hifzSelectedInst`), keeping preferences and carrying the old Ayah-of-the-Day choice over.
+- `clearLegacyFirestoreCache()` (`db.js`, background) deletes the old Firestore IndexedDB cache `firestore/[DEFAULT]/<projectId>/main` — only that exact database, only if `indexedDB.databases()` lists it — plus this project's `firestore_*` SDK markers in localStorage. Old versions kept students' records there (on admin devices the whole `students` collection). An open old-version tab shuts its Firestore down so the delete can finish; a connection that never closes makes it time out after 8 s (`LEGACY_CACHE_TIMEOUT_MS`).
+- `hifzStorageVersion` = `STORAGE_VERSION` (now `'4'`) is written only when **both** succeeded; otherwise everything is retried on the next visit (idempotent). Bump it when adding keys to clean.
+
+**Firestore is memory-only** (no `enablePersistence`): the localStorage config cache already gives instant pages, and the admin panel needs fresh data. Do not re-enable persistence — it would cache Firestore documents in the browser again. (Firebase Auth may still create its own empty `firebaseLocalStorageDb`; with persistence `NONE` it holds no user.) Every value from Firestore or storage is escaped before `innerHTML` (`escapeHtml`, `safeNum`, `textContent`, listeners instead of `onclick` strings).
+
+## CSS
+
+Design tokens are CSS custom properties; dark mode is `body.dark-mode`. The rose theme (`html.theme-rose`, set before first paint by an inline head script) is the default; students who pick another swatch get the classic look. Arabic uses `--font-ar`; Dhivehi `[lang="dv"]` uses Faruma. Correct/incorrect feedback stays green/red.
+
+## Tests
+
+Browser test suites live **outside the repo** in `C:\Projects\ium-hifz-tests` (puppeteer-core + local Chrome; see its README). `node run-all.js` runs everything with an in-memory stand-in database and Firebase blocked; `node run-all.js --real` adds a **read-only** production check (reads the three config docs, blocks every write, tries one wrong password). `r6-idb-cleanup.js` and `rules-emulator/` run against the **local Firebase emulators** (project `demo-hifz`; JDK 21 + emulator jar in the tests folder's `tools\`). There is no linter or CI.
+
+## Deployment
+
+Static hosting on **Vercel** from the `main` branch (`vercel.json` rewrites `/admin`); no build step. Do not commit, push or deploy without the owner's explicit approval.

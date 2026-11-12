@@ -4,6 +4,15 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Hifz Tracker - KQS</title>
+<script>
+  // Rose light academia is the default theme. Applied before first paint (no flash);
+  // students who picked another colour swatch keep that look.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('hifzColorTheme'); } catch (e) { }
+    if (!t || t === 'default') document.documentElement.classList.add('theme-rose');
+  })();
+</script>
 <meta name="description" content="Islamic University of Maldives - Quran Hifz Memorization Tracker for students."/>
 <!-- Link preview (WhatsApp / Telegram / social) -->
 <meta property="og:title" content="Hifz Tracker - KQS"/>
@@ -18,7 +27,7 @@
 <link rel="icon" href="Logo/logo.png" type="image/png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
 <style>
   @font-face {
     font-family: 'KFGQPCUthmanicScriptHAFS';
@@ -52,8 +61,6 @@
     <div class="top-actions-wrap">
       <button id="menuToggle" class="icon-btn menu-toggle" title="Menu" aria-label="Menu" onclick="toggleTopMenu()"><i class="fa-solid fa-bars"></i></button>
       <div class="top-actions" id="topActions">
-        <button id="scoreBtn" class="icon-btn" title="Global Scoreboard" onclick="openScoreboard()" style="display:none;"><i class="fa-solid fa-ranking-star"></i></button>
-        <button id="profileBtn" class="icon-btn" title="Student Profile" onclick="openProfile()" style="display:none;"><i class="fa-solid fa-user"></i></button>
         <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none;"><i class="fa-solid fa-gear"></i></button>
         <button id="themeToggle" class="icon-btn" title="Theme"><i class="fa-solid fa-moon"></i></button>
       </div>
@@ -90,7 +97,7 @@
         (function () {
           var mi;
           try { mi = JSON.parse(localStorage.getItem('hifzModuleInfo')); } catch (e) { mi = null; }
-          if (!mi || typeof mi !== 'object') {
+          if (!mi || typeof mi !== 'object' || Array.isArray(mi)) {
             mi = {
               hifz6: { num: 6, code: "QUR0514", title: "Holy Quran Memorization 6" },
               hifz7: { num: 7, code: "QUR0516", title: "Holy Quran Memorization 7" },
@@ -100,138 +107,41 @@
               hifz11: { num: 11, code: "QUR0750", title: "Holy Quran Memorization 11" }
             };
           }
-          var layout = localStorage.getItem('hifzLayout') || 'list';
+          var layout = 'list';
+          try { layout = localStorage.getItem('hifzLayout') || 'list'; } catch (e) { }
           var g = document.getElementById('moduleGrid');
           if (!g) return;
           g.className = layout === 'grid' ? 'module-grid-view' : 'module-list-view';
+          // Saved module info may come from Firestore: escape it (same as escapeHtml in app.js).
+          var e = function (v) {
+            return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+          };
           var html = '';
           for (var key in mi) {
             var info = mi[key];
-            var code = '<div class="module-card-code">' + info.code + '</div>';
+            if (!info || typeof info !== 'object') continue; // malformed saved entry
+            var code = '<div class="module-card-code">' + e(info.code) + '</div>';
             if (layout === 'grid') {
-              html += '<div class="module-card-grid" data-module="' + key + '" onclick="openModule(\'' + key + '\')">' +
-                '<div class="module-card-number">' + info.num + '</div>' +
-                '<div class="module-card-title">' + info.title + '</div>' + code + '</div>';
+              html += '<div class="module-card-grid" data-module="' + e(key) + '">' +
+                '<div class="module-card-number">' + e(info.num) + '</div>' +
+                '<div class="module-card-title">' + e(info.title) + '</div>' + code + '</div>';
             } else {
-              html += '<div class="module-card-list" data-module="' + key + '" onclick="openModule(\'' + key + '\')">' +
-                '<div class="module-card-number">' + info.num + '</div>' +
-                '<div class="module-card-info"><div class="module-card-title">' + info.title + '</div>' + code + '</div>' +
+              html += '<div class="module-card-list" data-module="' + e(key) + '">' +
+                '<div class="module-card-number">' + e(info.num) + '</div>' +
+                '<div class="module-card-info"><div class="module-card-title">' + e(info.title) + '</div>' + code + '</div>' +
                 '<div class="module-card-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>';
             }
           }
           g.innerHTML = html;
+          // Until app.js re-renders these cards, open a module by its data-module key.
+          Array.prototype.forEach.call(g.children, function (card) {
+            card.addEventListener('click', function () {
+              if (typeof window.openModule === 'function') window.openModule(card.getAttribute('data-module'));
+            });
+          });
         })();
       </script>
-    </section>
-
-    <!-- PROFILE VIEW -->
-    <section class="view" id="profileView">
-      <div class="profile-header-card">
-        <div class="profile-avatar"><i class="fa-solid fa-user-graduate"></i></div>
-        <h2 id="profileName">Student Name</h2>
-        <p id="profileInstitute" style="font-size:14px; color:var(--text-2); font-weight:700; margin-top:-4px; margin-bottom:16px;"></p>
-        <div class="profile-stats">
-          <div class="stat-box">
-            <span class="stat-num" id="statMemorized">0</span>
-            <span class="stat-label">Pages Memorized</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="statQuizzes">0</span>
-            <span class="stat-label">Quizzes Taken</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="statChallenges">0</span>
-            <span class="stat-label">Challenges Won</span>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="section-heading"><i class="fa-solid fa-chart-line"></i> Memorization Progress</h3>
-      <div class="profile-section">
-        <label class="profile-label">Select Module to Track:</label>
-        <select id="profileModuleSelect" class="profile-select" onchange="renderProgressGrid()"></select>
-        
-        <div class="progress-legend">
-          <span class="legend-item"><span class="legend-dot status-none"></span> Not Started</span>
-          <span class="legend-item"><span class="legend-dot status-ongoing"></span> Ongoing</span>
-          <span class="legend-item"><span class="legend-dot status-memorized"></span> Memorized</span>
-        </div>
-        
-        <div id="progressGrid" class="progress-grid"></div>
-      </div>
-
-      <h3 class="section-heading"><i class="fa-solid fa-fire" style="color:#ef4444;"></i> Hifz Challenges</h3>
-      <div class="challenges-grid">
-        <!-- Walking Challenge -->
-        <div class="challenge-card walking-card" data-challenge="walking">
-          <div class="challenge-icon"><i class="fa-solid fa-person-walking"></i></div>
-          <h4 class="challenge-title">Walking Challenge</h4>
-          <p class="challenge-desc">Recite while walking!</p>
-          <div class="challenge-actions">
-            <button class="btn-outline btn-easy" onclick="startChallenge('walking', 'easy')">Easy (5m)</button>
-            <button class="btn-primary btn-smart" onclick="startChallenge('walking', 'smart')">Smart (10m)</button>
-          </div>
-        </div>
-
-        <!-- Busy Day Challenge -->
-        <div class="challenge-card busy-card" data-challenge="busy">
-          <div class="challenge-icon"><i class="fa-solid fa-bolt"></i></div>
-          <h4 class="challenge-title">Busy Day Challenge</h4>
-          <p class="challenge-desc">Recite fast & flawlessly.</p>
-          <div class="challenge-actions">
-            <button class="btn-outline btn-easy" onclick="startChallenge('busy', 'easy')">Easy (2m)</button>
-            <button class="btn-primary btn-smart" onclick="startChallenge('busy', 'smart')">Smart (6m)</button>
-          </div>
-        </div>
-        
-        <!-- Companion's Test Challenge -->
-        <div class="challenge-card companion-card" data-challenge="companion">
-          <div class="challenge-icon"><i class="fa-solid fa-user-group"></i></div>
-          <h4 class="challenge-title">The Companion's Test (Gauntlet)</h4>
-          <p class="challenge-desc">Have a friend test your Hifz under pressure!</p>
-          <div class="challenge-actions" style="flex-direction:row; gap:12px;">
-            <button class="btn-outline btn-easy" onclick="startChallenge('companion', 'easy')">Easy (3Qs, 1.5m)</button>
-            <button class="btn-primary btn-smart" onclick="startChallenge('companion', 'smart')">Gauntlet (5 Tasks)</button>
-          </div>
-        </div>
-
-        <!-- Win a Prize Challenge -->
-        <div class="challenge-card prize-card" id="prizeChallengeCard" data-challenge="prize">
-          <div class="challenge-icon"><i class="fa-solid fa-gift"></i></div>
-          <h4 class="challenge-title">Win a Prize Challenge!</h4>
-          <p class="challenge-desc">Recite the FULL module perfectly without a single mistake within 18 minutes without break. Win an exclusive prize!</p>
-          <div class="challenge-actions">
-            <button class="btn-primary" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; width: 100%;" onclick="startChallenge('prize', 'hard')">Start Challenge (18m)</button>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="section-heading"><i class="fa-solid fa-trophy"></i> Recent Quiz Scores</h3>
-      <div class="profile-section" id="quizHistoryList">
-        <!-- populated by JS -->
-      </div>
-    </section>
-
-    <!-- SCOREBOARD VIEW -->
-    <section class="view" id="scoreboardView">
-      <div class="scoreboard-header-card">
-        <div class="welcome-deco" style="font-size:48px; margin-bottom:12px;"><i class="fa-solid fa-trophy" style="color:#fbbf24;"></i></div>
-        <h2>Global Scoreboard</h2>
-        <p>The Gauntlet Champions</p>
-      </div>
-
-      <div class="profile-section" style="margin-bottom: 32px;">
-        <label class="profile-label">Select Module to View Rankings:</label>
-        <select id="scoreboardModuleSelect" class="profile-select" onchange="renderScoreboard()" style="margin-bottom:0;"></select>
-      </div>
-      
-      <div id="podiumContainer" class="podium-container">
-        <!-- populated by JS -->
-      </div>
-      
-      <div id="leaderboardList" class="leaderboard-list">
-        <!-- populated by JS -->
-      </div>
     </section>
 
     <!-- Challenge Modal -->
@@ -269,11 +179,7 @@
           <div id="challengeResultIcon" class="result-icon"></div>
           <h4 id="challengeResultTitle">Challenge Passed!</h4>
           
-          <div id="prizeContactInfo" style="display:none; margin-top: 16px; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; padding: 16px; border-radius: 12px;">
-            <p style="font-size:14px; font-weight:800; color:#ca8a04; margin-bottom:12px;">Claim your prize!</p>
-            <p style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px;"><i class="fa-solid fa-envelope" style="color:#ca8a04; width:20px;"></i> ahmed.ahsan@ium.edu.mv</p>
-            <p style="font-size:13px; font-weight:600; color:var(--text);"><i class="fa-brands fa-viber" style="color:#ca8a04; width:20px;"></i> +9609145695</p>
-          </div>
+          <p id="challengeResultDetail" class="challenge-result-detail"></p>
 
           <div id="gauntletActionBtns" style="display:none; margin-top:20px; gap:12px; flex-direction:column;">
             <button id="gauntletNextBtn" class="btn-primary" onclick="startGauntletTaskFromWin()">Yes, start next task</button>
@@ -293,62 +199,47 @@
       </div>
     </div>
 
-    <!-- Student Detail Modal -->
-    <div id="studentDetailOverlay" class="challenge-overlay">
-      <div class="challenge-modal" style="text-align: left; max-width: 450px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-          <div>
-            <h3 id="detailName" style="font-size: 24px; font-weight:800; line-height:1.2;">Student Name</h3>
-            <p id="detailInstitute" style="font-size:13px; font-weight:700; color:var(--text-3);"></p>
-          </div>
-          <div class="podium-avatar" style="width: 48px; height: 48px; margin: 0; background: var(--primary);"><i class="fa-solid fa-user"></i></div>
-        </div>
-        <p id="detailStatus" style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 20px; background: var(--primary-light); padding: 8px 12px; border-radius: 8px;">Finished 6 tasks with 0 mistakes in 5m 30s</p>
-        
-        <h4 style="font-size: 13px; color: var(--text-2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight:800;">Task Breakdown</h4>
-        <div id="detailTaskList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; max-height: 200px; overflow-y: auto;">
-          <!-- populated by JS -->
-        </div>
-
-        <button class="btn-outline" onclick="document.getElementById('studentDetailOverlay').classList.remove('active')" style="width: 100%;">Close</button>
-      </div>
-    </div>
-
-    <!-- Name Modal -->
-    <div id="nameModal" class="challenge-overlay">
-      <div class="challenge-modal name-modal">
-        <div class="name-modal-icon"><i class="fa-solid fa-user-pen"></i></div>
-        <h3>What's your name?</h3>
-        <p class="name-modal-sub">Enter your name to personalise your Hifz journey. It's saved on this device.</p>
-        <input type="text" id="nameModalInput" class="name-modal-input" placeholder="Your name..." autocomplete="name" maxlength="40"/>
-        <div class="name-modal-actions">
-          <button class="btn-outline" onclick="closeNameModal()">Not now</button>
-          <button class="btn-primary" onclick="submitNameModal()"><i class="fa-solid fa-check"></i> Save</button>
-        </div>
-      </div>
-    </div>
-
     <!-- MODULE VIEW -->
     <section class="view" id="moduleView">
       <div class="tab-bar">
         <button class="tab active" data-tab="memorizeTab"><i class="fa-solid fa-headphones"></i> Memorize</button>
         <button class="tab" data-tab="quizTab"><i class="fa-solid fa-gamepad"></i> Quiz</button>
         <button class="tab" data-tab="motivateTab"><i class="fa-solid fa-heart"></i> Motivation</button>
+        <button class="tab" data-tab="challengesTab"><i class="fa-solid fa-fire"></i> Challenges</button>
       </div>
 
       <!-- Memorize Tab -->
       <div class="tab-panel active" id="memorizeTab">
         <div class="audio-bar" id="audioBar" style="display:none;">
-          <div class="audio-bar-info">
-            <span class="now-playing-label">Now Playing</span>
-            <span class="now-playing-page" id="nowPlayingPage">Page ---</span>
+          <div class="audio-bar-top">
+            <div class="audio-bar-info">
+              <span class="now-playing-label">Now Playing</span>
+              <span class="now-playing-page" id="nowPlayingPage">Page ---</span>
+              <span class="now-playing-reciter" id="nowPlayingReciter"></span>
+            </div>
+            <div class="audio-bar-controls">
+              <button id="prevPageBtn" class="audio-btn ghost" type="button" aria-label="Previous page"><i class="fa-solid fa-backward-step"></i></button>
+              <button id="playPauseBtn" class="audio-btn" type="button" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button>
+              <button id="nextPageBtn" class="audio-btn ghost" type="button" aria-label="Next page"><i class="fa-solid fa-forward-step"></i></button>
+              <button id="speedBtn" class="audio-btn speed" type="button" aria-label="Playback speed">1.0x</button>
+              <button id="loopBtn" class="audio-btn ghost" type="button" aria-label="Repeat this page" aria-pressed="false"><i class="fa-solid fa-repeat"></i></button>
+              <label class="audio-volume">
+                <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+              </label>
+            </div>
           </div>
-          <div class="audio-bar-controls">
-            <button id="playPauseBtn" class="audio-btn"><i class="fa-solid fa-play"></i></button>
-            <button id="speedBtn" class="audio-btn speed">1.0x</button>
-            <button id="loopBtn" class="audio-btn"><i class="fa-solid fa-repeat"></i></button>
+          <div class="audio-progress-row">
+            <span class="audio-time" id="audioCurrent">0:00</span>
+            <input id="audioSeek" class="audio-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Playback position">
+            <span class="audio-time" id="audioDuration">0:00</span>
           </div>
-          <audio id="audioPlayer" style="display:none;"></audio>
+          <div class="audio-bar-foot">
+            <select id="playerReciter" class="reciter-select" aria-label="Reciter"></select>
+            <span class="audio-status" id="audioStatus" role="status"></span>
+            <button id="audioRetryBtn" class="audio-retry-btn" type="button" hidden><i class="fa-solid fa-rotate-right"></i> Retry</button>
+          </div>
+          <audio id="audioPlayer" preload="none"></audio>
         </div>
         <div class="motivation-toast" id="motivationMessage"></div>
         <div class="page-grid" id="pageGrid"></div>
@@ -468,6 +359,48 @@
           <div class="keep-going-dua" dir="rtl" lang="ar">اللهم اجعل القرآن ربيع قلوبنا</div>
         </div>
       </div>
+
+      <!-- Challenges Tab (results are kept for this browser tab only) -->
+      <div class="tab-panel" id="challengesTab">
+        <p class="challenges-intro">Results are shown straight away and kept only while this page is open. Nothing is saved.</p>
+        <div class="challenges-grid">
+          <!-- Walking Challenge -->
+          <div class="challenge-card walking-card" data-challenge="walking">
+            <div class="challenge-icon"><i class="fa-solid fa-person-walking"></i></div>
+            <h4 class="challenge-title">Walking Challenge</h4>
+            <p class="challenge-desc">Recite while walking!</p>
+            <div class="challenge-actions">
+              <button class="btn-outline btn-easy" onclick="startChallenge('walking', 'easy')">Easy (5m)</button>
+              <button class="btn-primary btn-smart" onclick="startChallenge('walking', 'smart')">Smart (10m)</button>
+            </div>
+          <p class="challenge-session-result" data-result-for="walking" hidden></p>
+          </div>
+
+          <!-- Busy Day Challenge -->
+          <div class="challenge-card busy-card" data-challenge="busy">
+            <div class="challenge-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h4 class="challenge-title">Busy Day Challenge</h4>
+            <p class="challenge-desc">Recite fast &amp; flawlessly.</p>
+            <div class="challenge-actions">
+              <button class="btn-outline btn-easy" onclick="startChallenge('busy', 'easy')">Easy (2m)</button>
+              <button class="btn-primary btn-smart" onclick="startChallenge('busy', 'smart')">Smart (6m)</button>
+            </div>
+          <p class="challenge-session-result" data-result-for="busy" hidden></p>
+          </div>
+
+          <!-- Companion's Test Challenge -->
+          <div class="challenge-card companion-card" data-challenge="companion">
+            <div class="challenge-icon"><i class="fa-solid fa-user-group"></i></div>
+            <h4 class="challenge-title">The Companion's Test (Gauntlet)</h4>
+            <p class="challenge-desc">Have a friend test your Hifz under pressure!</p>
+            <div class="challenge-actions" style="flex-direction:row; gap:12px;">
+              <button class="btn-outline btn-easy" onclick="startChallenge('companion', 'easy')">Easy (3Qs, 1.5m)</button>
+              <button class="btn-primary btn-smart" onclick="startChallenge('companion', 'smart')">Gauntlet (5 Tasks)</button>
+            </div>
+          <p class="challenge-session-result" data-result-for="companion" hidden></p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- QURAN READER VIEW -->
@@ -488,7 +421,79 @@
           <p>Loading Quran text...</p>
         </div>
         <div class="quran-text" id="quranText" dir="rtl" lang="ar"></div>
-        <div class="reader-pagenum" id="readerPageNum"></div>
+        <!-- Page navigation (Arabic book order: the next page is on the left). Swipe still works on touch. -->
+        <div class="reader-nav">
+          <button id="readerNextBtn" class="reader-nav-btn" type="button" title="Next page (← key)" aria-label="Next page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Next</span></button>
+          <div class="reader-pagenum" id="readerPageNum"></div>
+          <button id="readerPrevBtn" class="reader-nav-btn" type="button" title="Previous page (→ key)" aria-label="Previous page"><span>Previous</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE TEST VIEW (page-specific memorisation test) -->
+    <section class="view" id="pageTestView">
+      <div class="quiz-container page-test">
+        <!-- Heading (all screens) -->
+        <div class="page-test-head">
+          <h2>Test Page <span id="pageTestPageNum">000</span></h2>
+          <p id="pageTestModuleName"></p>
+        </div>
+
+        <!-- Loading -->
+        <div id="pageTestLoadingScreen" class="page-test-screen">
+          <div class="spinner"></div>
+          <p>Preparing questions from this page…</p>
+        </div>
+
+        <!-- Error / not enough text (message filled by JS) -->
+        <div id="pageTestIntroScreen" class="page-test-screen">
+          <div class="quiz-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+          <p class="page-test-note" id="pageTestMessage"></p>
+          <div class="page-test-actions">
+            <button class="btn-primary" id="pageTestRetryLoadBtn" type="button" hidden><i class="fa-solid fa-rotate-right"></i> Try Again</button>
+            <button class="btn-outline" type="button" onclick="returnToPages()"><i class="fa-solid fa-arrow-left"></i> Return to Pages</button>
+          </div>
+        </div>
+
+        <!-- Question -->
+        <div id="pageTestQuestionScreen" class="page-test-screen">
+          <div class="quiz-header">
+            <span id="pageTestProgress" class="quiz-badge">Question 1/10</span>
+            <span id="pageTestScore" class="quiz-badge correct-badge">Score: 0</span>
+          </div>
+          <div class="quiz-card">
+            <p class="quiz-instruction" id="pageTestInstruction"></p>
+            <p id="pageTestPrompt" class="quran-text quiz-question-text" dir="rtl" lang="ar"></p>
+          </div>
+          <div id="pageTestOptions" class="quiz-options"></div>
+          <div id="pageTestArrange" class="pt-arrange" hidden>
+            <div id="pageTestArrangeAnswer" class="pt-arrange-answer quran-text" dir="rtl" lang="ar" aria-label="Your order"></div>
+            <div id="pageTestArrangeChips" class="pt-arrange-chips" dir="rtl" lang="ar"></div>
+            <div class="page-test-actions">
+              <button class="btn-outline btn-sm" id="pageTestArrangeClear" type="button"><i class="fa-solid fa-eraser"></i> Clear</button>
+              <button class="btn-primary btn-sm" id="pageTestArrangeCheck" type="button" disabled><i class="fa-solid fa-check"></i> Check</button>
+            </div>
+          </div>
+          <div id="pageTestFeedback" class="pt-feedback" role="status" hidden></div>
+          <div class="page-test-actions">
+            <button class="btn-primary" id="pageTestNextBtn" type="button" hidden>Next <i class="fa-solid fa-arrow-left"></i></button>
+          </div>
+          <button class="pt-finish-link" id="pageTestFinishBtn" type="button">Finish test</button>
+        </div>
+
+        <!-- Results -->
+        <div id="pageTestResultScreen" class="page-test-screen">
+          <div class="quiz-icon"><i class="fa-solid fa-trophy" style="color:var(--accent);"></i></div>
+          <h3>Test Complete</h3>
+          <p id="pageTestResultScore" class="quiz-final-score"></p>
+          <div id="pageTestResultSummary" class="pt-summary"></div>
+          <div id="pageTestMistakes" class="pt-mistakes"></div>
+          <p class="pt-note">Results are shown only now — nothing is saved.</p>
+          <div class="page-test-actions">
+            <button class="btn-primary" id="pageTestRetryBtn" type="button"><i class="fa-solid fa-rotate-right"></i> Retry Test</button>
+            <button class="btn-outline" type="button" onclick="returnToPages()"><i class="fa-solid fa-arrow-left"></i> Return to Pages</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -514,6 +519,10 @@
 
       <!-- Admin Panel (hidden until authenticated) -->
       <div id="adminPanel" style="display:none;">
+        <div class="admin-status-row">
+          <p id="adminDataStatus" class="admin-data-status" role="status" hidden></p>
+          <button id="adminReloadBtn" class="btn-outline btn-sm" type="button" hidden><i class="fa-solid fa-rotate-right"></i> Retry</button>
+        </div>
         <!-- Module Selector -->
         <div class="admin-section">
           <label class="admin-label">Select Module to Edit</label>
@@ -537,22 +546,6 @@
           <button class="btn-primary btn-sm" onclick="changeAdminPassword()"><i class="fa-solid fa-key"></i> Update Password</button>
         </div>
 
-        <!-- Student Analytics -->
-        <div class="admin-section">
-        <h3 class="admin-label">General Analytics</h3>
-        <div id="adminSummaryCards" class="admin-summary-cards"></div>
-        <div id="adminAnalyticsContainer" class="analytics-container" style="margin-bottom: 32px;"></div>
-        
-        <h3 class="admin-label">Prize Challenge Verification</h3>
-        <div id="adminPrizeAnalyticsContainer" class="analytics-container" style="margin-bottom: 32px; overflow-x: auto;"></div>
-
-        <div style="display:flex; gap:12px; margin-top:16px;">
-          <button class="btn-outline" onclick="exportAllData()" style="flex:1;"><i class="fa-solid fa-file-export"></i> Export Data</button>
-          <button class="btn-outline" onclick="clearStudentAnalytics()" style="flex:1; border-color:#ef4444; color:#ef4444;"><i class="fa-solid fa-user-slash"></i> Clear Analytics</button>
-          <button class="btn-outline" onclick="handleResetAllData()" style="flex:1; border-color:#780000; color:#780000;"><i class="fa-solid fa-trash-can"></i> Hard Reset</button>
-        </div>
-        </div>
-
         <!-- Edit Module Info -->
         <div id="adminModuleEdit" style="display:none;" class="admin-section">
           <h3 class="admin-section-title">Module Info</h3>
@@ -568,6 +561,7 @@
         <!-- Edit Pages / Audio Links -->
         <div id="adminPagesEdit" style="display:none;" class="admin-section">
           <h3 class="admin-section-title">Pages & Audio Links</h3>
+          <p style="font-size:12px; color:var(--text-3); margin-bottom:10px; font-weight:600;">These links are the <strong>Class recording</strong> option in the student audio player. The seven EveryAyah reciters need no setup.</p>
           <div id="adminPagesList"></div>
           <div class="admin-add-page">
             <h4>Add New Page</h4>
@@ -593,21 +587,18 @@
           <button class="btn-primary btn-sm" onclick="addNewModule()">Add Module</button>
         </div>
 
-        <!-- Manage Student Passwords -->
-        <div class="admin-section">
-          <h3 class="admin-section-title">Reset Student Password</h3>
-          <select id="adminStudentPassSelect" class="admin-select">
-            <option value="">-- Select Student --</option>
-          </select>
-          <input type="password" id="adminNewStudentPass" class="admin-input" placeholder="New student password..." style="margin-top:8px;"/>
-          <button class="btn-primary btn-sm" onclick="resetStudentPassword()" style="margin-top:8px;">Reset Student Password</button>
-        </div>
-
         <!-- Delete Module -->
         <div class="admin-section">
           <h3 class="admin-section-title">Delete Module</h3>
           <select id="adminDeleteModuleSelect" class="admin-select"></select>
           <button class="btn-danger btn-sm" onclick="deleteModule()" style="margin-top:8px;">Delete Selected Module</button>
+        </div>
+
+        <!-- Configuration backup -->
+        <div class="admin-section">
+          <h3 class="admin-section-title">Configuration Backup</h3>
+          <p style="font-size:12px; color:var(--text-3); margin-bottom:10px; font-weight:600;">Download module info, page audio links and challenge locks as a file.</p>
+          <button class="btn-outline btn-sm" onclick="exportConfiguration()"><i class="fa-solid fa-file-export"></i> Export Configuration</button>
         </div>
 
         <button class="btn-secondary btn-sm" onclick="adminLogout()" style="margin-top:20px;">
@@ -632,13 +623,6 @@
     <button class="icon-btn" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <div class="modal-body">
-    <!-- Change Name -->
-    <div class="setting-block">
-      <label><i class="fa-solid fa-user-pen" style="margin-right:6px;"></i> Change Name</label>
-      <input type="text" id="changeNameInput" placeholder="Enter new name"/>
-      <button class="btn-primary btn-sm" onclick="changeName()">Update</button>
-    </div>
-
     <!-- Ayah of the Day Settings -->
     <div class="setting-block">
       <label><i class="fa-solid fa-star" style="margin-right:6px;"></i> Ayah of the Day</label>
@@ -701,22 +685,8 @@
     <div class="setting-block">
       <label><i class="fa-solid fa-headphones" style="margin-right:6px;"></i> Default Reciter</label>
       <p style="font-size:12px; color:var(--text-3); margin-bottom:12px;">Choose which reciter plays when you press Listen on a page.</p>
-      <select id="reciterSelect" class="profile-select" style="margin-bottom:8px;" onchange="saveReciterSetting()">
-        <option value="default">🎙️ Current (Admin configured)</option>
-        <option value="Alafasy_128kbps">Mishary Rashid Alafasy</option>
-        <option value="MaherAlMuaiqly128kbps">Maher Al-Muaiqly</option>
-        <option value="Muhammad_Ayyoob_64kbps">Muhammad Ayyoob</option>
-        <option value="Saud_Al-Shuraim_128kbps">Saud Al-Shuraim</option>
-        <option value="Khalid_al-Jaleel_64kbps">Khalid Al-Jaleel</option>
-      </select>
-      <p style="font-size:11px; color:var(--text-3);">Audio streamed from EveryAyah.com — internet required.</p>
-    </div>
-
-    <!-- Reset Data -->
-    <div class="setting-block">
-      <label><i class="fa-solid fa-rotate-left" style="margin-right:6px;"></i> Reset All Data</label>
-      <p style="font-size:12px; color:var(--text-3); margin-bottom:8px;">This will erase all student progress, quiz history, and challenge data.</p>
-      <button class="btn-outline btn-sm" style="color:#ef4444; border-color:#ef4444;" onclick="handleResetAllData()"><i class="fa-solid fa-trash"></i> Reset Everything</button>
+      <select id="reciterSelect" class="profile-select" style="margin-bottom:8px;" onchange="saveReciterSetting()"></select>
+      <p style="font-size:11px; color:var(--text-3);">Murattal, Hafs ʿan ʿĀṣim, streamed from EveryAyah when you press Listen (internet required). Choose "Class recording" for your class's own audio.</p>
     </div>
 
   </div>
