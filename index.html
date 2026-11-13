@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Hifz Tracker - KQS</title>
 <script>
   // Green is the default theme (no saved preference). The rose light academia look is used
@@ -248,7 +248,6 @@
           </div>
           <audio id="audioPlayer" preload="none"></audio>
         </div>
-        <div class="motivation-toast" id="motivationMessage"></div>
         <div class="page-grid" id="pageGrid"></div>
         <p class="hint-text"><i class="fa-solid fa-headphones"></i> Listen · <i class="fa-solid fa-book-open"></i> Read Quran Page</p>
       </div>
@@ -413,6 +412,7 @@
     <!-- QURAN READER VIEW -->
     <section class="view" id="readerView">
       <div class="reader-mode-row">
+        <button id="readerExitBtn" class="reader-nav-btn reader-exit-btn" type="button" aria-label="Exit reading"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Exit reading</span></button>
         <div class="reader-mode-toggle" role="tablist" aria-label="Reading mode">
           <button class="reader-mode-btn active" data-mode="big" onclick="setReaderMode('big')"><i class="fa-solid fa-text-height"></i> Big</button>
           <button class="reader-mode-btn" data-mode="mushaf" onclick="setReaderMode('mushaf')"><i class="fa-solid fa-book-quran"></i> Mushaf</button>

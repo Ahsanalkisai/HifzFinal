@@ -226,6 +226,10 @@ function showView(v) {
   }
 
   $('backBtn').style.visibility = (v === homeView) ? 'hidden' : 'visible';
+  // Layout hooks for CSS: phones show the module tabs as a bottom bar (module-open), and the
+  // reader is immersive (reading: no header/footer/bottom bar). The reader itself is untouched.
+  document.body.classList.toggle('module-open', v === moduleView);
+  document.body.classList.toggle('reading', v === readerView);
 
   // Settings are for students; hide them on the admin view
   $('settingsBtn').style.display = (v === adminView) ? 'none' : '';
@@ -280,7 +284,6 @@ function openModule(key) {
   document.querySelector('.tab[data-tab="memorizeTab"]').classList.add('active');
   $('memorizeTab').classList.add('active');
   closeAudioPlayer();
-  $('motivationMessage').classList.remove('show');
   renderChallengeSessionResults(); // this module's results from this session (if any)
   resetModuleQuiz(); // a quiz from another module never carries over
 
@@ -382,8 +385,6 @@ function showAudioBar(pn, reciterLabel) {
   const prev = $('prevPageBtn'), next = $('nextPageBtn');
   if (prev) prev.disabled = currentPageIndex <= 0;
   if (next) next.disabled = currentPageIndex >= pagesList.length - 1;
-  const msgs = ["May Allah accept your efforts! 🤲", "Keep going! 💚", "Every letter brings reward! ⭐", "Your dedication is inspiring! 🌟", "May Allah make it easy! 💫"];
-  const m = $('motivationMessage'); m.textContent = msgs[Math.floor(Math.random() * msgs.length)]; m.classList.add('show');
 }
 
 function playClip(index, seekTo) {
@@ -768,6 +769,14 @@ function updateReaderNav() {
   if ($('readerNextBtn')) $('readerNextBtn').disabled = currentPageNum >= range.end;
   if ($('readerPrevBtn')) $('readerPrevBtn').disabled = currentPageNum <= range.start;
 }
+// Leave the immersive reader: back to the module's pages, scrolled to the card of the page
+// being read (it follows the reader's Next/Previous). Module, tab and audio stay as they were.
+function exitReader() {
+  showView(moduleView);
+  const card = document.getElementById(`page-${currentPageNum}`);
+  if (card) card.scrollIntoView({ block: 'center', behavior: 'instant' });
+}
+$('readerExitBtn').addEventListener('click', exitReader);
 $('readerNextBtn').addEventListener('click', () => navigateReader(1));
 $('readerPrevBtn').addEventListener('click', () => navigateReader(-1));
 document.addEventListener('keydown', e => {
@@ -1493,7 +1502,7 @@ function renderRandomQuote() {
 // ===== Back =====
 $('backBtn').addEventListener('click', () => {
   if (readerView.classList.contains('view-active')) {
-    showView(moduleView); return;
+    exitReader(); return;
   }
   if (pageTestView.classList.contains('view-active')) {
     returnToPages(); return;

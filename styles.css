@@ -67,10 +67,12 @@ body {
   display: flex; 
   flex-direction: column; 
   background: rgba(255, 255, 255, 0.1); 
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 0 80px rgba(0,0,0,0.03); 
 }
+/* The shell's blur lives on a layer behind its content: a backdrop-filter on .app-shell itself
+   would stop the phone bottom bar (position: fixed) staying fixed. Same look. */
+.app-shell::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
 
 /* Top Bar */
 .top-bar {
@@ -116,7 +118,7 @@ body {
 /* Main Content */
 .main-content { flex:1; padding:24px 20px; }
 .view { display:none; opacity: 0; transform: translateY(10px) scale(0.98); transition: all var(--transition); }
-.view-active { display:block; opacity: 1; transform: translateY(0) scale(1); }
+.view-active { display:block; opacity: 1; transform: none; } /* none (= identity): a transform would stop the phone bottom bar staying fixed */
 @keyframes viewFadeIn { from{opacity:0;transform:translateY(15px) scale(0.98);} to{opacity:1;transform:translateY(0) scale(1);} }
 
 /* Premium Cards */
@@ -558,8 +560,6 @@ body.onboarding-active #themeToggle { display: flex !important; }
 }
 
 /* Motivation Toast */
-.motivation-toast { padding:14px 20px; border-radius:14px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; font-size:15px; font-weight:600; text-align:center; margin-bottom:20px; opacity:0; transform:translateY(10px); transition:all 0.5s cubic-bezier(0.16,1,0.3,1); box-shadow:0 10px 24px rgba(118,75,162,0.3); }
-.motivation-toast.show { opacity:1; transform:translateY(0); }
 
 /* Page Grid */
 .page-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
@@ -822,7 +822,7 @@ body.onboarding-active #themeToggle { display: flex !important; }
 .reader-surah-name { font-size: 14px; font-weight: 700; color: var(--text-2); letter-spacing: 0.2px; }
 .reader-juz { font-size: 13px; font-weight: 600; color: var(--text-3); }
 body.dark-mode .reader-topbar { border-bottom-color: rgba(156,128,56,0.3); }
-.reader-mode-row { display: flex; justify-content: center; margin-bottom: 12px; }
+.reader-mode-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 12px; }
 
 .reader-body {
   background: #fdfaf3;
@@ -1314,6 +1314,7 @@ html.theme-rose .ambient-bg {
 html.theme-rose body.dark-mode .ambient-bg { background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); background-size: 120px 120px; background-repeat: repeat; }
 html.theme-rose .ambient-orb { display: none; }
 html.theme-rose .app-shell { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; }
+html.theme-rose .app-shell::before { content: none; }
 
 /* ---- Header bar ---- */
 html.theme-rose .top-bar { background: rgba(246, 240, 230, 0.96); backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid var(--border-strong); box-shadow: none; }
@@ -1387,7 +1388,6 @@ html.theme-rose .audio-status.warn { color: #7d531a; }
 html.theme-rose body.dark-mode .audio-status.warn { color: #e2b877; }
 html.theme-rose .audio-time { color: var(--text-2); }
 html.theme-rose body.dark-mode .reciter-select, html.theme-rose body.dark-mode .profile-select { background: var(--surface-2); }
-html.theme-rose .motivation-toast { background: #6b4054; box-shadow: none; border-radius: 10px; }
 
 /* ---- "Cloth-bound book" header cards with an inner frame line ---- */
 html.theme-rose .motivate-header,
@@ -1545,3 +1545,33 @@ body.dark-mode .pt-feedback.incorrect, body.dark-mode .pt-yours { color: #e4a3a0
 .reader-nav { position: sticky; bottom: 0; z-index: 2; background: var(--surface-solid); padding: 10px 0 calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--border-strong); }
 html.theme-rose .reader-nav { background: #fffcf6; }
 html.theme-rose body.dark-mode .reader-nav { background: #241b1e; }
+
+/* =====================================================================
+   Phones: module tabs as a fixed bottom bar · immersive reader (Nov 2026)
+   Only the surrounding layout changes; the reader's own styles are untouched.
+   ===================================================================== */
+/* Exit button beside the Big/Mushaf switch (keeps its label even where other reader buttons go icon-only) */
+.reader-exit-btn span { display: inline; }
+
+/* Immersive reading: no header, footer or bottom bar; only the top padding shrinks
+   (the reader keeps its width, so the Quran text and Mushaf size are unchanged). */
+body.reading .top-bar, body.reading .app-footer { display: none; }
+body.reading .main-content { padding-top: max(10px, env(safe-area-inset-top, 0px)); }
+
+@media (max-width: 600px) {
+  /* Views only fade in on phones (no slide/scale): a transform on the view, even mid-animation,
+     would make the fixed bottom bar move with the view instead of staying at the screen bottom. */
+  .view, .view-active { transform: none; }
+  /* The four existing tab buttons, pinned to the bottom of the screen (same icons, labels and green active state). */
+  #moduleView .tab-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    width: 100%; max-width: 580px; margin: 0 auto;
+    gap: 4px; border-radius: 0; border-width: 1px 0 0;
+    padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  }
+  #moduleView .tab-bar .tab { flex-direction: column; justify-content: center; gap: 3px; min-height: 56px; min-width: 0; padding: 6px 2px; font-size: 11.5px; line-height: 1.15; }
+  #moduleView .tab-bar .tab i { font-size: 16px; }
+  /* Room at the bottom so the last page cards and the footer are never under the bar. */
+  body.module-open .app-shell { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}
