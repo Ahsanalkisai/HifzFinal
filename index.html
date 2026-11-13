@@ -5,12 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Hifz Tracker - KQS</title>
 <script>
-  // Rose light academia is the default theme. Applied before first paint (no flash);
-  // students who picked another colour swatch keep that look.
+  // Green is the default theme (no saved preference). The rose light academia look is used
+  // only when a visitor chose "Reset" ('default'); applied before first paint (no flash).
+  // Other saved swatches keep their colour (app.js applies it).
   (function () {
-    var t = null;
+    var t = null, r = document.documentElement;
     try { t = localStorage.getItem('hifzColorTheme'); } catch (e) { }
-    if (!t || t === 'default') document.documentElement.classList.add('theme-rose');
+    if (t === 'default') r.classList.add('theme-rose');
+    else if (!t) { // the Green swatch's colours (same values as applyColorTheme('green'))
+      r.style.setProperty('--primary', '#047857');
+      r.style.setProperty('--primary-light', 'rgba(4, 120, 87, 0.1)');
+      r.style.setProperty('--primary-glow', 'rgba(4, 120, 87, 0.2)');
+      r.style.setProperty('--primary-gradient', 'linear-gradient(135deg, #064e3b, #059669)');
+    }
   })();
 </script>
 <meta name="description" content="Islamic University of Maldives - Quran Hifz Memorization Tracker for students."/>

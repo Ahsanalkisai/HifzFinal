@@ -1511,7 +1511,9 @@ $('backBtn').addEventListener('click', () => {
 });
 
 function applyInstituteBranding() {
-  const savedTheme = storeGet('hifzColorTheme') || 'default';
+  // No saved preference → the Green swatch (default since Nov 2026). Not saved, so a
+  // visitor's own choice is never overwritten. 'default' (Reset) = rose light academia.
+  const savedTheme = storeGet('hifzColorTheme') || 'green';
   // Init Layout Settings UI
   const savedLayout = storeGet('hifzLayout') || 'list';
   setLayout(savedLayout);

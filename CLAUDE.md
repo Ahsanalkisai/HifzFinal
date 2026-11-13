@@ -18,15 +18,18 @@ A **zero-build, vanilla HTML/CSS/JS single-page app** — no package manager, bu
 | File | Responsibility |
 |---|---|
 | `index.html` | All views (Home, Module with 4 tabs, Reader, Page Test, Admin), the Settings panel, challenge modal, inline theme script and the inline module-card painter |
-| `app.js` | All application logic (~2,600 lines) |
-| `styles.css` | All styles; the default **rose "light academia"** theme is the `html.theme-rose` block near the end |
+| `app.js` | All application logic (~2,650 lines) |
+| `styles.css` | All styles; the **rose "light academia"** theme (used when a visitor chooses Reset) is the `html.theme-rose` block near the end |
 | `db.js` | Firebase init (memory-only Firestore) and the only Firebase calls: admin login/password/logout, `dbGetConfig`, `dbSetConfig`, `dbSetConfigIfUnchanged`; plus `clearLegacyFirestoreCache` (one-time removal of old versions' Firestore browser cache) |
-| `vercel.json` / `server.ps1` | `/admin` → `index.html` rewrite |
-| `Logo/` | Images |
+| `vercel.json` | `/admin` → `index.html` rewrite on Vercel |
+| `server.ps1` | Local development server only (also maps `/admin`); not deployed |
+| `.vercelignore` | Keeps `.claude/`, `CLAUDE.md` and `server.ps1` out of Vercel deployments (they return 404 in production) |
+| `.gitignore` | Ignores `.claude/` (local Claude Code settings), `dom.txt`, logs, OS files |
+| `Logo/` | `logo.png` (used by `index.html`) |
 
 ## The six Hifz modules
 
-`defaultModuleInfo` / `defaultPageLinks` are the built-in defaults; the live values come from Firestore `config/moduleInfo` and `config/pageLinks`.
+`defaultModuleInfo` / `defaultPageLinks` are the built-in defaults (unchanged since the first commit). Firestore `config/moduleInfo` / `config/pageLinks` override them **when they exist** — in production they do **not** exist yet (Nov 2026), so the site runs on the built-in defaults; the admin's first save of module info or a page link creates them. Built-in Class-recording links cover every page except **Hifz 7 page 541** (an `example.com` placeholder, shown as "no class recording"; intentionally left as is).
 
 | Module | Code | Pages (`MODULE_PAGE_RANGES`) | Ayat (`PAGE_TEST_VERSE_RANGES`) |
 |---|---|---|---|
@@ -81,7 +84,9 @@ Challenges tab: **Walking**, **Busy Day**, **Companion's Test** (Easy, or the 5-
 - **Manages configuration only:** module info (add/edit/delete), page audio links (= Class recording), challenge locks, password, and a configuration-only export (`exportConfiguration`). No student data exists.
 - **Loading:** `loadAdminData()` reads fresh `pageLinks` / `moduleInfo` / `challenges` and remembers their exact version (`adminConfigBaseline`). Until loaded, `adminCanEdit()` blocks edits and shows an error with **Retry**.
 - **Saving:** `commitAdminConfig(mutate, msg)` validates (`readWholeNumber`, `readRequiredText`, `readAudioUrl`), writes only changed docs and **waits** for Firebase; success is shown only after the write, failures restore the previous values ("Not saved"). Every write goes through `writeAdminConfigDoc` → `dbSetConfigIfUnchanged` (a Firestore **transaction**): if another tab/device changed the doc since it was loaded, nothing is written, the admin is told and the latest config is reloaded. `saveModuleInfo` keeps other fields; challenge-lock saves keep unused fields (`challengeConfigExtra`, e.g. the retired `prize`).
-- **Firestore usage:** the app reads/writes **only** `config/pageLinks`, `config/moduleInfo`, `config/challenges` (students read; the admin writes). It **never** accesses the `students` collection; legacy `students` records and `config/reset` are left untouched. Firestore rules are managed in the Firebase Console (not in this repo) — they should allow public reads of `config` and writes only for the authenticated admin.
+- **Firestore usage:** the app reads/writes **only** `config/pageLinks`, `config/moduleInfo`, `config/challenges` (visitors read by document name; the admin writes through the transaction). It **never** accesses the `students` collection.
+- **Security rules (published Nov 2026; managed in the Firebase Console, not in this repo — the tested copy is `C:\Projects\ium-hifz-tests\rules-emulator\firestore.rules`):** anyone may `get` only those three documents (a missing one returns "not found", which is allowed); no `list`/queries; `create`/`update` only for the one admin **UID** (hard-coded in the rules — update them if the admin account is ever replaced) and only those three documents; no deletes; `students/**` and everything else denied. Any new Firestore document or query needs a rules change first.
+- **Legacy data kept on purpose:** the old `students` records (contain names), `config/admin` (now empty; once held an admin password) and `config/reset` stay in Firestore, unreadable through the rules. Do not read, migrate or reuse them.
 
 ## Browser storage and privacy rules
 
@@ -95,16 +100,27 @@ localStorage holds **preferences and cached config only**, always via `storeGet`
 - `clearLegacyFirestoreCache()` (`db.js`, background) deletes the old Firestore IndexedDB cache `firestore/[DEFAULT]/<projectId>/main` — only that exact database, only if `indexedDB.databases()` lists it — plus this project's `firestore_*` SDK markers in localStorage. Old versions kept students' records there (on admin devices the whole `students` collection). An open old-version tab shuts its Firestore down so the delete can finish; a connection that never closes makes it time out after 8 s (`LEGACY_CACHE_TIMEOUT_MS`).
 - `hifzStorageVersion` = `STORAGE_VERSION` (now `'4'`) is written only when **both** succeeded; otherwise everything is retried on the next visit (idempotent). Bump it when adding keys to clean.
 
-**Firestore is memory-only** (no `enablePersistence`): the localStorage config cache already gives instant pages, and the admin panel needs fresh data. Do not re-enable persistence — it would cache Firestore documents in the browser again. (Firebase Auth may still create its own empty `firebaseLocalStorageDb`; with persistence `NONE` it holds no user.) Every value from Firestore or storage is escaped before `innerHTML` (`escapeHtml`, `safeNum`, `textContent`, listeners instead of `onclick` strings).
+**Firestore is memory-only** (no `enablePersistence`): the localStorage config cache already gives instant pages, and the admin panel needs fresh data. Do not re-enable persistence — it would cache Firestore documents in the browser again. (Firebase Auth may still create its own empty `firebaseLocalStorageDb`; with persistence `NONE` it holds no user.) Every value from Firestore or storage is escaped before `innerHTML` (`escapeHtml` or `textContent`; page numbers are forced to numbers) and event handlers are attached as listeners — the only generated `onclick` strings carry plain numbers (Gauntlet task index). (`safeNum` exists but is currently unused.)
 
 ## CSS
 
-Design tokens are CSS custom properties; dark mode is `body.dark-mode`. The rose theme (`html.theme-rose`, set before first paint by an inline head script) is the default; students who pick another swatch get the classic look. Arabic uses `--font-ar`; Dhivehi `[lang="dv"]` uses Faruma. Correct/incorrect feedback stays green/red.
+Design tokens are CSS custom properties; dark mode is `body.dark-mode`. **Theme (`hifzColorTheme`):** with no saved preference the **Green swatch** (`#047857`, classic look) is the default since Nov 2026 — the inline head script in `index.html` sets its colours before first paint and `applyInstituteBranding()` falls back to `'green'`; nothing is saved until the visitor picks a swatch, so saved choices are never overwritten. Swatches: Green, Purple, Pink, Gold, Blue (classic look, colours in `applyColorTheme`) and **Reset** (`'default'`), which switches to the rose light academia design (`html.theme-rose`, also applied before first paint). If you change the Green colours, update both `applyColorTheme` and the head script. Arabic uses `--font-ar`; Dhivehi `[lang="dv"]` uses Faruma. Correct/incorrect feedback stays green/red.
 
 ## Tests
 
-Browser test suites live **outside the repo** in `C:\Projects\ium-hifz-tests` (puppeteer-core + local Chrome; see its README). `node run-all.js` runs everything with an in-memory stand-in database and Firebase blocked; `node run-all.js --real` adds a **read-only** production check (reads the three config docs, blocks every write, tries one wrong password). `r6-idb-cleanup.js` and `rules-emulator/` run against the **local Firebase emulators** (project `demo-hifz`; JDK 21 + emulator jar in the tests folder's `tools\`). There is no linter or CI.
+Browser test suites live **outside the repo** in `C:\Projects\ium-hifz-tests` (puppeteer-core + local Chrome; see its README). `node run-all.js` runs everything with an in-memory stand-in database and Firebase blocked; `node run-all.js --real` adds a **read-only** production check (reads the three config docs, blocks every write, tries one wrong password). `r6-idb-cleanup.js` and `rules-emulator/` run against the **local Firebase emulators** (project `demo-hifz`; JDK 21 + emulator jar in the tests folder's `tools\`). Release baseline (commit `ee7f8fd`): 14 suites / 482 checks, rules emulator 35 checks, read-only real Firebase 11 checks — all passing. There is no linter or CI.
 
-## Deployment
+## Deployment and production status
 
-Static hosting on **Vercel** from the `main` branch (`vercel.json` rewrites `/admin`); no build step. Do not commit, push or deploy without the owner's explicit approval.
+- **Production:** https://iumhifz.vercel.app (Vercel project `hifz-final`, Firebase project `ium-hifz-final`, GitHub `Ahsanalkisai/HifzFinal` — a **public** repo, so never commit secrets). Released Nov 2026 at commit `ee7f8fd`.
+- **Process:** static hosting, no build step. Work on a branch (e.g. `grok-audio`); `git push origin <branch>` creates a Vercel **preview** (protected by Vercel Authentication; it talks to **production** Firebase, so never save admin changes there); release with a fast-forward `git push origin <branch>:main`, which Vercel deploys to production. Avoid `git checkout main` + `git merge` — that would delete the untracked local `.claude/settings.local.json`.
+- After a release, check that `/.claude/settings.local.json`, `/CLAUDE.md` and `/server.ps1` return 404 and run `node run-all.js r5-real` (read-only).
+- **Do not commit, push, deploy or change Firebase rules/data without the owner's explicit approval.**
+
+## Restrictions for future development
+
+- No student login, registration, profiles, device IDs, saved progress/history, scoreboards, analytics or Prize Challenge; results stay in memory for the open tab.
+- Firebase only for admin Auth + the three config documents; keep Firestore memory-only (no `enablePersistence`).
+- localStorage: preferences and cached config only, via `storeGet`/`storeSet`; new keys must be added to the list above (and `STORAGE_VERSION` bumped if old keys need cleaning).
+- Escape every Firestore/storage value before `innerHTML`; keep `RECITERS` fixed and verified; keep Page Test / Quiz / audio splits restricted to the selected module's ayat.
+- Old Firebase student records are retained intentionally; deleting them is a separate, owner-approved task.

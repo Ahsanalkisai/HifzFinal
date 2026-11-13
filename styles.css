@@ -525,7 +525,7 @@ body.onboarding-active #themeToggle { display: flex !important; }
 .audio-btn.ghost:hover { background:var(--surface-solid); color:var(--primary); border-color:var(--primary); }
 .audio-btn.speed { width:auto; padding:0 12px; border-radius:22px; background:var(--surface-2); color:var(--text); border:1px solid var(--border-strong); font-size:13px; font-weight:800; font-family:var(--font); box-shadow:none; }
 .audio-btn.speed:hover { background:var(--surface-solid); color:var(--primary); border-color:var(--primary); }
-.audio-btn.looping { background:#f57c00; color:white; border-color:#f57c00; box-shadow: 0 6px 16px rgba(245,124,0,0.3); }
+.audio-btn.looping { background:#b45309; color:white; border-color:#b45309; box-shadow: 0 6px 16px rgba(245,124,0,0.3); } /* dark amber: white icon 5.0:1 (was #f57c00, 2.7:1) */
 .audio-volume { display:flex; align-items:center; gap:6px; color:var(--text-2); font-size:13px; }
 .audio-volume input { width:72px; accent-color:var(--primary); cursor:pointer; }
 .audio-progress-row { display:flex; align-items:center; gap:8px; }
