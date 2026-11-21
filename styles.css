@@ -1575,3 +1575,6 @@ body.reading .main-content { padding-top: max(10px, env(safe-area-inset-top, 0px
   /* Room at the bottom so the last page cards and the footer are never under the bar. */
   body.module-open .app-shell { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* Read and Page Test open faster: their fade-in is 0.15s (other screens keep the 0.5s transition). */
+#readerView, #pageTestView { transition-duration: 0.15s; }

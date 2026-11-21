@@ -279,6 +279,7 @@ function openModule(key) {
   const dn = getDisplayNum(info.num);
   pagesList = Object.keys(pageLinks[key] || {}).map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b);
   renderPageGrid();
+  prefetchModule(); // background, idle time only: never delays opening the module
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelector('.tab[data-tab="memorizeTab"]').classList.add('active');
@@ -588,7 +589,7 @@ async function openReader(pageNum) {
   try {
     // words=true gives per-word glyph codes + line numbers (for Mushaf mode);
     // text_uthmani is still returned per verse (for Big mode).
-    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${pageNum}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=text_uthmani,code_v1,line_number,char_type_name`);
+    const res = await fetch(claimPrefetchUrl(readerPageUrl(pageNum)));
     const data = await res.json();
     if (token !== readerLoadToken) return; // a newer page was requested meanwhile
     $('readerLoading').style.display = 'none';
@@ -605,6 +606,7 @@ async function openReader(pageNum) {
     }
 
     await renderReader();
+    preloadNeighbourFonts(); // Mushaf: next/previous page fonts, so turning the page doesn't wait
   } catch (e) {
     if (token !== readerLoadToken) return;
     $('readerLoading').style.display = 'none';
@@ -620,7 +622,7 @@ async function setReaderMode(mode) {
   readerMode = mode;
   storeSet('hifzReaderMode', mode);
   applyReaderMode();
-  if (currentPageData) { $('readerLoading').style.display = 'none'; await renderReader(); }
+  if (currentPageData) { $('readerLoading').style.display = 'none'; await renderReader(); preloadNeighbourFonts(); }
 }
 
 function applyReaderMode() {
@@ -656,6 +658,65 @@ async function loadPageFont(page) {
   document.fonts.add(ff);
   loadedPageFonts[page] = fam;
   return fam;
+}
+
+// ===== Background prefetch (speed only — never changes what is shown) =====
+// The exact Quran.com requests the reader and the Page Test make. Quran.com and jsDelivr let
+// browsers cache these for days, so fetching them quietly in advance means a later Read or Test
+// finds its answer in the browser cache instead of waiting for the network.
+function readerPageUrl(page) {
+  return `https://api.quran.com/api/v4/verses/by_page/${page}?language=en&words=true&per_page=50&fields=text_uthmani,verse_key&word_fields=text_uthmani,code_v1,line_number,char_type_name`;
+}
+function pageTestApiUrl(page, apiPage) {
+  return `https://api.quran.com/api/v4/verses/by_page/${page}?language=en&words=false&per_page=50&page=${apiPage}&fields=text_uthmani,verse_key`;
+}
+// Same address loadPageFont() requests for a page's Mushaf font.
+function pageFontUrl(page) {
+  return `https://cdn.jsdelivr.net/gh/mustafa0x/qpc-fonts@master/mushaf-woff2/QCF_P${String(page).padStart(3, '0')}.woff2`;
+}
+const prefetchDone = new Set(); // requested (or fetched by the app itself) this session
+let prefetchQueue = [], prefetchBusy = false;
+const whenIdle = fn => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200));
+// Queue addresses; they are fetched one at a time, in idle time. Failures are ignored —
+// the normal request still runs (and shows its usual message) when the student clicks.
+function prefetchUrls(urls) {
+  if (navigator.onLine === false) return;
+  for (const u of urls) if (!prefetchDone.has(u) && !prefetchQueue.includes(u)) prefetchQueue.push(u);
+  runPrefetch();
+}
+function runPrefetch() {
+  if (prefetchBusy || !prefetchQueue.length) return;
+  prefetchBusy = true;
+  whenIdle(async () => {
+    const u = prefetchQueue.shift();
+    if (u && !prefetchDone.has(u)) {
+      prefetchDone.add(u);
+      try { const r = await fetch(u); if (r.ok) await r.arrayBuffer(); else prefetchDone.delete(u); }
+      catch (e) { prefetchDone.delete(u); } // offline / blocked: try again next time the module opens
+    }
+    prefetchBusy = false;
+    runPrefetch();
+  });
+}
+// The app is about to request this address itself: don't also prefetch it.
+function claimPrefetchUrl(u) {
+  prefetchDone.add(u);
+  prefetchQueue = prefetchQueue.filter(x => x !== u);
+  return u;
+}
+// A module's pages for the reader and the Page Test (+ the first page's Mushaf font in Mushaf mode).
+function prefetchModule() {
+  const urls = [];
+  pagesList.forEach(p => { urls.push(readerPageUrl(p), pageTestApiUrl(p, 1)); });
+  if (readerMode === 'mushaf' && pagesList.length && !loadedPageFonts[pagesList[0]]) urls.unshift(pageFontUrl(pagesList[0]));
+  prefetchUrls(urls);
+}
+// Mushaf mode: the next and previous page fonts (within the module's pages).
+function preloadNeighbourFonts() {
+  if (readerMode !== 'mushaf' || currentView !== readerView) return;
+  const range = getModuleRange(currentModule);
+  const pages = [currentPageNum + 1, currentPageNum - 1].filter(p => p >= range.start && p <= range.end && !loadedPageFonts[p]);
+  prefetchUrls(pages.map(pageFontUrl));
 }
 
 // Big mode: large spaced verses with gold ayah circles (the original look).
@@ -1046,7 +1107,7 @@ async function fetchPageTestVerses(page) {
   if (pageTestVerseCache[page]) return pageTestVerseCache[page];
   const verses = [];
   for (let apiPage = 1; apiPage <= 5; apiPage++) {
-    const res = await fetch(`https://api.quran.com/api/v4/verses/by_page/${page}?language=en&words=false&per_page=50&page=${apiPage}&fields=text_uthmani,verse_key`);
+    const res = await fetch(claimPrefetchUrl(pageTestApiUrl(page, apiPage)));
     if (!res.ok) throw new Error('Quran API returned ' + res.status);
     const data = await res.json();
     (data.verses || []).forEach(v => {
